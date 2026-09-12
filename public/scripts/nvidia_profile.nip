@@ -1,0 +1,87 @@
+; ============================================================
+; FMX Optimisation - Profil NVIDIA Inspector (Export .nip)
+; ============================================================
+; Importer via NVIDIA Profile Inspector > File > Import Profile
+; Ou appliquer manuellement dans Panneau NVIDIA > Gérer paramètres 3D
+; ============================================================
+
+[Profile]
+Name=FMX Gaming Optimized
+BaseProfile=Base Profile
+
+[Settings]
+; Gestion alimentation: Performances maximales
+PowerMizerLevel=0x1
+PowerMizerLevelAC=0x1
+
+; Faible latence: Ultra (1=On, 2=Ultra, 0=Off)
+LowLatencyMode=0x2
+
+; Optimisation threadée: Activée
+ThreadedOptimization=0x1
+
+; Filtrage texture: Haute performance
+TextureFilteringQuality=0x1
+
+; Cache shaders: Activé
+ShaderCache=0x1
+
+; Synchronisation verticale: Désactivée (utiliser G-Sync/FreeSync)
+VerticalSync=0x0
+
+; Filtrage anisotrope: Application-controlled
+TextureFilteringAnisotropicSampleOptimization=0x1
+
+; LOD Bias negatif: Désactivé (qualite)
+TextureFilteringNegativeLODBias=0x1
+
+; Optimisation trilineaire: Activée
+TextureFilteringTrilinearOptimization=0x1
+
+; Antialiasing - Mode: Application-controlled
+AntialiasingMode=0x0
+
+; Antialiasing - Transparence: Désactivé
+TransparencyMultisampling=0x0
+
+; CUDA - GPUs: Tous
+CUDAGPUs=0xFFFFFFFF
+
+; OpenGL - Threading: Activé
+OGLThreadControl=0x1
+
+; ============================================================
+; PARAMETRES PAR JEU (exemples) - A appliquer dans profil spécifique jeu
+; ============================================================
+
+; FORTNITE
+; LowLatencyMode=0x2 (Ultra)
+; PowerMizerLevel=0x1
+; ThreadedOptimization=0x1
+
+; VALORANT
+; LowLatencyMode=0x2
+; PowerMizerLevel=0x1
+; TextureFilteringQuality=0x1
+
+; CS2 / COUNTER-STRIKE 2
+; LowLatencyMode=0x2
+; PowerMizerLevel=0x1
+; VerticalSync=0x0
+
+; WARZONE / MW2 / MW3
+; LowLatencyMode=0x2
+; PowerMizerLevel=0x1
+; ThreadedOptimization=0x1
+
+; APEX LEGENDS
+; LowLatencyMode=0x2
+; PowerMizerLevel=0x1
+
+; ============================================================
+; APPLICATION MANUELLE (sans NVIDIA Profile Inspector):
+; 1. Clic droit Bureau > Panneau de configuration NVIDIA
+; 2. Gérer les paramètres 3D > Paramètres globaux
+; 3. Appliquer chaque réglage ci-dessus
+; 4. Pour par-jeu: onglet "Paramètres de programme" > Ajouter .exe
+; ============================================================

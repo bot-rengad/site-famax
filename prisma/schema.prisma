@@ -1,0 +1,247 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  name          String?
+  role          String    @default("USER")
+  emailVerified DateTime?
+  // Compte Discord lié (vérification OAuth)
+  discordId         String?   @unique
+  discordUsername   String?
+  discordGlobalName String?
+  discordAvatar     String?
+  discordVerifiedAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  orders        Order[]
+  licenses      License[]
+  tickets       Ticket[]
+  ticketMessages TicketMessage[]
+  checklistProgress UserChecklistProgress[]
+  profile       UserProfile?
+  sessions      Session[]
+  activityLogs  ActivityLog[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  userAgent String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model UserProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  cpu             String?
+  gpu             String?
+  ram             String?
+  motherboard     String?
+  storage         String?
+  os              String?
+  favoriteGame    String?
+  monitorRefresh  String?
+  mouseDPI        String?
+  keyboardPolling String?
+  // Données détectées automatiquement côté navigateur
+  cpuCores        Int?
+  gpuRenderer     String?
+  autoDetected    Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model Order {
+  id              String        @id @default(cuid())
+  userId          String
+  orderNumber     String        @unique
+  packageType     String
+  amount          Float
+  currency        String        @default("EUR")
+  status          String        @default("PENDING")
+  paymentMethod   String?
+  paymentId       String?
+  licenseKey      String?
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  paidAt          DateTime?
+  completedAt     DateTime?
+
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  license         License?
+
+  @@map("orders")
+}
+
+model License {
+  id          String         @id @default(cuid())
+  key         String         @unique
+  userId      String
+  orderId     String?        @unique
+  packageType String
+  status      String         @default("ACTIVE")
+  expiresAt   DateTime?
+  activatedAt DateTime?
+  deviceId    String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order       Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@map("licenses")
+}
+
+model Ticket {
+  id          String         @id @default(cuid())
+  userId      String
+  subject     String
+  description String
+  status      String         @default("OPEN")
+  priority    String         @default("MEDIUM")
+  category    String?
+  assignedTo  String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  closedAt    DateTime?
+
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages    TicketMessage[]
+
+  @@map("tickets")
+}
+
+model TicketMessage {
+  id        String   @id @default(cuid())
+  ticketId  String
+  userId    String
+  message   String
+  isStaff   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ticket_messages")
+}
+
+model OptimizationScript {
+  id          String         @id @default(cuid())
+  name        String
+  description String
+  category    String
+  content     String
+  version     String         @default("1.0.0")
+  isActive    Boolean        @default(true)
+  requiresAdmin Boolean      @default(false)
+  downloadCount Int          @default(0)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@map("optimization_scripts")
+}
+
+model ChecklistItem {
+  id          String   @id @default(cuid())
+  category    String
+  title       String
+  description String?
+  script      String?
+  order       Int      @default(0)
+  isRequired  Boolean  @default(true)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userProgress UserChecklistProgress[]
+
+  @@map("checklist_items")
+}
+
+model UserChecklistProgress {
+  id             String   @id @default(cuid())
+  userId         String
+  checklistItemId String
+  completed      Boolean  @default(false)
+  completedAt    DateTime?
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checklistItem  ChecklistItem @relation(fields: [checklistItemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, checklistItemId])
+  @@map("user_checklist_progress")
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  details   String?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("activity_logs")
+}
+
+model SiteSettings {
+  id                String   @id @default("singleton")
+  siteName          String   @default("FMX Optimisation")
+  siteDescription   String?
+  maintenanceMode   Boolean  @default(false)
+  registrationOpen  Boolean  @default(true)
+  defaultPackage    String   @default("BASIC")
+  supportEmail      String   @default("support@fmx-optimisation.com")
+  discordUrl        String?
+  telegramUrl       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("site_settings")
+}

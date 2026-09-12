@@ -1,0 +1,29 @@
+Windows Registry Editor Version 5.00
+
+; ============================================================
+; FMX Optimisation - Desactivation Core Isolation (Memory Integrity)
+; ============================================================
+; Desactive l'integrite de la memoire (Core Isolation / HVCI)
+; Gain: -5 a -15ms latence, +5-10% FPS dans certains jeux
+; NECESSITE REDÉMARRAGE
+; ============================================================
+
+; Desactiver Hypervisor-protected Code Integrity (HVCI)
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity]
+"Enabled"=dword:00000000
+"Locked"=dword:00000000
+
+; Desactiver Virtualization Based Security (VBS)
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\DeviceGuard]
+"EnableVirtualizationBasedSecurity"=dword:00000000
+"RequirePlatformSecurityFeatures"=dword:00000000
+"Locked"=dword:00000000
+
+; Desactiver Credential Guard (utilise aussi VBS)
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa]
+"LsaCfgFlags"=dword:00000000
+
+; ============================================================
+; APRES APPLICATION : REDÉMARRER LE PC
+; Verification: Sécurité Windows > Isolation du noyau > Intégrité de la mémoire = DÉSACTIVÉ
+; ============================================================

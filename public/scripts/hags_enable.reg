@@ -1,0 +1,28 @@
+Windows Registry Editor Version 5.00
+
+; ============================================================
+; FMX Optimisation - Activation HAGS (Hardware-Accelerated GPU Scheduling)
+; ============================================================
+; Windows 10 2004+ / Windows 11
+; Nécessite GPU compatible (GTX 1000+, RX 5000+, Intel Xe)
+; Pilotes WDDM 2.7+ requis
+; Gain: -3 a -8ms latence, +2-5% FPS, meilleur scheduling GPU
+; NECESSITE REDÉMARRAGE
+; ============================================================
+
+; Activer HAGS (Hardware-Accelerated GPU Scheduling)
+; 0 = Désactivé, 1 = Activé (logiciel), 2 = Activé (matériel/HAGS)
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\GraphicsDrivers]
+"HwSchMode"=dword:00000002
+
+; Alternative via Paramètres Windows (equivalents):
+; Paramètres > Système > Affichage > Graphiques
+; > Changer les paramètres graphiques par défaut
+; > Activer "Planification GPU avec accélération matérielle"
+
+; ============================================================
+; VERIFICATION APRES REDÉMARRAGE :
+; 1. Paramètres > Système > Affichage > Graphiques
+; 2. "Planification GPU avec accélération matérielle" = ACTIVÉ
+; 3. Ou: dxdiag > onglet Affichage > "Planification GPU matérielle" = Activé
+; ============================================================
