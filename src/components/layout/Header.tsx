@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, ShieldCheck } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
 import { Logo } from '@/components/ui/Logo'
 
@@ -16,7 +16,7 @@ const navLinks = [
 export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [me, setMe] = useState<{ pseudo: string; avatar: string | null } | null>(null)
+  const [me, setMe] = useState<{ pseudo: string; avatar: string | null; role: string } | null>(null)
   const [latestOrderId, setLatestOrderId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -36,6 +36,7 @@ export function Header() {
           setMe({
             pseudo: u.discordGlobalName || u.discordUsername || u.name || u.email.split('@')[0],
             avatar: u.discordAvatar || null,
+            role: u.role || 'USER',
           })
           fetch('/api/orders?limit=1')
             .then(r => (r.ok ? r.json() : null))
@@ -142,6 +143,25 @@ export function Header() {
                 {link.label}
               </a>
             ))}
+          {me?.role === 'ADMIN' && (
+            <Link
+              href="/admin"
+              className="hidden items-center gap-2 rounded-full border border-fmx-red/40 bg-fmx-red/10 px-4 py-2 text-[13px] font-bold text-fmx-red transition-colors hover:bg-fmx-red/20 sm:inline-flex"
+            >
+              <ShieldCheck className="h-4 w-4" />
+              Admin
+            </Link>
+          )}
+            {me?.role === 'ADMIN' && (
+              <Link
+                href="/admin"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center justify-center gap-2 rounded-lg bg-fmx-red/10 px-3 py-3 text-sm font-bold text-fmx-red hover:bg-fmx-red/20"
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Panel Admin
+              </Link>
+            )}
             {me ? (
               <a
                 href={latestOrderId ? `/dashboard/orders/${latestOrderId}` : '/dashboard/order'}
