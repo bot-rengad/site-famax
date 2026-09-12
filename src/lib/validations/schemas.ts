@@ -74,11 +74,12 @@ export const userUpdateSchema = profileSchema.extend({
 })
 
 // Order schemas — 3 offres réelles : Basic / Complet / Ultime
-// Pas de MANUAL : aucune auto-validation, le staff valide après la preuve Discord.
+// Seuls les moyens affichés dans l'UI sont acceptés (PayPal, virement).
+// Aucune auto-validation : le staff valide après la preuve Discord.
 // Les add-ons sont validés côté serveur (liste fermée, prix recalculés).
 export const orderSchema = z.object({
   packageType: z.enum(['BASIC', 'COMPLET', 'ULTIME']),
-  paymentMethod: z.enum(['STRIPE', 'PAYPAL', 'BANK_TRANSFER']),
+  paymentMethod: z.enum(['PAYPAL', 'BANK_TRANSFER']),
   addons: z.array(z.enum(['REINSTALL', 'STREAM', 'SUIVI_VIE', 'PERIPH', 'UV_OC'])).max(5).default([]),
 })
 

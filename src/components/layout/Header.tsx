@@ -7,22 +7,51 @@ import { cn } from '@/lib/utils/helpers'
 import { Logo } from '@/components/ui/Logo'
 
 const navLinks = [
-  { href: '#plans', label: 'Plans' },
-  { href: '#config', label: 'Estimateur FPS' },
-  { href: '#payments', label: 'Paiement' },
-  { href: '/dashboard', label: 'Dashboard' },
+  { href: '/#plans', label: 'Plans', section: 'plans' },
+  { href: '/#config', label: 'Estimateur FPS', section: 'config' },
+  { href: '/#payments', label: 'Paiement', section: 'payments' },
+  { href: '/#deroulement', label: 'Déroulé', section: 'deroulement' },
 ]
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [active, setActive] = useState<string | null>(null)
   const [me, setMe] = useState<{ pseudo: string; avatar: string | null; role: string } | null>(null)
   const [latestOrderId, setLatestOrderId] = useState<string | null>(null)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
-    window.addEventListener('scroll', onScroll)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  // Section active (scrollspy) — uniquement sur la page d'accueil
+  useEffect(() => {
+    const ids = navLinks.map(l => l.section)
+    const observer = new IntersectionObserver(
+      entries => {
+        for (const e of entries) {
+          if (e.isIntersecting) setActive(e.target.id)
+        }
+      },
+      { rootMargin: '-40% 0px -55% 0px' }
+    )
+    ids.forEach(id => {
+      const el = document.getElementById(id)
+      if (el) observer.observe(el)
+    })
+    return () => observer.disconnect()
+  }, [])
+
+  // Ferme le menu mobile au redimensionnement vers desktop
+  useEffect(() => {
+    const onResize = () => {
+      if (window.innerWidth >= 1024) setMobileOpen(false)
+    }
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
   }, [])
 
   // Utilisateur connecté : pseudo + avatar Discord en haut à droite
@@ -53,8 +82,8 @@ export function Header() {
   return (
     <nav
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 border-b border-white/[0.08]',
-        scrolled ? 'bg-[#060608]' : 'bg-[#060608]/90'
+        'fixed top-0 left-0 right-0 z-50 border-b border-white/[0.08] backdrop-blur-xl transition-colors duration-300',
+        scrolled ? 'bg-[#060608]/95 shadow-[0_8px_32px_rgba(0,0,0,0.45)]' : 'bg-[#060608]/80'
       )}
       aria-label="Navigation principale"
     >
@@ -63,11 +92,22 @@ export function Header() {
           <Logo size={30} />
         </Link>
 
-        {/* Liens desktop — style Shinami : simple, centré */}
+        {/* Liens desktop */}
         <div className="hidden items-center gap-8 text-[13px] font-medium text-fmx-gray lg:flex">
           {navLinks.map(link => (
-            <a key={link.href} href={link.href} className="transition-colors hover:text-white">
+            <a
+              key={link.href}
+              href={link.href}
+              aria-current={active === link.section ? 'true' : undefined}
+              className={cn(
+                'relative py-1 transition-colors hover:text-white',
+                active === link.section && 'font-bold text-white'
+              )}
+            >
               {link.label}
+              {active === link.section && (
+                <span className="absolute -bottom-0.5 left-0 right-0 h-px bg-fmx-red" aria-hidden="true" />
+              )}
             </a>
           ))}
           {me && (
@@ -97,12 +137,6 @@ export function Header() {
           ) : (
             <>
               <a
-                href="/dashboard"
-                className="hidden text-[13px] font-medium text-fmx-gray transition-colors hover:text-white sm:block"
-              >
-                Dashboard
-              </a>
-              <a
                 href="/api/auth/discord"
                 className="hidden min-[480px]:inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-white/[0.12]"
               >
@@ -123,6 +157,7 @@ export function Header() {
             onClick={() => setMobileOpen(o => !o)}
             className="rounded-lg border border-white/10 p-2 text-white lg:hidden"
             aria-label={mobileOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+            aria-expanded={mobileOpen}
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -131,7 +166,7 @@ export function Header() {
 
       {/* Menu mobile */}
       {mobileOpen && (
-        <div className="absolute left-0 right-0 top-full border-b border-white/[0.08] bg-fmx-black/95 backdrop-blur-xl lg:hidden">
+        <div className="absolute left-0 right-0 top-full max-h-[calc(100vh-4rem)] overflow-y-auto border-b border-white/[0.08] bg-[#060608]/95 backdrop-blur-xl lg:hidden">
           <div className="flex flex-col gap-1 px-5 py-4">
             {navLinks.map(link => (
               <a
@@ -143,15 +178,6 @@ export function Header() {
                 {link.label}
               </a>
             ))}
-          {me?.role === 'ADMIN' && (
-            <Link
-              href="/admin"
-              className="hidden items-center gap-2 rounded-full border border-fmx-red/40 bg-fmx-red/10 px-4 py-2 text-[13px] font-bold text-fmx-red transition-colors hover:bg-fmx-red/20 sm:inline-flex"
-            >
-              <ShieldCheck className="h-4 w-4" />
-              Admin
-            </Link>
-          )}
             {me?.role === 'ADMIN' && (
               <Link
                 href="/admin"

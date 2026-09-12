@@ -2,9 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 
-// Fond copié de Shinami Market — adapté rouge FMX (#FF1A1A)
-// Couches : halos + grille + boules floues animées + grain + halo curseur
-// + effet "fenêtre" : cartes en glassmorphism (backdrop-blur + bordures translucides)
+// Fond FMX — halos + grille + boules floues animées + grain + halo curseur
 export function ShinamiBackground() {
   const glowRef = useRef<HTMLDivElement>(null)
 

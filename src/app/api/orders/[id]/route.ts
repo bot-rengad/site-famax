@@ -56,7 +56,15 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     await prisma.activityLog.create({
       data: { userId: session.userId, action: 'ORDER_CANCELLED', details: `Annulée par le client - ${order.orderNumber}` },
     }).catch(() => {})
-    return NextResponse.json({ order: updated, message: 'Commande annulée' })
+    // Normalise les add-ons en tableau (le client attend string[], pas du JSON brut)
+    let addons: string[] = []
+    try {
+      const parsed: unknown = JSON.parse(updated.addons || '[]')
+      if (Array.isArray(parsed)) addons = parsed.filter((x): x is string => typeof x === 'string')
+    } catch {
+      addons = []
+    }
+    return NextResponse.json({ order: { ...updated, addons }, message: 'Commande annulée' })
   } catch (error) {
     console.error('Order cancel error:', error)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })

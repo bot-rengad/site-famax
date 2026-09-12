@@ -4,27 +4,27 @@ import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
 
-// FAQ réelle — réponses tirées du déroulé et des tarifs FaMaxOpti, rien d'inventé.
+// FAQ — réponses courtes, le détail est dans les sections Tarifs / Paiement / Déroulé.
 const faqs = [
   {
     q: 'Comment se passe une optimisation ?',
-    a: "Tu fais ton diagnostic UserDiag (5 min), l'équipe analyse ton rapport et te donne un avis honnête, tu paies, puis intervention de 30 à 45 minutes à distance devant ton écran. Tu testes en jeu, puis tu laisses un avis via le bot du serveur.",
+    a: "Diagnostic UserDiag (5 min), avis honnête de l'équipe, paiement, puis intervention de 30 à 45 minutes à distance devant ton écran. Tu testes en jeu, puis tu laisses un avis via le bot du serveur. Détail étape par étape dans « Comment ça se passe ».",
   },
   {
     q: 'Combien ça coûte ?',
-    a: 'Pack Basic 20€, Pack Complet (Basic + BIOS) 25€, Pack Ultime 50€. Paiement unique, effet permanent. Options : réinstallation Windows +5€, stream +7€, suivi à vie +5€, périphériques +5€, undervolt & OC +20€, dépannage 5 à 15€.',
+    a: 'Pack Basic 20€, Pack Complet (Basic + BIOS) 25€, Pack Ultime 50€ — paiement unique, effet permanent. Options et dépannage : voir « Tarifs & prestations ».',
   },
   {
     q: 'Comment je paie ?',
-    a: 'Par PayPal (envoi en Amis & Proches vers paypal.me/poticatfn) ou par virement SEPA instantané (IBAN BE15 3632 2722 1530, Jordan Silva). Dans les deux cas : montant exact + ton pseudo Discord en note, puis capture envoyée sur le Discord.',
+    a: 'PayPal (Amis & Proches) ou virement SEPA instantané, avec ton pseudo Discord en note, puis capture envoyée sur le Discord. Coordonnées exactes dans la section « Paiement ».',
   },
   {
     q: 'Et si ça ne change rien sur mon PC ?',
-    a: "C'est pour ça qu'il y a un avis honnête AVANT le paiement : si ton PC n'y gagnera rien, on te le dit. Après l'intervention, suivi garanti 30 jours. Aucun remboursement une fois le travail commencé, sauf si aucune différence constatée.",
+    a: "L'avis honnête AVANT le paiement évite ça : si ton PC n'y gagnera rien, on te le dit. Après l'intervention, suivi garanti 30 jours. Aucun remboursement une fois le travail commencé, sauf si aucune différence constatée.",
   },
   {
     q: 'C’est sans risque pour mon PC ?',
-    a: "L'intervention commence toujours par une sauvegarde (point de restauration), suit un protocole strict dans un ordre précis, et tu suis tout en direct. Modifications progressives et testées. Le support s'arrête seulement si tu réinitialises ton PC sans prévenir.",
+    a: "L'intervention commence toujours par une sauvegarde, suit un protocole strict dans un ordre précis, et tu suis tout en direct. Le support s'arrête seulement si tu réinitialises ton PC sans prévenir.",
   },
 ]
 

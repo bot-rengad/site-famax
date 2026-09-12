@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Check, Lock, Zap, Loader2, Wallet, Landmark } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
 import { Button } from '@/components/ui/Button'
@@ -9,9 +10,12 @@ import { PACKAGES, ADDONS } from '@/types'
 
 type PackId = 'BASIC' | 'COMPLET' | 'ULTIME'
 
+const VALID_PACKS: PackId[] = ['BASIC', 'COMPLET', 'ULTIME']
+
 // Page commande du dashboard : 1. pack → 2. add-ons (Basic/Complet) → 3. paiement.
 // L'Ultime inclut déjà tout : pas d'add-ons proposés.
-export default function OrderPage() {
+function OrderContent() {
+  const searchParams = useSearchParams()
   const [pack, setPack] = useState<PackId>('COMPLET')
   const [addons, setAddons] = useState<string[]>([])
   const [method, setMethod] = useState<'PAYPAL' | 'BANK_TRANSFER'>('PAYPAL')
@@ -26,6 +30,16 @@ export default function OrderPage() {
   const toggleAddon = (id: string) =>
     setAddons(prev => (prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]))
 
+  // Pack transmis depuis la landing (?pack=BASIC/COMPLET/ULTIME)
+  useEffect(() => {
+    const q = (searchParams.get('pack') || '').toUpperCase()
+    if ((VALID_PACKS as string[]).includes(q)) {
+      setPack(q as PackId)
+      if (q === 'ULTIME') setAddons([])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const submit = async () => {
     setError(null)
     setLoading(true)
@@ -35,6 +49,10 @@ export default function OrderPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ packageType: pack, paymentMethod: method, addons: ultime ? [] : addons }),
       })
+      if (res.status === 401) {
+        window.location.href = `/auth/login?redirect=${encodeURIComponent(`/dashboard/order?pack=${pack}`)}`
+        return
+      }
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.error || 'Erreur lors de la commande')
       window.location.href = `/dashboard/orders/${data.order.id}`
@@ -175,5 +193,18 @@ export default function OrderPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+// Suspense requis : useSearchParams() force un rendu côté client
+export default function OrderPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center py-32">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-fmx-red border-t-transparent" />
+      </div>
+    }>
+      <OrderContent />
+    </Suspense>
   )
 }

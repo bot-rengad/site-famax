@@ -2,16 +2,15 @@
 
 import { Zap, ShieldCheck, Truck, Headset, Wallet } from 'lucide-react'
 
-// Hero style Shinami Market — adapté FaMax
-// Structure copiée : badge / gros titre / sous-titre / 2 CTA / 3 infos / trusted row
-export function Hero() {
+// Hero style FMX — badge / gros titre / sous-titre / 2 CTA / 3 infos / trusted row
+export function Hero({ onOrder }: { onOrder?: () => void }) {
   return (
     <header className="relative mx-auto max-w-[1280px] px-5 pb-14 pt-32 text-center lg:px-10 lg:pt-40">
       <div className="relative z-10 mx-auto max-w-[820px]">
-        {/* Badge top — comme Shinami */}
+        {/* Badge top */}
         <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-fmx-gray">
           <span className="h-1.5 w-1.5 rounded-full bg-fmx-red shadow-[0_0_10px_#FF1A1A]" />
-          Optimisation • FPS • Premium — FMX Market
+          Optimisation • FPS • Premium
         </div>
 
         {/* Titre façon Shinami : "Your game. Your way, unlocked." -> FaMax */}
@@ -36,13 +35,13 @@ export function Hero() {
           >
             Voir les plans →
           </a>
-          <a
-            href="#payments"
+          <button
+            onClick={onOrder}
             className="inline-flex items-center gap-2 rounded-full border border-white/[0.1] bg-[#17171b] px-7 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-[#202027]"
           >
             <Wallet className="h-4 w-4" />
-            Payer via PayPal / RIB
-          </a>
+            Commander une opti
+          </button>
         </div>
 
         {/* 3 infos */}

@@ -46,13 +46,13 @@ function signState(data: string): string {
     .digest('base64url')
 }
 
-export function createState(mode: 'login' | 'link', userId?: string): string {
-  const payload = JSON.stringify({ mode, userId: userId || null, ts: Date.now() })
+export function createState(mode: 'login' | 'link', userId?: string, redirect?: string): string {
+  const payload = JSON.stringify({ mode, userId: userId || null, redirect: redirect || null, ts: Date.now() })
   const sig = signState(payload)
   return Buffer.from(JSON.stringify({ payload, sig } satisfies SignedState)).toString('base64url')
 }
 
-export function verifyState(state: string): { mode: 'login' | 'link'; userId?: string } | null {
+export function verifyState(state: string): { mode: 'login' | 'link'; userId?: string; redirect?: string } | null {
   try {
     const { payload, sig } = JSON.parse(Buffer.from(state, 'base64url').toString()) as SignedState
     const expected = signState(payload)
@@ -60,13 +60,20 @@ export function verifyState(state: string): { mode: 'login' | 'link'; userId?: s
     const b = Buffer.from(expected)
     if (a.length !== b.length || !timingSafeEqual(a, b)) return null
 
-    const parsed = JSON.parse(payload) as { mode: 'login' | 'link'; userId?: string | null; ts: number }
+    const parsed = JSON.parse(payload) as { mode: 'login' | 'link'; userId?: string | null; redirect?: string | null; ts: number }
     // Expire après 10 minutes
     if (Date.now() - parsed.ts > 10 * 60 * 1000) return null
-    return { mode: parsed.mode, userId: parsed.userId || undefined }
+    return { mode: parsed.mode, userId: parsed.userId || undefined, redirect: parsed.redirect || undefined }
   } catch {
     return null
   }
+}
+
+/** N'accepte que des redirections internes (anti open-redirect). */
+export function safeRedirect(path: string | null | undefined): string | null {
+  if (!path || !path.startsWith('/') || path.startsWith('//')) return null
+  if (path.startsWith('/api/')) return null
+  return path
 }
 
 // Profil public Discord renvoyé par l'API

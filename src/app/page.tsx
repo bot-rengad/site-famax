@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
+import { ScrollTools } from '@/components/layout/ScrollTools'
 import { ShinamiBackground } from '@/components/landing/ShinamiBackground'
 import { Hero } from '@/components/landing/Hero'
 import { Services } from '@/components/landing/Services'
@@ -36,21 +37,24 @@ export default function HomePage() {
   const [selectedPlan, setSelectedPlan] = useState<PlanId | null>(null)
 
   // Tous les boutons Commander mènent à la page commande du dashboard
-  // (pack → options → paiement → suivi + chat). Pas de compte ? login Discord sur place.
-  const handleOrder = () => {
-    router.push('/dashboard/order')
+  // (pack → options → paiement → suivi + chat). Le pack sélectionné est
+  // transmis en query pour ne pas le perdre. Pas de compte ? login Discord sur place.
+  const handleOrder = (plan?: PlanId | null) => {
+    const pack = plan ?? selectedPlan
+    router.push(pack ? `/dashboard/order?pack=${pack}` : '/dashboard/order')
   }
 
   return (
     <div className="relative min-h-screen bg-fmx-black pb-24 text-fmx-white md:pb-0">
-      {/* Fond Shinami : halos + grille + boules floues + grain + halo curseur */}
+      {/* Fond FMX : halos + grille + boules floues + grain + halo curseur */}
       <ShinamiBackground />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
+      <ScrollTools />
       <Header />
 
-      {/* Structure inspirée Shinami Market : Hero / Plans / Estimateur / Paiement / Détails / Avis */}
+      {/* Structure : Hero / Plans / Estimateur / Paiement / Détails / Avis */}
       <main id="main-content" className="relative z-10 pt-16 lg:pt-[72px]">
-        <Hero />
+        <Hero onOrder={handleOrder} />
         <Pricing
           selectedPlan={selectedPlan}
           onSelect={setSelectedPlan}

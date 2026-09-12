@@ -451,7 +451,7 @@ function PcViewer({ fps, refreshHz, gameLabel }: { fps: number; refreshHz: numbe
 // Configurateur — sélection en cascade marque → gamme → génération → modèle
 // ============================================================
 interface ConfiguratorProps {
-  onOrder: () => void
+  onOrder: (plan?: 'BASIC' | 'COMPLET' | 'ULTIME' | null) => void
 }
 
 export function Configurator({ onOrder }: ConfiguratorProps) {
@@ -507,6 +507,19 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
   useEffect(() => {
     detectHardware().then(s => setRefreshHz(s.refreshRateHz)).catch(() => {})
   }, [])
+
+  // Expose la config au chatbot (personnalisation des réponses)
+  useEffect(() => {
+    try {
+      const gpu = gpuModels[gpuIdx]?.name ?? null
+      ;(window as unknown as { __fmxSpecs?: Record<string, unknown> }).__fmxSpecs = {
+        gpuModel: gpu,
+        ramGB: [8, 16, 32, 64][ram] ?? null,
+        os: null,
+        refreshRateHz: refreshHz,
+      }
+    } catch { /* non bloquant */ }
+  }, [gpuModels, gpuIdx, ram, refreshHz])
 
   const changeGpuBrand = (b: 'NVIDIA' | 'AMD') => {
     const range = Object.keys(GPUS[b])[0]
@@ -586,7 +599,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
           Estimateur FPS
         </h2>
         <p className="mx-auto mt-3 max-w-[640px] text-[14px] leading-relaxed text-fmx-gray">
-          Sélectionne ta config exacte — CPU, GPU, RAM, jeu et résolution. Moteur V2 calibré sur
+          Sélectionne ta config exacte — CPU, GPU, RAM, jeu et résolution. Moteur V3 calibré sur
           benchs réels, avec bottleneck CPU/GPU, 1% lows et gain après optimisation FMX.
         </p>
       </div>
@@ -788,7 +801,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
               <strong className="text-[28px] text-white">{offer}€</strong>
               <div className="text-[11px] text-green-500">● Paiement unique</div>
             </div>
-            <button onClick={onOrder} className="rounded-full bg-fmx-red px-5 py-3 font-bold text-white transition-transform hover:scale-[1.03]">
+            <button onClick={() => onOrder(offer === 20 ? 'BASIC' : offer === 25 ? 'COMPLET' : 'ULTIME')} className="rounded-full bg-fmx-red px-5 py-3 font-bold text-white transition-transform hover:scale-[1.03]">
               Commander →
             </button>
           </div>

@@ -7,7 +7,7 @@ import type { PlanId } from './Pricing'
 
 interface PaymentSectionProps {
   selectedPlan: PlanId | null
-  onOrder: () => void
+  onOrder: (plan?: PlanId | null) => void
 }
 
 type Tab = 'paypal' | 'rib'
@@ -54,12 +54,12 @@ export function PaymentSection({ selectedPlan, onOrder }: PaymentSectionProps) {
           Paiement
         </h2>
         <p className="mt-3 text-[14px] leading-relaxed text-fmx-gray">
-          PayPal ou virement — tout se passe sur Discord : vérifie ton compte, paie avec ton
-          pseudo en note, envoie ta preuve et reçois ta clé.
+          PayPal ou virement — paie avec ton pseudo Discord en note, envoie ta preuve
+          et reçois ta clé.
         </p>
       </div>
 
-      {/* Étape 1 — Vérif Discord comme Shinami */}
+      {/* Étape 1 — Vérif Discord */}
       <div className="fmx-window mx-auto mt-8 flex max-w-[860px] flex-col items-center gap-4 rounded-2xl p-6 text-center sm:flex-row sm:text-left">
         <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#5865F2]/15">
           <ShieldCheck className="h-6 w-6 text-[#8b9bff]" />
@@ -68,12 +68,12 @@ export function PaymentSection({ selectedPlan, onOrder }: PaymentSectionProps) {
           <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#8b9bff]">Étape 1 — Vérification obligatoire</div>
           <div className="mt-1 text-[15px] font-bold text-white">Vérifie ton Discord avant de payer</div>
           <p className="mt-1 text-[13px] text-fmx-gray">
-            Comme Shinami : connexion via Discord pour lier ton pseudo. Ta clé sera liée à ce compte,
-            et la note du paiement doit contenir ton <b className="text-white">utilisateur Discord</b>.
+            Ta clé sera liée à ce compte, et la note du paiement doit contenir ton{' '}
+            <b className="text-white">utilisateur Discord</b>.
           </p>
         </div>
         <a
-          href="/api/auth/discord"
+          href="/api/auth/discord?redirect=/dashboard/order"
           className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[#5865F2] px-6 py-3 text-sm font-bold text-white transition-transform hover:-translate-y-px hover:bg-[#4752C4]"
         >
           Vérifier avec Discord →
@@ -196,11 +196,11 @@ export function PaymentSection({ selectedPlan, onOrder }: PaymentSectionProps) {
               Ouvrir le Discord FMX →
             </a>
             <button
-              onClick={onOrder}
+              onClick={() => onOrder(selectedPlan ?? 'COMPLET')}
               className="inline-flex items-center gap-2 rounded-full bg-fmx-red px-6 py-3 text-sm font-bold text-white shadow-[0_12px_32px_rgba(255,26,26,0.35)] transition-transform hover:-translate-y-0.5"
             >
               <Zap className="h-4 w-4" />
-              Commander une opti {selectedPlan ? `— ${amount}` : ''} →
+              Commander une opti — {selectedPlan ? amount : '25€'} →
             </button>
           </div>
         </div>

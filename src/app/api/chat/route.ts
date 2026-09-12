@@ -32,8 +32,8 @@ const INTENTS: Intent[] = [
     id: 'greeting',
     keywords: ['bonjour', 'salut', 'hello', 'yo', 'coucou', 'hey', 'bonsoir', 'wesh'],
     answer: () =>
-      "Salut ! Bienvenue chez FMX Optimisation. Je suis l'assistant FMX, je peux te renseigner sur nos offres (Basic 20€, Complet 25€, Ultime 50€), le déroulé (analyse UserDiag + avis staff, 30–45 min à distance), ou t'aider à diagnostiquer tes problèmes de performance. Que veux-tu savoir ?",
-    quickReplies: ['Ça coûte combien ?', 'Comment ça se passe ?', 'Compatible avec mon PC ?', 'Jai des chutes de FPS'],
+      "Salut ! Bienvenue chez FMX Optimisation. Je suis l'assistant FMX, je peux te renseigner sur nos offres (Basic 20€, Complet 25€, Ultime 50€), le déroulé (diagnostic UserDiag + avis staff, 30–45 min à distance), ou t'aider à diagnostiquer tes problèmes de performance. Que veux-tu savoir ?",
+    quickReplies: ['Ça coûte combien ?', 'Comment ça se passe ?', 'Compatible avec mon PC ?', 'Chutes de FPS'],
   },
   {
     id: 'price',
@@ -111,7 +111,7 @@ const INTENTS: Intent[] = [
   },
   {
     id: 'fps_issues',
-    keywords: ['chute fps', 'drop fps', 'fps bas', 'micro freeze', 'micro-freeze', 'stutter', 'saccade', 'freeze', 'lag en jeu', 'rame', 'lent'],
+    keywords: ['chute', 'chutes', 'drop', 'fps bas', 'fps', 'micro freeze', 'micro-freeze', 'stutter', 'saccade', 'freeze', 'lag en jeu', 'rame', 'lent', 'fluidite', 'instable'],
     answer: () =>
       "Les chutes de FPS viennent généralement de processus qui monopolisent tes ressources, d'une mémoire mal gérée ou d'un système encombré. C'est exactement ce que FMX traite — à partir de 20€. Le mieux : fais ton diagnostic UserDiag (5 min) et ouvre un ticket sur le Discord, l'équipe te dira honnêtement ce qui est possible sur ta config.",
     quickReplies: ['Ça coûte combien ?', 'Compatible avec mon PC ?'],
@@ -196,7 +196,7 @@ function getReply(message: string, ctx?: z.infer<typeof chatSchema>['context']):
     "Je ne suis pas sûr d'avoir compris. Je peux te renseigner sur : les prix (20€/25€/50€), le déroulé, la compatibilité avec ta config, les conditions ou le paiement.",
     "Hmm, ça n'a pas l'air dans mes cordes ! Essaie plutôt : « ça coûte combien ? », « quels résultats ? », « c'est compatible avec mon PC ? »",
   ]
-  const fallbackQuickReplies = ['Ça coûte combien ?', 'Quels résultats ?', 'Compatible avec mon PC ?', 'Jai des chutes de FPS']
+  const fallbackQuickReplies = ['Ça coûte combien ?', 'Quels résultats ?', 'Compatible avec mon PC ?', 'Chutes de FPS']
 
   if (!best || best.score < 3) {
     return {

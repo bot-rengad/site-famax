@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/db/prisma'
 import { createToken } from '@/lib/auth/jwt'
 import { setSessionCookie } from '@/lib/auth/server'
-import { isDiscordConfigured, verifyState, exchangeCodeForProfile } from '@/lib/discord'
+import { isDiscordConfigured, verifyState, exchangeCodeForProfile, safeRedirect } from '@/lib/discord'
 
 function redirectWith(origin: string, path: string, params?: Record<string, string>) {
   const url = new URL(path, origin)
@@ -88,7 +88,6 @@ export async function GET(request: NextRequest) {
     }
 
     // ---- Cas 2 : connexion / inscription via Discord ----
-
     // 2a. Un compte existe déjà avec ce Discord -> connexion directe
     let user = await prisma.user.findUnique({ where: { discordId: profile.id } })
 
@@ -168,7 +167,10 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    // Reste sur la page d'accueil après connexion (le header affiche pseudo + avatar)
+    // Retour au tunnel d'achat si demandé (ex: /dashboard/order?pack=COMPLET),
+    // sinon page d'accueil (le header affiche pseudo + avatar).
+    const backTo = safeRedirect(stateData.redirect) ?? '/'
+    if (backTo !== '/') return NextResponse.redirect(new URL(backTo, origin).toString())
     return redirectWith(origin, '/', { verified: 'discord' })
   } catch (err) {
     console.error('Discord callback error:', err)

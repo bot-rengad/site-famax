@@ -9,7 +9,7 @@ export type PlanId = 'BASIC' | 'COMPLET' | 'ULTIME'
 interface PricingProps {
   selectedPlan: PlanId | null
   onSelect: (plan: PlanId) => void
-  onOrder: () => void
+  onOrder: (plan?: PlanId | null) => void
 }
 
 // Tarifs réels FaMaxOpti — sans promesse chiffrée, sans détail de la méthode
@@ -79,8 +79,8 @@ export function Pricing({ selectedPlan, onSelect, onOrder }: PricingProps) {
           Tarifs & prestations
         </h2>
         <p className="mt-3 text-[14px] leading-relaxed text-fmx-gray">
-          Paiement unique, effet permanent. Analyse de ton UserDiag et avis du staff avant chaque intervention —
-          on vous dit honnêtement si ça vaut le coup, sans chiffres garantis.
+          Paiement unique, effet permanent. Diagnostic UserDiag et avis du staff avant
+          chaque intervention.
         </p>
       </div>
 
@@ -121,7 +121,7 @@ export function Pricing({ selectedPlan, onSelect, onOrder }: PricingProps) {
                 onClick={e => {
                   e.stopPropagation()
                   onSelect(plan.id)
-                  document.getElementById('payments')?.scrollIntoView({ behavior: 'smooth' })
+                  onOrder(plan.id)
                 }}
                 className={cn(
                   'w-full rounded-full py-3.5 text-sm font-bold transition-all',
@@ -169,18 +169,18 @@ export function Pricing({ selectedPlan, onSelect, onOrder }: PricingProps) {
           </p>
         )}
         <div className="mt-4 flex flex-wrap justify-center gap-3">
-          <a
-            href="#payments"
+          <button
+            onClick={() => onOrder(selectedPlan ?? 'COMPLET')}
             className="rounded-full bg-fmx-red px-6 py-3 text-sm font-bold text-white shadow-[0_10px_28px_rgba(255,26,26,0.35)] transition-transform hover:-translate-y-px"
           >
-            Procéder au paiement →
-          </a>
-          <button
-            onClick={onOrder}
+            Commander{selectedPlan ? ` — ${PLAN_LABEL[selectedPlan]}` : ' — Pack Complet'} →
+          </button>
+          <a
+            href="#payments"
             className="rounded-full border border-white/15 bg-white/[0.06] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/[0.12]"
           >
-            Commander une opti
-          </button>
+            Voir les moyens de paiement
+          </a>
         </div>
         <p className="mx-auto mt-4 max-w-[720px] text-[12px] leading-relaxed text-fmx-gray">
           Règlement par virement ou PayPal. Aucun remboursement une fois le travail commencé

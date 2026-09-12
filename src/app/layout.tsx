@@ -33,8 +33,8 @@ const syne = Syne({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   title: {
-    default: 'FMx — Optimized by FMx | Optimisation PC Ultime',
-    template: '%s | FMx Optimisation',
+    default: 'FMX Optimisation — Optimisation PC Gaming Premium',
+    template: '%s | FMX Optimisation',
   },
   description: "L'optimisation PC haut de gamme pour joueurs compétitifs. Analyse UserDiag et avis du staff, intervention à distance en 30-45 minutes.",
   keywords: ['optimisation PC', 'gaming', 'FPS', 'latence', 'esport', 'performance', 'overclocking', 'tweak', 'Windows'],
@@ -55,8 +55,8 @@ export const metadata: Metadata = {
     locale: 'fr_FR',
     url: 'https://fmx-optimisation.com',
     siteName: 'FMX Optimisation',
-    title: 'FMX Optimisation — Dominez vos performances',
-    description: 'L\'optimisation PC ultime pour gamers exigeants. FPS Maximaux & Latence Zéro.',
+    title: 'FMX Optimisation — Optimisation PC Gaming Premium',
+    description: "Diagnostic UserDiag et avis du staff, intervention à distance en 30-45 minutes, suivi 30 jours.",
     images: [
       {
         url: '/images/logo.png',
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'FMX Optimisation',
-    description: 'Dominez vos performances : FPS Max & Latence Zéro',
+    description: 'Diagnostic UserDiag et avis du staff, intervention à distance en 30-45 minutes.',
     images: ['/images/logo.png'],
     creator: '@fmxopt',
   },
@@ -79,7 +79,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#080808',
+  themeColor: '#060608',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,

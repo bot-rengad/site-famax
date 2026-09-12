@@ -18,8 +18,7 @@ const nextConfig = {
   async headers() {
     // CSP pragmatique : bloque les scripts/frames tiers tout en laissant
     // Next.js + Tailwind (inline) + Google Fonts fonctionner.
-    // Pas de script tiers chargé par le site (analytics/Turnstile : voir lib/analytics.ts,
-    // composants/ui/Turnstile.tsx — à autoriser ici le jour où ils sont activés).
+    // Pas de script tiers chargé par le site.
     const csp = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline'",

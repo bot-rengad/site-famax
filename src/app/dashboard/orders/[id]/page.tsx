@@ -39,7 +39,13 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
     fetch(`/api/orders/${id}`)
       .then(r => (r.ok ? r.json() : null))
       .then(data => {
-        if (data?.order) setOrder(data.order)
+        if (data?.order) {
+          const raw: unknown = data.order.addons
+          const addons: string[] = Array.isArray(raw)
+            ? raw.filter((x): x is string => typeof x === 'string')
+            : []
+          setOrder({ ...data.order, addons })
+        }
         setLoading(false)
       })
       .catch(() => setLoading(false))
@@ -52,7 +58,12 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       const res = await fetch(`/api/orders/${id}`, { method: 'PATCH' })
       if (res.ok) {
         const data = await res.json()
-        setOrder(prev => (prev ? { ...prev, status: data.order.status } : prev))
+        // L'API peut renvoyer les add-ons en JSON brut : normalise en tableau
+        const rawAddons: unknown = data.order?.addons
+        const addons: string[] = Array.isArray(rawAddons)
+          ? rawAddons.filter((x): x is string => typeof x === 'string')
+          : []
+        setOrder(prev => (prev ? { ...prev, status: data.order.status, addons } : prev))
       }
     } finally {
       setCancelling(false)

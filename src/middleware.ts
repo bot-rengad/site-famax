@@ -12,6 +12,7 @@ const PUBLIC_PATHS = [
   '/api/auth/discord',
   '/api/auth/discord/callback',
   '/api/health',
+  '/api/chat',
 ]
 
 const DASHBOARD_PATHS = [

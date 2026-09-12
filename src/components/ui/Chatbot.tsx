@@ -33,7 +33,7 @@ const WELCOME: Message = {
   role: 'bot',
   content:
     "Salut ! Je suis l'assistant FMX. Pose-moi tes questions sur l'optimisation : prix, résultats, compatibilité avec ta config...",
-  quickReplies: ['Ça coûte combien ?', 'Quels résultats ?', 'Compatible avec mon PC ?', 'Jai des chutes de FPS'],
+  quickReplies: ['Ça coûte combien ?', 'Quels résultats ?', 'Compatible avec mon PC ?', 'Chutes de FPS'],
 }
 
 export function Chatbot() {

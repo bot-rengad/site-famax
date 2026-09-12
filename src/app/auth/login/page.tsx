@@ -11,6 +11,15 @@ import { Card } from '@/components/ui/Card'
 function LoginContent() {
   const searchParams = useSearchParams()
   const oauthError = searchParams.get('error')
+  const redirect = searchParams.get('redirect')
+  // Ne propage que des chemins internes (anti open-redirect)
+  const safeRedirect =
+    redirect && redirect.startsWith('/') && !redirect.startsWith('//') && !redirect.startsWith('/api/')
+      ? redirect
+      : null
+  const discordHref = safeRedirect
+    ? `/api/auth/discord?redirect=${encodeURIComponent(safeRedirect)}`
+    : '/api/auth/discord'
 
   // Messages d'erreur lisibles pour les retours OAuth Discord
   const oauthErrorMessages: Record<string, string> = {
@@ -56,7 +65,7 @@ function LoginContent() {
         {/* Connexion via Discord — unique méthode */}
         <Card variant="glass" padding="xl">
           <a
-            href="/api/auth/discord"
+            href={discordHref}
             className="w-full flex items-center justify-center gap-3 px-5 py-4 rounded-xl font-display font-semibold text-sm transition-all duration-200 bg-[#5865F2] hover:bg-[#4752C4] text-white hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-[#5865F2]/25"
           >
             <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" aria-hidden="true">

@@ -93,6 +93,18 @@ const statusBadge = (status: string) => {
   }
 }
 
+// Parse les add-ons stockés en JSON sans jamais crasher l'admin
+function safeAddonList(raw: string | null | undefined): string {
+  if (!raw) return ''
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    if (Array.isArray(parsed)) return parsed.filter(x => typeof x === 'string').join(', ')
+    return ''
+  } catch {
+    return ''
+  }
+}
+
 export default function AdminPage() {
   const [tab, setTab] = useState<TabId>('overview')
   const [loading, setLoading] = useState(true)
@@ -462,7 +474,7 @@ export default function AdminPage() {
                       <td className="py-3 pr-4">
                         <Badge variant="red">{o.packageType}</Badge>
                         {o.addons && o.addons !== '[]' && (
-                          <span className="mt-1 block text-[11px] text-fmx-gray">+ {(JSON.parse(o.addons) as string[]).join(', ')}</span>
+                          <span className="mt-1 block text-[11px] text-fmx-gray">+ {safeAddonList(o.addons)}</span>
                         )}
                       </td>
                       <td className="py-3 pr-4 text-fmx-gray">{o.paymentMethod || '—'}</td>
