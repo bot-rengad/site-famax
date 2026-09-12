@@ -17,6 +17,8 @@ export async function GET() {
     }
 
     // Statistiques globales calculées en parallèle
+    // (PAID = validé par le staff, COMPLETED = ancien flux : les deux comptent)
+    const paidWhere = { status: { in: ['PAID', 'COMPLETED'] } }
     const [
       totalUsers,
       totalOrders,
@@ -30,11 +32,11 @@ export async function GET() {
     ] = await Promise.all([
       prisma.user.count(),
       prisma.order.count(),
-      prisma.order.count({ where: { status: 'COMPLETED' } }),
+      prisma.order.count({ where: paidWhere }),
       prisma.license.count({ where: { status: 'ACTIVE' } }),
       prisma.ticket.count({ where: { status: 'OPEN' } }),
       prisma.order.aggregate({
-        where: { status: 'COMPLETED' },
+        where: paidWhere,
         _sum: { amount: true },
       }),
       prisma.order.findMany({

@@ -130,14 +130,35 @@ export async function GET(request: NextRequest) {
     // Premier admin via ADMIN_DISCORD_ID (avant d'ouvrir la session)
     await grantAdminIfOwner(user.id, profile.id)
 
-    // Ouvre une session FMX pour cet utilisateur
+    // Ouvre une session FMX pour cet utilisateur + l'enregistre
+    // (présence "En ligne" dans /admin, révocable depuis les paramètres)
+    const sessionId = crypto.randomUUID()
     const token = await createToken({
       userId: user.id,
       email: user.email,
       role: user.role,
-      sessionId: crypto.randomUUID(),
+      sessionId,
     })
     await setSessionCookie(token)
+    try {
+      const ua = request.headers.get('user-agent')
+      const ip =
+        request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+        request.headers.get('x-real-ip')
+      await prisma.session.create({
+        data: {
+          userId: user.id,
+          token: sessionId,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          userAgent: ua,
+          ipAddress: ip,
+        },
+      })
+      // Hygiène : purge les sessions expirées
+      await prisma.session.deleteMany({ where: { expiresAt: { lt: new Date() } } })
+    } catch {
+      /* non bloquant pour la connexion */
+    }
 
     await prisma.activityLog.create({
       data: {

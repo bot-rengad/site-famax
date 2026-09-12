@@ -63,7 +63,7 @@ export async function notifyNewOrder(order: OrderNotify): Promise<void> {
           { name: 'Email', value: order.email, inline: true },
           {
             name: 'À faire',
-            value: '1. Vérifier la note du paiement (= pseudo Discord)\n2. Vérifier la capture dans le ticket\n3. Valider avec `/valider @membre <clé>` ou depuis /admin',
+            value: '1. Vérifier la note du paiement (= pseudo Discord)\n2. Vérifier la capture dans le ticket\n3. Valider depuis /admin (bouton Valider sur la commande)',
             inline: false,
           },
         ],

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, Fragment } from 'react'
+import { useState, useEffect, useCallback, useRef, Fragment } from 'react'
 import { motion } from 'framer-motion'
 import {
   Users, ShoppingCart, KeyRound, LifeBuoy, Euro, TrendingUp,
@@ -79,15 +79,33 @@ interface AdminTicket {
   messages: { id: string; message: string; isStaff: boolean; createdAt: string }[]
 }
 
-type TabId = 'overview' | 'users' | 'orders' | 'licenses' | 'tickets'
+type TabId = 'overview' | 'online' | 'users' | 'orders' | 'licenses' | 'tickets'
 
 const tabs: { id: TabId; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { id: 'overview', label: 'Vue d\'ensemble', icon: TrendingUp },
+  { id: 'online', label: 'En ligne', icon: UserCheck },
   { id: 'users', label: 'Utilisateurs', icon: Users },
   { id: 'orders', label: 'Commandes', icon: ShoppingCart },
   { id: 'licenses', label: 'Licences', icon: KeyRound },
   { id: 'tickets', label: 'Support', icon: LifeBuoy },
 ]
+
+interface OnlineUser {
+  user: {
+    id: string
+    email: string
+    name: string | null
+    role: string
+    discordUsername: string | null
+    discordGlobalName: string | null
+    discordAvatar: string | null
+    createdAt: string
+    orders: { id: string; orderNumber: string; packageType: string; amount: number; status: string; createdAt: string }[]
+  }
+  sessions: number
+  lastSeen: string
+  activeNow: boolean
+}
 
 const statusBadge = (status: string) => {
   switch (status) {
@@ -109,42 +127,76 @@ export default function AdminPage() {
   const [tickets, setTickets] = useState<AdminTicket[]>([])
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({})
   const [openChatOrderId, setOpenChatOrderId] = useState<string | null>(null)
+  const [online, setOnline] = useState<OnlineUser[]>([])
+  // Onglets déjà chargés (les autres se chargent à l'ouverture : rapide au démarrage)
+  const loadedTabs = useRef<Set<TabId>>(new Set(['overview']))
 
-  // Lecture du hash d'URL (#users, #tickets...) pour ouvrir le bon onglet
+  // Lecture du hash d'URL + suivi des clics sidebar (sinon les liens ont l'air morts)
   useEffect(() => {
-    const hash = window.location.hash.replace('#', '') as TabId
-    if (tabs.some(t => t.id === hash)) setTab(hash)
+    const sync = () => {
+      const hash = window.location.hash.replace('#', '') as TabId
+      if (tabs.some(t => t.id === hash)) setTab(hash)
+    }
+    sync()
+    window.addEventListener('hashchange', sync)
+    return () => window.removeEventListener('hashchange', sync)
   }, [])
 
-  // Charge toutes les données du panel en parallèle
-  const loadAll = useCallback(async () => {
-    setLoading(true)
+  // Charge l'essentiel au démarrage (vue d'ensemble), le reste à l'ouverture de l'onglet
+  const loadTab = useCallback(async (id: TabId, force = false) => {
+    if (!force && loadedTabs.current.has(id)) return
+    loadedTabs.current.add(id)
     try {
-      const [statsRes, usersRes, ordersRes, licensesRes, ticketsRes] = await Promise.all([
-        fetch('/api/admin/stats'),
-        fetch('/api/admin/users'),
-        fetch('/api/admin/orders'),
-        fetch('/api/admin/licenses'),
-        fetch('/api/admin/tickets'),
-      ])
-
-      if (statsRes.ok) {
-        const data = await statsRes.json()
-        setStats(data.stats)
-        setRecentOrders(data.recentOrders || [])
+      if (id === 'overview' || force) {
+        const [statsRes, ordersRes] = await Promise.all([
+          fetch('/api/admin/stats'),
+          fetch('/api/admin/orders'),
+        ])
+        if (statsRes.ok) {
+          const data = await statsRes.json()
+          setStats(data.stats)
+          setRecentOrders(data.recentOrders || [])
+        }
+        if (ordersRes.ok) setOrders((await ordersRes.json()).orders || [])
       }
-      if (usersRes.ok) setUsers((await usersRes.json()).users || [])
-      if (ordersRes.ok) setOrders((await ordersRes.json()).orders || [])
-      if (licensesRes.ok) setLicenses((await licensesRes.json()).licenses || [])
-      if (ticketsRes.ok) setTickets((await ticketsRes.json()).tickets || [])
+      if (id === 'online' || force) {
+        const r = await fetch('/api/admin/sessions')
+        if (r.ok) setOnline((await r.json()).online || [])
+      }
+      if (id === 'users' || force) {
+        const r = await fetch('/api/admin/users')
+        if (r.ok) setUsers((await r.json()).users || [])
+      }
+      if (id === 'licenses' || force) {
+        const r = await fetch('/api/admin/licenses')
+        if (r.ok) setLicenses((await r.json()).licenses || [])
+      }
+      if (id === 'tickets' || force) {
+        const r = await fetch('/api/admin/tickets')
+        if (r.ok) setTickets((await r.json()).tickets || [])
+      }
     } catch {
       toast.error('Erreur de chargement des données admin')
-    } finally {
-      setLoading(false)
     }
   }, [])
 
+  const loadAll = useCallback(async () => {
+    setLoading(true)
+    try {
+      loadedTabs.current = new Set(['overview'])
+      await loadTab('overview', true)
+      await loadTab(tab, true)
+    } finally {
+      setLoading(false)
+    }
+  }, [loadTab, tab])
+
   useEffect(() => { loadAll() }, [loadAll])
+
+  // Charge l'onglet à son ouverture
+  useEffect(() => {
+    if (!loading) loadTab(tab)
+  }, [tab, loading, loadTab])
 
   // ----- Actions de gestion -----
 
@@ -259,7 +311,7 @@ export default function AdminPage() {
           return (
             <button
               key={t.id}
-              onClick={() => setTab(t.id)}
+              onClick={() => { setTab(t.id); window.location.hash = t.id }}
               className={cn(
                 'flex items-center gap-2 px-4 py-2.5 rounded-md font-display font-medium text-sm transition-all duration-200',
                 tab === t.id ? 'bg-fmx-red/10 text-fmx-red' : 'text-fmx-gray hover:text-fmx-white hover:bg-fmx-red/10'
@@ -337,6 +389,61 @@ export default function AdminPage() {
             </CardContent>
           </Card>
         </motion.div>
+      )}
+
+      {/* ===== EN LIGNE ===== */}
+      {tab === 'online' && (
+        <Card variant="glass" padding="lg">
+          <CardHeader><CardTitle>Connectés ({online.length})</CardTitle></CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {online.map(({ user: u, sessions, lastSeen, activeNow }) => (
+                <div key={u.id} className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className={`h-2.5 w-2.5 rounded-full ${activeNow ? 'bg-green-400 shadow-[0_0_10px_#22c55e]' : 'bg-yellow-400'}`} />
+                    <div className="flex-1">
+                      <p className="font-bold text-white">
+                        {u.discordGlobalName || u.discordUsername || u.name || u.email}
+                        <span className="ml-2 text-[11px] font-normal text-fmx-gray">
+                          {u.discordUsername ? `@${u.discordUsername} • ` : ''}{u.email}
+                        </span>
+                      </p>
+                      <p className="text-[11px] text-fmx-gray">
+                        {sessions} session{sessions > 1 ? 's' : ''} • vu {new Date(lastSeen).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                        {u.role === 'ADMIN' && ' • admin'}
+                      </p>
+                    </div>
+                  </div>
+                  {u.orders.length > 0 ? (
+                    <div className="mt-3 space-y-2 border-t border-white/[0.06] pt-3">
+                      {u.orders.map(o => (
+                        <div key={o.id}>
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                            <code className="font-mono text-[12px] text-white">{o.orderNumber}</code>
+                            <Badge variant="red">{o.packageType}</Badge>
+                            <span className="text-[12px] text-fmx-white-dim">{o.amount}€</span>
+                            {statusBadge(o.status)}
+                            <Button variant="ghost" size="sm" className="ml-auto" onClick={() => setOpenChatOrderId(prev => prev === o.id ? null : o.id)}>
+                              <MessageSquare className="mr-1 h-3.5 w-3.5" /> Chat
+                            </Button>
+                          </div>
+                          {openChatOrderId === o.id && (
+                            <div className="mt-2"><OrderChat orderId={o.id} compact /></div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-2 text-[12px] text-fmx-gray">Aucune commande — client potentiel à accueillir.</p>
+                  )}
+                </div>
+              ))}
+              {online.length === 0 && (
+                <p className="py-6 text-center text-fmx-gray">Personne en ligne pour le moment.</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* ===== UTILISATEURS ===== */}

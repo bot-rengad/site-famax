@@ -5,28 +5,43 @@ import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import {
   LayoutDashboard, Users, ShoppingCart, KeyRound, LifeBuoy,
-  LogOut, Shield, Loader2, ChevronLeft, ChevronRight,
+  LogOut, Loader2, ChevronLeft, ChevronRight, UserCheck,
 } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
 import { Logo } from '@/components/ui/Logo'
 
 const navItems = [
-  { href: '/admin', label: 'Vue d\'ensemble', icon: LayoutDashboard },
+  { id: 'overview', href: '/admin', label: 'Vue d\'ensemble', icon: LayoutDashboard },
+  { id: 'online', href: '/admin#online', label: 'En ligne', icon: UserCheck },
   // Ancres vers les onglets de la console de gestion
-  { href: '/admin#users', label: 'Utilisateurs', icon: Users },
-  { href: '/admin#orders', label: 'Commandes', icon: ShoppingCart },
-  { href: '/admin#licenses', label: 'Licences', icon: KeyRound },
-  { href: '/admin#tickets', label: 'Support', icon: LifeBuoy },
+  { id: 'users', href: '/admin#users', label: 'Utilisateurs', icon: Users },
+  { id: 'orders', href: '/admin#orders', label: 'Commandes', icon: ShoppingCart },
+  { id: 'licenses', href: '/admin#licenses', label: 'Licences', icon: KeyRound },
+  { id: 'tickets', href: '/admin#tickets', label: 'Support', icon: LifeBuoy },
 ]
+
+const TAB_TITLES: Record<string, string> = {
+  overview: 'Vue d\'ensemble',
+  online: 'Connectés',
+  users: 'Utilisateurs',
+  orders: 'Commandes',
+  licenses: 'Licences',
+  tickets: 'Support',
+}
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [checking, setChecking] = useState(true)
+  // Onglet actif suivi en direct (les liens sidebar ne semblaient pas répondre)
+  const [hash, setHash] = useState('')
 
   // Garde de sécurité : seul un compte ADMIN accède au panel
   useEffect(() => {
+    const syncHash = () => setHash(window.location.hash.replace('#', ''))
+    syncHash()
+    window.addEventListener('hashchange', syncHash)
     fetch('/api/users/me')
       .then(res => res.json())
       .then(data => {
@@ -37,6 +52,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         setChecking(false)
       })
       .catch(() => router.replace('/auth/login'))
+    return () => window.removeEventListener('hashchange', syncHash)
   }, [router])
 
   if (checking) {
@@ -61,11 +77,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="flex items-center justify-between h-16 lg:h-20 px-4 border-b border-white/[0.08]">
             <Link href="/admin" className="flex items-center gap-3" aria-label="FMX Admin">
               <Logo size={40} />
-              {sidebarOpen && (
-                <span className="font-display font-bold text-heading-md text-fmx-white flex items-center gap-2">
-                  Admin <Shield className="w-4 h-4 text-fmx-red" />
-                </span>
-              )}
             </Link>
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -80,9 +91,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
             {navItems.map(item => {
               const Icon = item.icon
-              const isActive = item.href === '/admin'
-                ? pathname === '/admin'
-                : typeof window !== 'undefined' && window.location.hash === item.href.slice(6)
+              const isActive = item.id === 'overview' ? pathname === '/admin' && !hash : hash === item.id
               return (
                 <Link
                   key={item.href}
@@ -126,7 +135,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         className={cn('min-h-screen transition-all duration-300 ease-expo', sidebarOpen ? 'lg:ml-64' : 'lg:ml-20')}
       >
         <header className="sticky top-0 z-30 bg-fmx-black/95 backdrop-blur-xl border-b border-white/[0.08] h-16 flex items-center px-6 lg:px-8">
-          <h1 className="font-display text-heading-lg text-fmx-white">Console d&apos;administration FMX</h1>
+          <h1 className="font-display text-heading-lg text-fmx-white">{TAB_TITLES[hash] || 'Administration'}</h1>
         </header>
         <div className="p-6 lg:p-8">{children}</div>
       </main>

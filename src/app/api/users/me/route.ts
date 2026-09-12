@@ -29,6 +29,18 @@ export async function GET() {
       return NextResponse.json({ error: 'Utilisateur non trouvé' }, { status: 404 })
     }
 
+    // Présence : rafraîchit lastSeen au plus toutes les 5 min (onglet "En ligne" de l'admin)
+    prisma.session
+      .updateMany({
+        where: {
+          userId: session.userId,
+          token: session.sessionId,
+          lastSeen: { lt: new Date(Date.now() - 5 * 60 * 1000) },
+        },
+        data: { lastSeen: new Date() },
+      })
+      .catch(() => {})
+
     // Le dashboard complet est réservé aux clients avec licence active (admins inclus)
     const hasActiveLicense = user.licenses.length > 0 || user.role === 'ADMIN'
 
