@@ -11,6 +11,16 @@ function redirectWith(origin: string, path: string, params?: Record<string, stri
   return NextResponse.redirect(url.toString())
 }
 
+// Premier admin : le Discord dont l'ID correspond à ADMIN_DISCORD_ID
+// reçoit automatiquement le rôle ADMIN (à définir dans .env).
+async function grantAdminIfOwner(userId: string, discordId: string) {
+  if (!process.env.ADMIN_DISCORD_ID || discordId !== process.env.ADMIN_DISCORD_ID) return
+  await prisma.user.update({
+    where: { id: userId },
+    data: { role: 'ADMIN' },
+  })
+}
+
 // Rappel OAuth Discord : échange le code, puis lie ou crée le compte
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
@@ -64,6 +74,7 @@ export async function GET(request: NextRequest) {
           name: profile.globalName,
         },
       })
+      await grantAdminIfOwner(stateData.userId, profile.id)
 
       await prisma.activityLog.create({
         data: {
@@ -73,7 +84,7 @@ export async function GET(request: NextRequest) {
         },
       })
 
-      return redirectWith(origin, '/dashboard', { verified: 'discord' })
+      return redirectWith(origin, '/', { verified: 'discord' })
     }
 
     // ---- Cas 2 : connexion / inscription via Discord ----
@@ -116,6 +127,9 @@ export async function GET(request: NextRequest) {
       })
     }
 
+    // Premier admin via ADMIN_DISCORD_ID (avant d'ouvrir la session)
+    await grantAdminIfOwner(user.id, profile.id)
+
     // Ouvre une session FMX pour cet utilisateur
     const token = await createToken({
       userId: user.id,
@@ -133,7 +147,8 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    return redirectWith(origin, '/dashboard', { verified: 'discord' })
+    // Reste sur la page d'accueil après connexion (le header affiche pseudo + avatar)
+    return redirectWith(origin, '/', { verified: 'discord' })
   } catch (err) {
     console.error('Discord callback error:', err)
     return redirectWith(origin, '/auth/login', { error: 'discord_server' })

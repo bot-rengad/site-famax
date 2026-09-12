@@ -16,11 +16,28 @@ const navLinks = [
 export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [me, setMe] = useState<{ pseudo: string; avatar: string | null } | null>(null)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', onScroll)
     return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  // Utilisateur connecté : pseudo + avatar Discord en haut à droite
+  useEffect(() => {
+    fetch('/api/users/me')
+      .then(r => (r.ok ? r.json() : null))
+      .then(data => {
+        const u = data?.user
+        if (u) {
+          setMe({
+            pseudo: u.discordGlobalName || u.discordUsername || u.name || u.email.split('@')[0],
+            avatar: u.discordAvatar || null,
+          })
+        }
+      })
+      .catch(() => {})
   }, [])
 
   return (
@@ -46,21 +63,41 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-3">
-          <a
-            href="/dashboard"
-            className="hidden text-[13px] font-medium text-fmx-gray transition-colors hover:text-white sm:block"
-          >
-            Dashboard
-          </a>
-          <a
-            href="/api/auth/discord"
-            className="hidden min-[480px]:inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-white/[0.12]"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M19.73 4.87a18.2 18.2 0 0 0-4.5-1.42c-.22.4-.42.83-.6 1.27a16.13 16.13 0 0 0-4.56 0c-.18-.44-.38-.87-.6-1.27a18.18 18.18 0 0 0-4.5 1.42C2.53 9.1 1.67 13.2 1.89 17.27a18.43 18.43 0 0 0 5.52 2.78c.44-.6.83-1.23 1.14-1.9a12.4 12.4 0 0 1-1.8-.86c.15-.11.3-.22.44-.35a12.9 12.9 0 0 0 6.6 0c.14.13.29.24.44.35a12.4 12.4 0 0 1-1.8.86c.31.67.7 1.3 1.14 1.9a18.43 18.43 0 0 0 5.52-2.78c.37-4.74-1.02-8.84-1.35-10.4ZM9.39 14.55c-1.02 0-1.86-.94-1.86-2.09 0-1.15.82-2.09 1.86-2.09 1.03 0 1.87.94 1.87 2.09 0 1.15-.84 2.09-1.87 2.09Zm5.16 0c-1.02 0-1.86-.94-1.86-2.09 0-1.15.82-2.09 1.86-2.09 1.03 0 1.87.94 1.87 2.09 0 1.15-.84 2.09-1.87 2.09Z" />
-            </svg>
-            Login Discord
-          </a>
+          {me ? (
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.06] py-1.5 pl-1.5 pr-4 transition-colors hover:bg-white/[0.12]"
+              aria-label="Mon espace"
+            >
+              {me.avatar ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={me.avatar} alt="" width={28} height={28} className="h-7 w-7 rounded-full object-cover" />
+              ) : (
+                <span className="grid h-7 w-7 place-items-center rounded-full bg-fmx-red text-[12px] font-extrabold text-white">
+                  {me.pseudo.charAt(0).toUpperCase()}
+                </span>
+              )}
+              <span className="max-w-[120px] truncate text-[13px] font-bold text-white">{me.pseudo}</span>
+            </Link>
+          ) : (
+            <>
+              <a
+                href="/dashboard"
+                className="hidden text-[13px] font-medium text-fmx-gray transition-colors hover:text-white sm:block"
+              >
+                Dashboard
+              </a>
+              <a
+                href="/api/auth/discord"
+                className="hidden min-[480px]:inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-white/[0.12]"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M19.73 4.87a18.2 18.2 0 0 0-4.5-1.42c-.22.4-.42.83-.6 1.27a16.13 16.13 0 0 0-4.56 0c-.18-.44-.38-.87-.6-1.27a18.18 18.18 0 0 0-4.5 1.42C2.53 9.1 1.67 13.2 1.89 17.27a18.43 18.43 0 0 0 5.52 2.78c.44-.6.83-1.23 1.14-1.9a12.4 12.4 0 0 1-1.8-.86c.15-.11.3-.22.44-.35a12.9 12.9 0 0 0 6.6 0c.14.13.29.24.44.35a12.4 12.4 0 0 1-1.8.86c.31.67.7 1.3 1.14 1.9a18.43 18.43 0 0 0 5.52-2.78c.37-4.74-1.02-8.84-1.35-10.4ZM9.39 14.55c-1.02 0-1.86-.94-1.86-2.09 0-1.15.82-2.09 1.86-2.09 1.03 0 1.87.94 1.87 2.09 0 1.15-.84 2.09-1.87 2.09Zm5.16 0c-1.02 0-1.86-.94-1.86-2.09 0-1.15.82-2.09 1.86-2.09 1.03 0 1.87.94 1.87 2.09 0 1.15-.84 2.09-1.87 2.09Z" />
+                </svg>
+                Login Discord
+              </a>
+            </>
+          )}
           <a
             href="#plans"
             className="rounded-full bg-fmx-red px-4 py-2.5 text-[13px] font-bold text-white shadow-[0_8px_24px_rgba(255,26,26,0.35)] transition-transform duration-200 hover:-translate-y-px sm:px-5"
@@ -92,18 +129,21 @@ export function Header() {
               </a>
             ))}
             <a
-              href="/auth/login"
+              href="/dashboard"
+              onClick={() => setMobileOpen(false)}
               className="rounded-lg px-3 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-fmx-gray hover:bg-white/5 hover:text-white"
             >
-              Espace client
+              {me ? `Mon espace — ${me.pseudo}` : 'Espace client'}
             </a>
-            <a
-              href="/api/auth/discord"
-              onClick={() => setMobileOpen(false)}
-              className="rounded-lg bg-[#5865F2] px-3 py-3 text-center text-sm font-bold text-white min-[480px]:hidden"
-            >
-              Login Discord
-            </a>
+            {!me && (
+              <a
+                href="/api/auth/discord"
+                onClick={() => setMobileOpen(false)}
+                className="rounded-lg bg-[#5865F2] px-3 py-3 text-center text-sm font-bold text-white min-[480px]:hidden"
+              >
+                Login Discord
+              </a>
+            )}
           </div>
         </div>
       )}
