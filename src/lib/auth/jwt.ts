@@ -51,7 +51,11 @@ export function generateLicenseKey(): string {
 }
 
 export function generateOrderNumber(): string {
-  const timestamp = Date.now().toString(36).toUpperCase()
-  const random = Math.random().toString(36).substring(2, 8).toUpperCase()
-  return `FMX-${timestamp}-${random}`
+  // Format court et lisible : FMX-8K2N4P (sans caractères ambigus 0/O, 1/I)
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  let code = ''
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return `FMX-${code}`
 }
