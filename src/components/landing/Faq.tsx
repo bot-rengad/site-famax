@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils/helpers'
 const faqs = [
   {
     q: 'Comment se passe une optimisation ?',
-    a: "Diagnostic UserDiag (5 min), avis honnête de l'équipe, paiement, puis intervention de 30 à 45 minutes à distance devant ton écran. Tu testes en jeu, puis tu laisses un avis via le bot du serveur. Détail étape par étape dans « Comment ça se passe ».",
+    a: "Diagnostic UserDiag (5 min), avis honnête de l'équipe, paiement, puis intervention de 15 minutes à distance devant ton écran. Tu testes en jeu, puis tu laisses un avis via le bot du serveur. Détail étape par étape dans « Comment ça se passe ».",
   },
   {
     q: 'Combien ça coûte ?',

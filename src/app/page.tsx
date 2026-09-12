@@ -23,7 +23,7 @@ const JSON_LD = {
   '@type': 'ProfessionalService',
   name: 'FMX Optimisation',
   description:
-    "Optimisation PC gaming à distance : diagnostic UserDiag, avis honnête, intervention 30-45 minutes, suivi 30 jours.",
+    "Optimisation PC gaming à distance : diagnostic UserDiag, avis honnête, intervention 15 minutes, suivi 30 jours.",
   url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
   image: '/images/logo.png',
   priceRange: '20€ - 50€',

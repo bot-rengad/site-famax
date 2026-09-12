@@ -21,6 +21,15 @@ export function OrderChat({ orderId, compact = false }: { orderId: string; compa
   const [sending, setSending] = useState(false)
   const [failed, setFailed] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const taRef = useRef<HTMLTextAreaElement>(null)
+
+  // Zone de saisie auto-agrandissante façon Discord (min 3 lignes, max ~8)
+  useEffect(() => {
+    const el = taRef.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = Math.min(el.scrollHeight, 180) + 'px'
+  }, [draft])
 
   const load = async () => {
     try {
@@ -73,7 +82,7 @@ export function OrderChat({ orderId, compact = false }: { orderId: string; compa
     m.isStaff ? 'Staff FMX' : m.user?.discordGlobalName || m.user?.discordUsername || m.user?.name || 'Client'
 
   return (
-    <div className={cn('flex flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-black/40', compact ? 'max-h-[320px]' : 'max-h-[480px]')}>
+    <div className={cn('flex flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-black/40', compact ? 'max-h-[480px]' : 'max-h-[640px]')}>
       {failed && (
         <button
           onClick={load}
@@ -82,7 +91,7 @@ export function OrderChat({ orderId, compact = false }: { orderId: string; compa
           ⚠ Connexion perdue (base en réveil ?) — clique pour réessayer
         </button>
       )}
-      <div className="flex-1 space-y-3 overflow-y-auto p-4">
+      <div className="min-h-[220px] flex-1 space-y-3 overflow-y-auto p-4">
         {messages.length === 0 && !failed && (
           <p className="py-6 text-center text-[13px] text-fmx-gray">
             Aucun message pour le moment. Pose ta question ici, le staff te répond sur cette commande.
@@ -108,23 +117,35 @@ export function OrderChat({ orderId, compact = false }: { orderId: string; compa
         ))}
         <div ref={bottomRef} />
       </div>
-      <div className="flex gap-2 border-t border-white/[0.08] p-3">
-        <input
-          value={draft}
-          onChange={e => setDraft(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter') send() }}
-          placeholder="Écris ton message…"
-          maxLength={2000}
-          className="flex-1 rounded-full border border-white/[0.08] bg-[#0f0f12] px-4 py-2.5 text-[13px] text-white placeholder:text-fmx-gray focus:border-fmx-red/50 focus:outline-none"
-        />
-        <button
-          onClick={send}
-          disabled={sending || !draft.trim()}
-          aria-label="Envoyer"
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-fmx-red text-white transition-transform hover:scale-105 disabled:opacity-50"
-        >
-          {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-        </button>
+      <div className="border-t border-white/[0.08] bg-white/[0.01] p-3">
+        <div className="flex items-end gap-2">
+          <textarea
+            ref={taRef}
+            value={draft}
+            rows={3}
+            onChange={e => setDraft(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                send()
+              }
+            }}
+            placeholder="Écris ton message…"
+            maxLength={2000}
+            className="max-h-[180px] min-h-[76px] flex-1 resize-none overflow-y-auto rounded-2xl border border-white/[0.08] bg-[#0f0f12] px-4 py-3 text-[14px] leading-relaxed text-white placeholder:text-fmx-gray focus:border-fmx-red/50 focus:outline-none"
+          />
+          <button
+            onClick={send}
+            disabled={sending || !draft.trim()}
+            aria-label="Envoyer"
+            className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-fmx-red text-white transition-transform hover:scale-105 disabled:opacity-50"
+          >
+            {sending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+          </button>
+        </div>
+        <p className="mt-1.5 px-1 text-[11px] text-fmx-gray">
+          Entrée pour envoyer • Maj + Entrée pour un saut de ligne
+        </p>
       </div>
     </div>
   )

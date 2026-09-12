@@ -18,7 +18,6 @@ export function Footer() {
         <nav aria-label="Navigation pied de page" className="mt-6 flex flex-wrap items-center justify-center gap-x-7 gap-y-2 text-[13px] text-fmx-gray">
           <a href="/#plans" className="transition-colors hover:text-white">Plans</a>
           <a href="/#config" className="transition-colors hover:text-white">Estimateur FPS</a>
-          <a href="/#payments" className="transition-colors hover:text-white">Paiement</a>
           <a href="/#deroulement" className="transition-colors hover:text-white">Déroulé</a>
           <Link href="/dashboard" className="transition-colors hover:text-white">Espace client</Link>
           <a href="https://discord.gg/fmx" target="_blank" rel="noreferrer" className="text-fmx-red hover:underline">

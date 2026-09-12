@@ -9,7 +9,6 @@ import { Logo } from '@/components/ui/Logo'
 const navLinks = [
   { href: '/#plans', label: 'Plans', section: 'plans' },
   { href: '/#config', label: 'Estimateur FPS', section: 'config' },
-  { href: '/#payments', label: 'Paiement', section: 'payments' },
   { href: '/#deroulement', label: 'Déroulé', section: 'deroulement' },
 ]
 
@@ -118,6 +117,15 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-3">
+          {me?.role === 'ADMIN' && (
+            <Link
+              href="/admin"
+              className="hidden items-center gap-2 rounded-full border border-fmx-red/40 bg-fmx-red/10 px-4 py-2 text-[13px] font-bold text-fmx-red transition-colors hover:bg-fmx-red/20 md:inline-flex"
+            >
+              <ShieldCheck className="h-4 w-4" />
+              Admin
+            </Link>
+          )}
           {me ? (
             <Link
               href="/dashboard"

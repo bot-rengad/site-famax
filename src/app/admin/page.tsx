@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import {
   Users, ShoppingCart, Euro, TrendingUp,
   Loader2, Ban, CheckCircle2, Trash2,
-  UserCheck, UserX, MessageSquare,
+  UserCheck, UserX, MessageSquare, RefreshCw,
 } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
 import { Button } from '@/components/ui/Button'
@@ -18,11 +18,7 @@ import { toast } from 'react-hot-toast'
 interface Stats {
   totalUsers: number
   totalOrders: number
-  completedOrders: number
-  activeLicenses: number
-  openTickets: number
   revenue: number
-  checklistCompletion: number
 }
 
 interface RecentOrder {
@@ -84,8 +80,26 @@ interface OnlineUser {
   activeNow: boolean
 }
 
-const statusBadge = (status: string) => {
-  switch (status) {
+// Skeleton local : occupe l'onglet pendant son chargement,
+// sans masquer tout le panel comme l'ancien spinner plein écran.
+function TabSkeleton({ rows = 4 }: { rows?: number }) {
+  return (
+    <div className="space-y-3" aria-label="Chargement en cours">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        {[0, 1, 2].map(i => (
+          <div key={i} className="h-24 animate-pulse rounded-2xl border border-white/[0.06] bg-white/[0.03]" />
+        ))}
+      </div>
+      <div className="animate-pulse rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5">
+        {[...Array(rows)].map((_, i) => (
+          <div key={i} className="mb-3 h-4 rounded bg-white/[0.06] last:mb-0" style={{ width: `${92 - i * 7}%` }} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+const statusBadge = (status: string) => {  switch (status) {
     case 'COMPLETED': case 'ACTIVE': case 'CLOSED': return <Badge variant="green" dot>{status}</Badge>
     case 'PENDING': case 'OPEN': return <Badge variant="yellow" dot>{status}</Badge>
     case 'REVOKED': case 'CANCELLED': case 'REFUNDED': return <Badge variant="red" dot>{status}</Badge>
@@ -108,6 +122,7 @@ function safeAddonList(raw: string | null | undefined): string {
 export default function AdminPage() {
   const [tab, setTab] = useState<TabId>('overview')
   const [loading, setLoading] = useState(true)
+  const [tabLoading, setTabLoading] = useState<TabId | null>(null)
   const [stats, setStats] = useState<Stats | null>(null)
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([])
   const [users, setUsers] = useState<AdminUser[]>([])
@@ -115,8 +130,9 @@ export default function AdminPage() {
   const [openChatOrderId, setOpenChatOrderId] = useState<string | null>(null)
   const [ordersFilter, setOrdersFilter] = useState<'all' | 'pending'>('pending')
   const [online, setOnline] = useState<OnlineUser[]>([])
-  // Onglets déjà chargés (les autres se chargent à l'ouverture : rapide au démarrage)
-  const loadedTabs = useRef<Set<TabId>>(new Set(['overview']))
+  // Onglets déjà chargés : on ne recharge jamais sans demande explicite
+  // (fini le spinner plein écran à chaque changement d'onglet).
+  const loadedTabs = useRef<Set<TabId>>(new Set())
 
   // Lecture du hash d'URL + suivi des clics sidebar (sinon les liens ont l'air morts)
   useEffect(() => {
@@ -129,12 +145,14 @@ export default function AdminPage() {
     return () => window.removeEventListener('hashchange', sync)
   }, [])
 
-  // Charge l'essentiel au démarrage (vue d'ensemble), le reste à l'ouverture de l'onglet
+  // Charge les données d'un onglet (une seule fois, sauf refresh manuel).
+  // Pendant le chargement : skeleton local, jamais de spinner plein écran.
   const loadTab = useCallback(async (id: TabId, force = false) => {
     if (!force && loadedTabs.current.has(id)) return
     loadedTabs.current.add(id)
+    setTabLoading(id)
     try {
-      if (id === 'overview' || force) {
+      if (id === 'overview') {
         const [statsRes, ordersRes] = await Promise.all([
           fetch('/api/admin/stats'),
           fetch('/api/admin/orders'),
@@ -146,36 +164,55 @@ export default function AdminPage() {
         }
         if (ordersRes.ok) setOrders((await ordersRes.json()).orders || [])
       }
-      if (id === 'online' || force) {
+      if (id === 'online') {
         const r = await fetch('/api/admin/sessions')
         if (r.ok) setOnline((await r.json()).online || [])
       }
-      if (id === 'users' || force) {
+      if (id === 'users') {
         const r = await fetch('/api/admin/users')
         if (r.ok) setUsers((await r.json()).users || [])
       }
+      // L'onglet commandes réutilise les données de la vue d'ensemble si déjà là
+      if (id === 'orders' && !loadedTabs.current.has('overview')) {
+        const r = await fetch('/api/admin/orders')
+        if (r.ok) setOrders((await r.json()).orders || [])
+      }
     } catch {
+      loadedTabs.current.delete(id)
       toast.error('Erreur de chargement des données admin')
+    } finally {
+      setTabLoading(current => (current === id ? null : current))
     }
   }, [])
 
-  const loadAll = useCallback(async () => {
-    setLoading(true)
-    try {
-      loadedTabs.current = new Set(['overview'])
-      await loadTab('overview', true)
-      await loadTab(tab, true)
-    } finally {
-      setLoading(false)
-    }
-  }, [loadTab, tab])
+  // Démarrage : vue d'ensemble + onglet du hash en parallèle, un seul loader initial
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '') as TabId
+    const first: TabId = tabs.some(t => t.id === hash) ? hash : 'overview';
+    (async () => {
+      setLoading(true)
+      try {
+        await Promise.all([
+          loadTab('overview'),
+          ...(first !== 'overview' ? [loadTab(first)] : []),
+        ])
+      } finally {
+        setLoading(false)
+      }
+    })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  useEffect(() => { loadAll() }, [loadAll])
-
-  // Charge l'onglet à son ouverture
+  // Charge l'onglet à son ouverture (depuis le cache si déjà vu)
   useEffect(() => {
     if (!loading) loadTab(tab)
   }, [tab, loading, loadTab])
+
+  // Recharge manuelle de l'onglet courant (bouton Actualiser)
+  const refreshTab = useCallback(async () => {
+    loadedTabs.current.delete(tab)
+    await loadTab(tab, true)
+  }, [tab, loadTab])
 
   // ----- Actions de gestion -----
 
@@ -234,9 +271,21 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Actualiser : recharge uniquement l'onglet courant */}
+      <div className="flex justify-end">
+        <button
+          onClick={refreshTab}
+          disabled={tabLoading !== null}
+          className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[12px] font-bold text-fmx-gray transition-colors hover:border-fmx-red/40 hover:text-white disabled:opacity-50"
+        >
+          <RefreshCw className={cn('h-3.5 w-3.5', tabLoading === tab && 'animate-spin')} />
+          {tabLoading === tab ? 'Chargement…' : 'Actualiser'}
+        </button>
+      </div>
+
       {/* ===== VUE D'ENSEMBLE ===== */}
-      {tab === 'overview' && stats && (
+      {tab === 'overview' && (stats ? (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
           {/* Alerte commandes à valider */}
           {orders.filter(o => o.status === 'PENDING').length > 0 && (
@@ -309,10 +358,14 @@ export default function AdminPage() {
             </CardContent>
           </Card>
         </motion.div>
-      )}
+      ) : (
+        <TabSkeleton />
+      ))}
 
       {/* ===== EN LIGNE ===== */}
-      {tab === 'online' && (
+      {tab === 'online' && (tabLoading === 'online' && online.length === 0 ? (
+        <TabSkeleton rows={3} />
+      ) : (
         <Card variant="glass" padding="lg">
           <CardHeader><CardTitle>En ligne — actifs dans les 30 dernières minutes ({online.length})</CardTitle></CardHeader>
           <CardContent>
@@ -364,10 +417,12 @@ export default function AdminPage() {
             </div>
           </CardContent>
         </Card>
-      )}
+      ))}
 
       {/* ===== UTILISATEURS ===== */}
-      {tab === 'users' && (
+      {tab === 'users' && (tabLoading === 'users' && users.length === 0 ? (
+        <TabSkeleton rows={5} />
+      ) : (
         <Card variant="glass" padding="lg">
           <CardHeader><CardTitle>Gestion des utilisateurs ({users.length})</CardTitle></CardHeader>
           <CardContent>
@@ -422,10 +477,12 @@ export default function AdminPage() {
             </div>
           </CardContent>
         </Card>
-      )}
+      ))}
 
       {/* ===== COMMANDES ===== */}
-      {tab === 'orders' && (
+      {tab === 'orders' && (tabLoading === 'orders' && orders.length === 0 ? (
+        <TabSkeleton rows={5} />
+      ) : (
         <Card variant="glass" padding="lg">
           <CardHeader className="mb-4 flex flex-row flex-wrap items-center justify-between gap-3">
             <CardTitle>Toutes les commandes ({orders.length})</CardTitle>
@@ -516,7 +573,7 @@ export default function AdminPage() {
             </div>
           </CardContent>
         </Card>
-      )}
+      ))}
 
     </div>
   )

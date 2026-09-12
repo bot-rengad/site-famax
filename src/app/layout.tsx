@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     default: 'FMX Optimisation — Optimisation PC Gaming Premium',
     template: '%s | FMX Optimisation',
   },
-  description: "L'optimisation PC haut de gamme pour joueurs compétitifs. Analyse UserDiag et avis du staff, intervention à distance en 30-45 minutes.",
+  description: "L'optimisation PC haut de gamme pour joueurs compétitifs. Analyse UserDiag et avis du staff, intervention à distance en 15 minutes.",
   keywords: ['optimisation PC', 'gaming', 'FPS', 'latence', 'esport', 'performance', 'overclocking', 'tweak', 'Windows'],
   authors: [{ name: 'FMX Optimisation' }],
   creator: 'FMX Optimisation',
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     url: 'https://fmx-optimisation.com',
     siteName: 'FMX Optimisation',
     title: 'FMX Optimisation — Optimisation PC Gaming Premium',
-    description: "Diagnostic UserDiag et avis du staff, intervention à distance en 30-45 minutes, suivi 30 jours.",
+    description: "Diagnostic UserDiag et avis du staff, intervention à distance en 15 minutes, suivi 30 jours.",
     images: [
       {
         url: '/images/logo.png',
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'FMX Optimisation',
-    description: 'Diagnostic UserDiag et avis du staff, intervention à distance en 30-45 minutes.',
+    description: 'Diagnostic UserDiag et avis du staff, intervention à distance en 15 minutes.',
     images: ['/images/logo.png'],
     creator: '@fmxopt',
   },

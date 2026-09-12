@@ -21,7 +21,7 @@ export default function ConditionsGenerales() {
             paiement unique. Options : réinstallation Windows +5€, stream +7€, suivi à vie +5€,
             périphériques +5€, undervolt & overclocking +20€, dépannage 5 à 15€.
             Déroulé : diagnostic UserDiag, analyse et avis honnête (sans chiffres garantis),
-            paiement, intervention 30–45 min à distance, test en jeu par le client.
+            paiement, intervention 15 min à distance, test en jeu par le client.
           </p>
         </section>
         <section className="fmx-window rounded-2xl p-6">

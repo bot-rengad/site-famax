@@ -26,8 +26,8 @@ const steps = [
   {
     icon: MonitorCog,
     step: 'Étape 4',
-    title: 'Optimisation (30–45 min)',
-    desc: "Intervention à distance, protocole strict dans un ordre précis : sauvegarde, épuration système, réglages GPU / réseau / jeu, redémarrages de validation. Tu restes devant ton PC.",
+    title: 'Optimisation (15 min)',
+    desc: "Intervention à distance, protocole strict dans un ordre précis : sauvegarde, épuration système, réglages GPU / réseau / jeu, redémarrage de validation. Tu restes devant ton PC.",
   },
   {
     icon: Gamepad2,

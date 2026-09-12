@@ -1,6 +1,6 @@
 'use client'
 
-import { Zap, ShieldCheck, Truck, Headset, Wallet } from 'lucide-react'
+import { ShieldCheck, Timer, Headset, Wallet, Eye, CreditCard, LifeBuoy } from 'lucide-react'
 
 // Hero style FMX — badge / gros titre / sous-titre / 2 CTA / 3 infos / trusted row
 export function Hero({ onOrder }: { onOrder?: () => void }) {
@@ -23,7 +23,7 @@ export function Hero({ onOrder }: { onOrder?: () => void }) {
 
         <p className="mx-auto mt-5 max-w-[620px] text-[15px] leading-relaxed text-fmx-gray">
           Portail d&apos;optimisation premium — analyse de ton UserDiag et avis du staff avant de payer,
-          intervention à distance en 30–45 min. <b className="text-white">Aucun chiffre garanti</b>,
+          intervention à distance en 15 min. <b className="text-white">Aucun chiffre garanti</b>,
           aucun abonnement, zéro attente.
         </p>
 
@@ -47,7 +47,7 @@ export function Hero({ onOrder }: { onOrder?: () => void }) {
         {/* 3 infos */}
         <div className="mx-auto mt-10 grid max-w-[680px] grid-cols-1 gap-3 sm:grid-cols-3">
           {[
-            { icon: Truck, label: 'Intervention', value: '45 min à distance' },
+            { icon: Timer, label: 'Intervention', value: '15 min à distance' },
             { icon: Headset, label: 'Support', value: 'Discord 24/7' },
             { icon: Wallet, label: 'Paiement', value: 'PayPal • Virement' },
           ].map(item => (
@@ -64,24 +64,26 @@ export function Hero({ onOrder }: { onOrder?: () => void }) {
           ))}
         </div>
 
-        {/* Trusted row — preuves réelles, sans chiffres inventés */}
+        {/* Pourquoi FMX — vrais arguments face à la concurrence */}
         <div className="mt-10 border-t border-white/[0.08] pt-6">
           <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-fmx-gray">
             Pourquoi passer par <span className="text-white">FMX</span>
           </div>
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] text-fmx-gray">
-            <span className="inline-flex items-center gap-1.5">
-              <Zap className="h-3.5 w-3.5 text-fmx-red" /> Analyse UserDiag + avis staff
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5 text-green-500" /> Avis honnête, zéro promesse
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5 text-green-500" /> Suivi 30 jours inclus
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-green-500" /> 100% à distance, en direct
-            </span>
+          <div className="mx-auto mt-4 grid max-w-[720px] gap-2 text-left sm:grid-cols-2">
+            {[
+              { icon: ShieldCheck, color: 'text-green-500', title: 'On refuse la vente si ça sert à rien', desc: "Diagnostic honnête avant de payer, pas de promesse bidon." },
+              { icon: Eye, color: 'text-fmx-red', title: 'Fait main, en direct devant toi', desc: "Un vrai technicien, pas un logiciel miracle opaque." },
+              { icon: CreditCard, color: 'text-fmx-red', title: 'Paiement unique, zéro abonnement', desc: "Tu paies une fois, l'effet est permanent." },
+              { icon: LifeBuoy, color: 'text-green-500', title: 'Suivi 30 jours inclus', desc: "On reste dispo après l'intervention si besoin." },
+            ].map(arg => (
+              <div key={arg.title} className="flex items-start gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3">
+                <arg.icon className={`mt-0.5 h-4 w-4 shrink-0 ${arg.color}`} />
+                <div>
+                  <div className="text-[13px] font-bold text-white">{arg.title}</div>
+                  <div className="mt-0.5 text-[12px] leading-snug text-fmx-gray">{arg.desc}</div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

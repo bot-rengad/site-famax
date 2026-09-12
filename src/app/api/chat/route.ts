@@ -32,7 +32,7 @@ const INTENTS: Intent[] = [
     id: 'greeting',
     keywords: ['bonjour', 'salut', 'hello', 'yo', 'coucou', 'hey', 'bonsoir', 'wesh'],
     answer: () =>
-      "Salut ! Bienvenue chez FMX Optimisation. Je suis l'assistant FMX, je peux te renseigner sur nos offres (Basic 20€, Complet 25€, Ultime 50€), le déroulé (diagnostic UserDiag + avis staff, 30–45 min à distance), ou t'aider à diagnostiquer tes problèmes de performance. Que veux-tu savoir ?",
+      "Salut ! Bienvenue chez FMX Optimisation. Je suis l'assistant FMX, je peux te renseigner sur nos offres (Basic 20€, Complet 25€, Ultime 50€), le déroulé (diagnostic UserDiag + avis staff, 15 min à distance), ou t'aider à diagnostiquer tes problèmes de performance. Que veux-tu savoir ?",
     quickReplies: ['Ça coûte combien ?', 'Comment ça se passe ?', 'Compatible avec mon PC ?', 'Chutes de FPS'],
   },
   {
@@ -60,7 +60,7 @@ const INTENTS: Intent[] = [
     id: 'results',
     keywords: ['resultat', 'resultats', 'gain', 'gains', 'fps', 'performance', 'efficace', 'ca marche', 'combo', 'combien fps', 'avis', 'note'],
     answer: () =>
-      "On ne promet aucun chiffre garanti — c'est notre règle d'honnêteté. Ce qu'on fait : analyse de ton UserDiag et avis du staff sur ce qui bride ton PC et les gains attendus, puis 30–45 min d'intervention à distance que tu suis en direct. Les avis clients sont visibles sur le Discord, laissés via le bot de review.",
+      "On ne promet aucun chiffre garanti — c'est notre règle d'honnêteté. Ce qu'on fait : analyse de ton UserDiag et avis du staff sur ce qui bride ton PC et les gains attendus, puis 15 min d'intervention à distance que tu suis en direct. Les avis clients sont visibles sur le Discord, laissés via le bot de review.",
     quickReplies: ['Compatible avec mon PC ?', 'Ça coûte combien ?', 'Et mon ping ?'],
   },
   {
@@ -106,7 +106,7 @@ const INTENTS: Intent[] = [
     id: 'how_works',
     keywords: ['comment', 'marche', 'fonctionne', 'methode', 'technique', 'logiciel', 'programme', 'contenu', 'quoi', 'details', 'expliquer', 'concret', 'script'],
     answer: () =>
-      "La méthode exacte est confidentielle — on ne détaille pas les réglages, c'est notre savoir-faire. Le déroulé, lui, est transparent : diagnostic UserDiag (5 min), analyse et avis honnête, paiement (20€/25€/50€), intervention 30–45 min à distance devant ton écran, test en jeu par toi, puis avis via le bot. Ouvre un ticket sur le Discord avec ton rapport UserDiag pour commencer.",
+      "La méthode exacte est confidentielle — on ne détaille pas les réglages, c'est notre savoir-faire. Le déroulé, lui, est transparent : diagnostic UserDiag (5 min), analyse et avis honnête, paiement (20€/25€/50€), intervention 15 min à distance devant ton écran, test en jeu par toi, puis avis via le bot. Ouvre un ticket sur le Discord avec ton rapport UserDiag pour commencer.",
     quickReplies: ['Quels résultats ?', 'Ça coûte combien ?', 'Et si ça ne marche pas ?'],
   },
   {
@@ -134,7 +134,7 @@ const INTENTS: Intent[] = [
     id: 'who',
     keywords: ['qui etes', 'qui est fmx', 'c est quoi fmx', 'fmx', 'entreprise', 'equipe', 'presentation'],
     answer: () =>
-      "FMX Optimisation, c'est une équipe de passionnés d'esport spécialisée dans la performance PC gaming : analyse UserDiag + avis staff, intervention 30–45 min à distance, suivi 30 jours. Offres à 20€, 25€ et 50€ selon le niveau.",
+      "FMX Optimisation, c'est une équipe de passionnés d'esport spécialisée dans la performance PC gaming : analyse UserDiag + avis staff, intervention 15 min à distance, suivi 30 jours. Offres à 20€, 25€ et 50€ selon le niveau.",
     quickReplies: ['Quels résultats ?', 'Ça coûte combien ?'],
   },
   {
