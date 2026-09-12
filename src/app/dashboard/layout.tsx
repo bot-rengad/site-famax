@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { LogOut, MessageCircle } from 'lucide-react'
+import { LogOut, MessageCircle, ShieldCheck } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePathname } from 'next/navigation'
 import { Logo } from '@/components/ui/Logo'
@@ -15,7 +15,7 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
-  const [me, setMe] = useState<{ pseudo: string; avatar: string | null } | null>(null)
+  const [me, setMe] = useState<{ pseudo: string; avatar: string | null; role: string } | null>(null)
 
   useEffect(() => {
     // Ne déconnecte QUE si le serveur répond explicitement 401 (session expirée).
@@ -31,6 +31,7 @@ export default function DashboardLayout({
           setMe({
             pseudo: u.discordGlobalName || u.discordUsername || u.name || u.email.split('@')[0],
             avatar: u.discordAvatar || null,
+            role: u.role || 'USER',
           })
         }
       })
@@ -62,6 +63,15 @@ export default function DashboardLayout({
           </div>
 
           <div className="flex items-center gap-3">
+            {me?.role === 'ADMIN' && (
+              <Link
+                href="/admin"
+                className="hidden items-center gap-2 rounded-full border border-fmx-red/40 bg-fmx-red/10 px-4 py-2 text-[13px] font-bold text-fmx-red transition-colors hover:bg-fmx-red/20 sm:inline-flex"
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Admin
+              </Link>
+            )}
             <a
               href="https://discord.gg/fmx"
               target="_blank"

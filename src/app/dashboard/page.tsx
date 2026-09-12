@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Check, Lock, Receipt } from 'lucide-react'
+import { Check, Lock, MessageCircle, Receipt } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
@@ -65,6 +65,7 @@ export default function DashboardPage() {
   const latest = orders.length > 0 ? orders[0] : null
   const paid = latest && (latest.status === 'PAID' || latest.status === 'COMPLETED')
   const cancelled = latest?.status === 'CANCELLED'
+  const pending = latest && latest.status === 'PENDING'
 
   const steps = [
     {
@@ -117,6 +118,23 @@ export default function DashboardPage() {
           4 étapes, tout se passe sur Discord. Suis le guide :
         </p>
       </div>
+
+      {/* Accès rapide : commande en cours */}
+      {pending && latest && (
+        <Link
+          href={`/dashboard/orders/${latest.id}`}
+          className="flex items-center gap-4 rounded-2xl border border-fmx-red/40 bg-gradient-to-r from-fmx-red/[0.14] to-transparent p-5 transition-transform hover:-translate-y-px"
+        >
+          <span className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-fmx-red text-white">
+            <MessageCircle className="h-5 w-5" />
+            <span className="absolute -right-0.5 -top-0.5 h-3 w-3 animate-pulse rounded-full bg-green-400" />
+          </span>
+          <span className="flex-1">
+            <b className="block text-white">Commande {latest.orderNumber} en cours</b>
+            <span className="block text-[13px] text-fmx-gray">Reprends où tu en es + discute avec le staff →</span>
+          </span>
+        </Link>
+      )}
 
       {/* Funnel achat → opti */}
       <Card variant="glass" padding="lg">

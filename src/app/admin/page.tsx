@@ -127,6 +127,7 @@ export default function AdminPage() {
   const [tickets, setTickets] = useState<AdminTicket[]>([])
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({})
   const [openChatOrderId, setOpenChatOrderId] = useState<string | null>(null)
+  const [ordersFilter, setOrdersFilter] = useState<'all' | 'pending'>('pending')
   const [online, setOnline] = useState<OnlineUser[]>([])
   // Onglets déjà chargés (les autres se chargent à l'ouverture : rapide au démarrage)
   const loadedTabs = useRef<Set<TabId>>(new Set(['overview']))
@@ -330,6 +331,21 @@ export default function AdminPage() {
       {/* ===== VUE D'ENSEMBLE ===== */}
       {tab === 'overview' && stats && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+          {/* Alerte commandes à valider */}
+          {orders.filter(o => o.status === 'PENDING').length > 0 && (
+            <button
+              onClick={() => { setTab('orders'); window.location.hash = 'orders'; setOrdersFilter('pending') }}
+              className="flex w-full items-center gap-4 rounded-2xl border border-fmx-red/40 bg-gradient-to-r from-fmx-red/[0.14] to-transparent p-5 text-left transition-transform hover:-translate-y-px"
+            >
+              <span className="grid h-11 w-11 shrink-0 animate-pulse place-items-center rounded-full bg-fmx-red font-extrabold text-white">
+                {orders.filter(o => o.status === 'PENDING').length}
+              </span>
+              <span className="flex-1">
+                <b className="block text-white">Commandes en attente de validation</b>
+                <span className="block text-[13px] text-fmx-gray">Vérifie les preuves sur Discord puis valide →</span>
+              </span>
+            </button>
+          )}
           {/* Cartes statistiques */}
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
             {[
@@ -507,7 +523,23 @@ export default function AdminPage() {
       {/* ===== COMMANDES ===== */}
       {tab === 'orders' && (
         <Card variant="glass" padding="lg">
-          <CardHeader><CardTitle>Toutes les commandes ({orders.length})</CardTitle></CardHeader>
+          <CardHeader className="mb-4 flex flex-row flex-wrap items-center justify-between gap-3">
+            <CardTitle>Toutes les commandes ({orders.length})</CardTitle>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setOrdersFilter('pending')}
+                className={ordersFilter === 'pending' ? 'rounded-full bg-fmx-red px-4 py-2 text-[12px] font-bold text-white' : 'rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-[12px] font-bold text-fmx-gray hover:text-white'}
+              >
+                En attente ({orders.filter(o => o.status === 'PENDING').length})
+              </button>
+              <button
+                onClick={() => setOrdersFilter('all')}
+                className={ordersFilter === 'all' ? 'rounded-full bg-fmx-red px-4 py-2 text-[12px] font-bold text-white' : 'rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-[12px] font-bold text-fmx-gray hover:text-white'}
+              >
+                Toutes
+              </button>
+            </div>
+          </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -524,7 +556,10 @@ export default function AdminPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.map(o => (
+                  {orders
+                    .filter(o => ordersFilter === 'all' || o.status === 'PENDING')
+                    .sort((a, b) => (a.status === 'PENDING' ? 0 : 1) - (b.status === 'PENDING' ? 0 : 1))
+                    .map(o => (
                     <Fragment key={o.id}>
                     <tr className="border-b border-fmx-border/30 last:border-0">
                       <td className="py-3 pr-4 font-mono text-xs text-fmx-white-dim">{o.orderNumber}</td>
