@@ -19,17 +19,19 @@ export function OrderChat({ orderId, compact = false }: { orderId: string; compa
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [draft, setDraft] = useState('')
   const [sending, setSending] = useState(false)
+  const [failed, setFailed] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const load = async () => {
     try {
       const res = await fetch(`/api/orders/${orderId}/messages`)
-      if (res.ok) {
-        const data = await res.json()
-        setMessages(data.messages || [])
-      }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data = await res.json()
+      setMessages(data.messages || [])
+      setFailed(false)
     } catch {
-      /* silencieux : réessayé au prochain passage */
+      // Échec (base en réveil, réseau...) : on l'affiche au lieu du vide silencieux
+      setFailed(true)
     }
   }
 
@@ -48,17 +50,20 @@ export function OrderChat({ orderId, compact = false }: { orderId: string; compa
     const text = draft.trim()
     if (!text || sending) return
     setSending(true)
+    setFailed(false)
     try {
       const res = await fetch(`/api/orders/${orderId}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text }),
       })
-      if (res.ok) {
-        const data = await res.json()
-        setMessages(prev => [...prev, data.message])
-        setDraft('')
-      }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data = await res.json()
+      setMessages(prev => [...prev, data.message])
+      setDraft('')
+    } catch {
+      // Le brouillon est conservé : rien n'est perdu, un bouton Réessayer apparaît
+      setFailed(true)
     } finally {
       setSending(false)
     }
@@ -69,8 +74,16 @@ export function OrderChat({ orderId, compact = false }: { orderId: string; compa
 
   return (
     <div className={cn('flex flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-black/40', compact ? 'max-h-[320px]' : 'max-h-[480px]')}>
+      {failed && (
+        <button
+          onClick={load}
+          className="border-b border-yellow-500/25 bg-yellow-500/[0.08] px-4 py-2.5 text-center text-[12px] font-bold text-yellow-200 transition-colors hover:bg-yellow-500/[0.14]"
+        >
+          ⚠ Connexion perdue (base en réveil ?) — clique pour réessayer
+        </button>
+      )}
       <div className="flex-1 space-y-3 overflow-y-auto p-4">
-        {messages.length === 0 && (
+        {messages.length === 0 && !failed && (
           <p className="py-6 text-center text-[13px] text-fmx-gray">
             Aucun message pour le moment. Pose ta question ici, le staff te répond sur cette commande.
           </p>
