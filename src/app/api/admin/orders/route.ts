@@ -3,13 +3,7 @@ import { prisma } from '@/lib/db/prisma'
 import { generateLicenseKey } from '@/lib/auth/jwt'
 import { notifyLicenseActivated } from '@/lib/discord-notify'
 
-// Vérifie que la requête provient d'un administrateur authentifié
-async function requireAdmin() {
-  const { getSession } = await import('@/lib/auth/server')
-  const session = await getSession()
-  if (!session || session.role !== 'ADMIN') return null
-  return session
-}
+import { requireAdmin } from '@/lib/auth/admin' 
 
 // Liste complète des commandes avec client et licence associés
 export async function GET() {

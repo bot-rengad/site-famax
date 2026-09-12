@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
+import { requireAdmin } from '@/lib/auth/admin'
 
 // Utilisateurs actuellement connectés : sessions non expirées.
 // Regroupés par utilisateur, avec leurs dernières commandes
 // (accès direct au chat de chaque commande depuis l'onglet En ligne).
 export async function GET() {
   try {
-    const { getSession } = await import('@/lib/auth/server')
-    const session = await getSession()
-    if (!session || session.role !== 'ADMIN') {
+    const session = await requireAdmin()
+    if (!session) {
       return NextResponse.json({ error: 'Accès réservé aux administrateurs' }, { status: 403 })
     }
 

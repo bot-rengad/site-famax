@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { ShinamiBackground } from '@/components/landing/ShinamiBackground'
@@ -12,7 +13,6 @@ import { PaymentSection } from '@/components/landing/PaymentSection'
 import { Faq } from '@/components/landing/Faq'
 import { Testimonials } from '@/components/landing/Testimonials'
 import { StickyCta } from '@/components/landing/StickyCta'
-import { OrderForm } from '@/components/landing/OrderForm'
 import { Chatbot } from '@/components/ui/Chatbot'
 import { CookieBanner } from '@/components/ui/CookieBanner'
 
@@ -32,13 +32,13 @@ const JSON_LD = {
 }
 
 export default function HomePage() {
-  const [orderOpen, setOrderOpen] = useState(false)
+  const router = useRouter()
   const [selectedPlan, setSelectedPlan] = useState<PlanId | null>(null)
 
+  // Tous les boutons Commander mènent à la page commande du dashboard
+  // (pack → options → paiement → suivi + chat). Pas de compte ? login Discord sur place.
   const handleOrder = () => {
-    // Si aucun plan choisi, défaut Basic (comme avant)
-    if (!selectedPlan) setSelectedPlan('BASIC')
-    setOrderOpen(true)
+    router.push('/dashboard/order')
   }
 
   return (
@@ -67,12 +67,6 @@ export default function HomePage() {
 
       {/* CTA sticky mobile */}
       <StickyCta />
-
-      <OrderForm
-        isOpen={orderOpen}
-        onClose={() => setOrderOpen(false)}
-        selectedPackage={selectedPlan ?? 'BASIC'}
-      />
 
       {/* Chatbot FMX flottant */}
       <Chatbot />

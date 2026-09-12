@@ -113,7 +113,7 @@ export function Header() {
             </>
           )}
           <a
-            href="#plans"
+            href="/dashboard/order"
             className="rounded-full bg-fmx-red px-4 py-2.5 text-[13px] font-bold text-white shadow-[0_8px_24px_rgba(255,26,26,0.35)] transition-transform duration-200 hover:-translate-y-px sm:px-5"
           >
             Commander →

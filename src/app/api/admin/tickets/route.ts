@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 
-// Vérifie que la requête provient d'un administrateur authentifié
-async function requireAdmin() {
-  const { getSession } = await import('@/lib/auth/server')
-  const session = await getSession()
-  if (!session || session.role !== 'ADMIN') return null
-  return session
-}
+import { requireAdmin } from '@/lib/auth/admin' 
 
 // Liste complète des tickets support avec messages
 export async function GET() {
