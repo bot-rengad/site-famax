@@ -32,8 +32,8 @@ const WELCOME: Message = {
   id: 0,
   role: 'bot',
   content:
-    "Salut ! Je suis l'assistant FMX. Pose-moi tes questions sur l'optimisation : prix, résultats, compatibilité avec ta config...",
-  quickReplies: ['Ça coûte combien ?', 'Quels résultats ?', 'Compatible avec mon PC ?', 'Chutes de FPS'],
+    "Salut ! Je suis l'assistant FMX. Pose-moi tes questions : prix, ta config (CPU, GPU, RAM), tes soucis de FPS, ping ou crashs...",
+  quickReplies: ['Ça coûte combien ?', 'Conseil pour ma config ?', 'Chutes de FPS', 'C’est quoi UserDiag ?'],
 }
 
 export function Chatbot() {
