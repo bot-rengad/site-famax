@@ -93,9 +93,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               const Icon = item.icon
               const isActive = item.id === 'overview' ? pathname === '/admin' && !hash : hash === item.id
               return (
-                <Link
+                // <a> natif + hash assigné à la main : Next avale les ancres
+                // via pushState (sans hashchange), ici le clic change vraiment d'onglet.
+                <a
                   key={item.href}
                   href={item.href}
+                  onClick={e => {
+                    e.preventDefault()
+                    if (item.id === 'overview') {
+                      window.location.hash = ''
+                      router.push('/admin')
+                    } else {
+                      window.location.hash = item.id
+                    }
+                  }}
                   className={cn(
                     'flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 border',
                     isActive
@@ -106,7 +117,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   {sidebarOpen && <span className="font-display font-medium text-sm">{item.label}</span>}
-                </Link>
+                </a>
               )
             })}
           </nav>

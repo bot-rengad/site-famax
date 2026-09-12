@@ -17,6 +17,7 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [me, setMe] = useState<{ pseudo: string; avatar: string | null } | null>(null)
+  const [latestOrderId, setLatestOrderId] = useState<string | null>(null)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -25,6 +26,7 @@ export function Header() {
   }, [])
 
   // Utilisateur connecté : pseudo + avatar Discord en haut à droite
+  // + lien direct vers sa dernière commande en cours
   useEffect(() => {
     fetch('/api/users/me')
       .then(r => (r.ok ? r.json() : null))
@@ -35,6 +37,13 @@ export function Header() {
             pseudo: u.discordGlobalName || u.discordUsername || u.name || u.email.split('@')[0],
             avatar: u.discordAvatar || null,
           })
+          fetch('/api/orders?limit=1')
+            .then(r => (r.ok ? r.json() : null))
+            .then(d => {
+              const first = d?.orders?.[0]
+              if (first) setLatestOrderId(first.id)
+            })
+            .catch(() => {})
         }
       })
       .catch(() => {})
@@ -60,6 +69,11 @@ export function Header() {
               {link.label}
             </a>
           ))}
+          {me && (
+            <a href={latestOrderId ? `/dashboard/orders/${latestOrderId}` : '/dashboard/order'} className="font-bold text-fmx-red transition-colors hover:text-white">
+              Ma commande
+            </a>
+          )}
         </div>
 
         <div className="flex items-center gap-3">
@@ -128,13 +142,23 @@ export function Header() {
                 {link.label}
               </a>
             ))}
-            <a
-              href="/dashboard"
-              onClick={() => setMobileOpen(false)}
-              className="rounded-lg px-3 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-fmx-gray hover:bg-white/5 hover:text-white"
-            >
-              {me ? `Mon espace — ${me.pseudo}` : 'Espace client'}
-            </a>
+            {me ? (
+              <a
+                href={latestOrderId ? `/dashboard/orders/${latestOrderId}` : '/dashboard/order'}
+                onClick={() => setMobileOpen(false)}
+                className="rounded-lg bg-fmx-red/10 px-3 py-3 text-sm font-bold text-fmx-red hover:bg-fmx-red/20"
+              >
+                Ma commande →
+              </a>
+            ) : (
+              <a
+                href="/auth/login"
+                onClick={() => setMobileOpen(false)}
+                className="rounded-lg px-3 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-fmx-gray hover:bg-white/5 hover:text-white"
+              >
+                Espace client
+              </a>
+            )}
             {!me && (
               <a
                 href="/api/auth/discord"
