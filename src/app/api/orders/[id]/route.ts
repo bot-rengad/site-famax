@@ -33,3 +33,32 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }
+
+// Annulation par le client : sa propre commande, uniquement si encore en attente.
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+    }
+    const { id } = await params
+    const order = await prisma.order.findUnique({ where: { id } })
+    if (!order || order.userId !== session.userId) {
+      return NextResponse.json({ error: 'Commande introuvable' }, { status: 404 })
+    }
+    if (order.status !== 'PENDING') {
+      return NextResponse.json({ error: 'Seule une commande en attente peut être annulée' }, { status: 400 })
+    }
+    const updated = await prisma.order.update({
+      where: { id },
+      data: { status: 'CANCELLED' },
+    })
+    await prisma.activityLog.create({
+      data: { userId: session.userId, action: 'ORDER_CANCELLED', details: `Annulée par le client - ${order.orderNumber}` },
+    }).catch(() => {})
+    return NextResponse.json({ order: updated, message: 'Commande annulée' })
+  } catch (error) {
+    console.error('Order cancel error:', error)
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+  }
+}

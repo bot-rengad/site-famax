@@ -2,9 +2,8 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 import { requireAdmin } from '@/lib/auth/admin'
 
-// Utilisateurs actuellement connectés : sessions non expirées.
-// Regroupés par utilisateur, avec leurs dernières commandes
-// (accès direct au chat de chaque commande depuis l'onglet En ligne).
+// Utilisateurs actifs récemment : session non expirée ET activité < 30 min.
+// (Au-delà, ils sont dans l'onglet Utilisateurs — pas des fantômes ici.)
 export async function GET() {
   try {
     const session = await requireAdmin()
@@ -13,8 +12,9 @@ export async function GET() {
     }
 
     const now = new Date()
+    const activeSince = new Date(now.getTime() - 30 * 60 * 1000)
     const sessions = await prisma.session.findMany({
-      where: { expiresAt: { gt: now } },
+      where: { expiresAt: { gt: now }, lastSeen: { gt: activeSince } },
       orderBy: { lastSeen: 'desc' },
       take: 100,
       select: {

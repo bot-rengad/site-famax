@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import {
-  LayoutDashboard, Users, ShoppingCart, KeyRound, LifeBuoy,
+  LayoutDashboard, Users, ShoppingCart,
   LogOut, Loader2, ChevronLeft, ChevronRight, UserCheck,
 } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
@@ -13,11 +13,8 @@ import { Logo } from '@/components/ui/Logo'
 const navItems = [
   { id: 'overview', href: '/admin', label: 'Vue d\'ensemble', icon: LayoutDashboard },
   { id: 'online', href: '/admin#online', label: 'En ligne', icon: UserCheck },
-  // Ancres vers les onglets de la console de gestion
   { id: 'users', href: '/admin#users', label: 'Utilisateurs', icon: Users },
   { id: 'orders', href: '/admin#orders', label: 'Commandes', icon: ShoppingCart },
-  { id: 'licenses', href: '/admin#licenses', label: 'Licences', icon: KeyRound },
-  { id: 'tickets', href: '/admin#tickets', label: 'Support', icon: LifeBuoy },
 ]
 
 const TAB_TITLES: Record<string, string> = {

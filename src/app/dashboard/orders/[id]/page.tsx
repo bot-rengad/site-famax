@@ -33,6 +33,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   const { id } = use(params)
   const [order, setOrder] = useState<OrderDetail | null>(null)
   const [loading, setLoading] = useState(true)
+  const [cancelling, setCancelling] = useState(false)
 
   useEffect(() => {
     fetch(`/api/orders/${id}`)
@@ -43,6 +44,20 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       })
       .catch(() => setLoading(false))
   }, [id])
+
+  const cancelOrder = async () => {
+    if (!confirm('Annuler cette commande ? Le staff en sera informé.')) return
+    setCancelling(true)
+    try {
+      const res = await fetch(`/api/orders/${id}`, { method: 'PATCH' })
+      if (res.ok) {
+        const data = await res.json()
+        setOrder(prev => (prev ? { ...prev, status: data.order.status } : prev))
+      }
+    } finally {
+      setCancelling(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -85,6 +100,15 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
         <div className="mt-2 flex flex-wrap items-center gap-3">
           <h1 className="font-display text-display-sm text-fmx-white">Commande <code className="font-mono">{order.orderNumber}</code></h1>
           <Badge variant={st.variant} dot>{st.label}</Badge>
+          {order.status === 'PENDING' && (
+            <button
+              onClick={cancelOrder}
+              disabled={cancelling}
+              className="rounded-full border border-red-500/40 px-4 py-1.5 text-[12px] font-bold text-red-400 transition-colors hover:bg-red-500/10 disabled:opacity-50"
+            >
+              {cancelling ? 'Annulation…' : 'Annuler la commande'}
+            </button>
+          )}
         </div>
       </div>
 
