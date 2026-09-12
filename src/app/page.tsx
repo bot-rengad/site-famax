@@ -36,8 +36,8 @@ export default function HomePage() {
   const [selectedPlan, setSelectedPlan] = useState<PlanId | null>(null)
 
   const handleOrder = () => {
-    // Si aucun plan choisi, défaut Windows (comme avant)
-    if (!selectedPlan) setSelectedPlan('WINDOWS')
+    // Si aucun plan choisi, défaut Basic (comme avant)
+    if (!selectedPlan) setSelectedPlan('BASIC')
     setOrderOpen(true)
   }
 
@@ -71,7 +71,7 @@ export default function HomePage() {
       <OrderForm
         isOpen={orderOpen}
         onClose={() => setOrderOpen(false)}
-        selectedPackage={selectedPlan ?? 'WINDOWS'}
+        selectedPackage={selectedPlan ?? 'BASIC'}
       />
 
       {/* Chatbot FMX flottant */}

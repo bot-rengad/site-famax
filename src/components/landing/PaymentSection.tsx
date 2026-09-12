@@ -39,8 +39,8 @@ function CopyBtn({ text }: { text: string }) {
 
 export function PaymentSection({ selectedPlan, onOrder }: PaymentSectionProps) {
   const [tab, setTab] = useState<Tab>('paypal')
-  const amount = selectedPlan === 'ULTIME' ? '50€' : selectedPlan === 'COMPLET' ? '25€' : selectedPlan === 'WINDOWS' ? '20€' : '—'
-  const planLabel = selectedPlan === 'ULTIME' ? 'Pack Ultime — 50€' : selectedPlan === 'COMPLET' ? 'Pack Complet — 25€' : selectedPlan === 'WINDOWS' ? 'Optimisation Windows — 20€' : null
+  const amount = selectedPlan === 'ULTIME' ? '50€' : selectedPlan === 'COMPLET' ? '25€' : selectedPlan === 'BASIC' ? '20€' : '—'
+  const planLabel = selectedPlan === 'ULTIME' ? 'Pack Ultime — 50€' : selectedPlan === 'COMPLET' ? 'Pack Complet — 25€' : selectedPlan === 'BASIC' ? 'Pack Basic — 20€' : null
 
   const tabs = [
     { id: 'paypal' as Tab, label: 'PayPal', icon: Wallet },

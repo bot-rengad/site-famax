@@ -12,7 +12,7 @@ const faqs = [
   },
   {
     q: 'Combien ça coûte ?',
-    a: 'Optimisation Windows 20€, Pack Complet (Windows + BIOS) 25€, Pack Ultime 50€. Paiement unique, effet permanent. Options : réinstallation Windows +5€, stream +7€, suivi à vie +5€, périphériques +5€, undervolt & OC +20€, dépannage 5 à 15€.',
+    a: 'Pack Basic 20€, Pack Complet (Basic + BIOS) 25€, Pack Ultime 50€. Paiement unique, effet permanent. Options : réinstallation Windows +5€, stream +7€, suivi à vie +5€, périphériques +5€, undervolt & OC +20€, dépannage 5 à 15€.',
   },
   {
     q: 'Comment je paie ?',

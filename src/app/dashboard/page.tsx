@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { Check, Lock, Receipt } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
@@ -11,6 +12,7 @@ const DISCORD_INVITE = 'https://discord.gg/fmx'
 
 const PACK_NAMES: Record<string, string> = {
   WINDOWS: 'Optimisation Windows — 20€',
+  BASIC: 'Pack Basic — 20€',
   COMPLET: 'Pack Complet — 25€',
   ULTIME: 'Pack Ultime — 50€',
 }
@@ -78,10 +80,12 @@ export default function DashboardPage() {
       title: 'Commande',
       desc: latest && !cancelled
         ? `${PACK_NAMES[latest.packageType] || latest.packageType} — ${latest.orderNumber}`
-        : 'Choisis ton opti et réserve en 1 clic.',
+        : 'Choisis ton opti et tes options, puis paie.',
       done: !!latest && !cancelled,
       locked: false,
-      cta: latest && !cancelled ? null : { label: 'Commander une opti', href: '/#plans', primary: true },
+      cta: latest && !cancelled
+        ? { label: 'Voir ma commande', href: `/dashboard/orders/${latest.id}`, primary: false }
+        : { label: 'Commander une opti', href: '/dashboard/order', primary: true },
     },
     {
       title: 'Paiement + preuve',
@@ -184,7 +188,7 @@ export default function DashboardPage() {
                     key={o.id}
                     className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3"
                   >
-                    <code className="font-mono text-[12px] text-white">{o.orderNumber}</code>
+                    <Link href={`/dashboard/orders/${o.id}`} className="font-mono text-[12px] text-white hover:text-fmx-red hover:underline">{o.orderNumber}</Link>
                     <span className="text-[13px] text-fmx-white-dim">{PACK_NAMES[o.packageType] || o.packageType}</span>
                     <span className="text-[13px] font-bold text-white">{o.amount}€</span>
                     <Badge variant={st.variant} dot size="sm" className="ml-auto">{st.label}</Badge>

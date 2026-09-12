@@ -32,14 +32,14 @@ const INTENTS: Intent[] = [
     id: 'greeting',
     keywords: ['bonjour', 'salut', 'hello', 'yo', 'coucou', 'hey', 'bonsoir', 'wesh'],
     answer: () =>
-      "Salut ! Bienvenue chez FMX Optimisation. Je suis l'assistant FMX, je peux te renseigner sur nos offres (Windows 20€, Complet 25€, Ultime 50€), le déroulé (analyse UserDiag + avis staff, 30–45 min à distance), ou t'aider à diagnostiquer tes problèmes de performance. Que veux-tu savoir ?",
+      "Salut ! Bienvenue chez FMX Optimisation. Je suis l'assistant FMX, je peux te renseigner sur nos offres (Basic 20€, Complet 25€, Ultime 50€), le déroulé (analyse UserDiag + avis staff, 30–45 min à distance), ou t'aider à diagnostiquer tes problèmes de performance. Que veux-tu savoir ?",
     quickReplies: ['Ça coûte combien ?', 'Comment ça se passe ?', 'Compatible avec mon PC ?', 'Jai des chutes de FPS'],
   },
   {
     id: 'price',
     keywords: ['prix', 'coute', 'cout', 'tarif', 'combien', 'euro', 'eur', 'payement', 'paiement', 'cher', 'abonnement', 'gratuit', 'essai'],
     answer: () =>
-      "Nos tarifs : **Windows 20€, Pack Complet 25€, Pack Ultime 50€ — paiement unique**, pas d'abonnement. Tu peux payer par **PayPal** (Amis & Proches, pseudo Discord en note) ou **virement** (IBAN BE, motif = pseudo Discord). Tout se valide sur Discord avec ta preuve de paiement.",
+      "Nos tarifs : **Pack Basic 20€, Pack Complet 25€, Pack Ultime 50€ — paiement unique**, pas d'abonnement. Tu peux payer par **PayPal** (Amis & Proches, pseudo Discord en note) ou **virement** (IBAN BE, motif = pseudo Discord). Tout se valide sur Discord avec ta preuve de paiement.",
     quickReplies: ['Quels moyens de paiement ?', 'Il y a un remboursement ?', 'Je commande où ?'],
   },
   {

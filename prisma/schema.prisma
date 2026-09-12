@@ -44,6 +44,7 @@ model User {
   licenses      License[]
   tickets       Ticket[]
   ticketMessages TicketMessage[]
+  orderMessages OrderMessage[]
   checklistProgress UserChecklistProgress[]
   profile       UserProfile?
   sessions      Session[]
@@ -103,6 +104,7 @@ model Order {
   paymentId       String?
   licenseKey      String?
   notes           String?
+  addons          String        @default("[]")
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   paidAt          DateTime?
@@ -110,6 +112,7 @@ model Order {
 
   user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   license         License?
+  messages        OrderMessage[]
 
   @@map("orders")
 }
@@ -164,6 +167,20 @@ model TicketMessage {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("ticket_messages")
+}
+
+model OrderMessage {
+  id        String   @id @default(cuid())
+  orderId   String
+  userId    String
+  message   String
+  isStaff   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("order_messages")
 }
 
 model OptimizationScript {

@@ -2,8 +2,9 @@
 
 import { Check } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
+import { ADDONS } from '@/types'
 
-export type PlanId = 'WINDOWS' | 'COMPLET' | 'ULTIME'
+export type PlanId = 'BASIC' | 'COMPLET' | 'ULTIME'
 
 interface PricingProps {
   selectedPlan: PlanId | null
@@ -14,10 +15,10 @@ interface PricingProps {
 // Tarifs réels FaMaxOpti — sans promesse chiffrée, sans détail de la méthode
 const plans = [
   {
-    id: 'WINDOWS' as PlanId,
-    name: 'Optimisation Windows',
+    id: 'BASIC' as PlanId,
+    name: 'Pack Basic',
     price: '20€',
-    desc: "L'épuration complète du système pour la compétition.",
+    desc: "L'optimisation Windows complète pour la compétition.",
     features: [
       'Épuration intégrale + processus inutiles supprimés',
       'Pilote GPU allégé + config compétitive NVIDIA / AMD',
@@ -32,9 +33,9 @@ const plans = [
     id: 'COMPLET' as PlanId,
     name: 'Pack Complet',
     price: '25€',
-    desc: 'Windows + paramétrage direct de la carte mère.',
+    desc: 'Basic + paramétrage direct de la carte mère.',
     features: [
-      "Tout l'Optimisation Windows",
+      "Tout le Pack Basic",
       'Profil haute vitesse de la RAM',
       'Débridage liaison carte graphique / processeur',
       "Coupure des économies d'énergie",
@@ -49,7 +50,7 @@ const plans = [
     price: '50€',
     desc: "La prise en charge intégrale, sans compromis.",
     features: [
-      'Tout le Pack Complet (Windows + BIOS)',
+      'Tout le Pack Complet (Basic + BIOS)',
       'Réinstallation propre de Windows',
       'Undervolt & Overclocking CPU + GPU',
       'Calibrage périphériques + config streaming',
@@ -60,17 +61,12 @@ const plans = [
   },
 ]
 
-const extras = [
-  { name: 'Réinstallation Windows', price: '+5€', desc: "Windows officiel vierge avant l'intervention." },
-  { name: 'Configuration Stream', price: '+7€', desc: 'Encodage OBS / TikTok Live sans perte de fluidité.' },
-  { name: 'Suivi à vie', price: '+5€', desc: 'Support illimité, réajustements inclus.' },
-  { name: 'Périphériques', price: '+5€', desc: 'Calibrage souris/clavier, débridage USB.' },
-  { name: 'Undervolt & OC', price: '+20€', desc: 'Fréquences + tensions réglées, zéro risque matériel.' },
-  { name: 'Dépannage', price: '5–15€', desc: 'Diagnostic complet puis tarif exact selon gravité.' },
-]
+const extras = ADDONS.map(a => ({ name: a.name, price: `+${a.price}€`, desc: a.desc })).concat([
+  { name: 'Dépannage', price: '5–15€', desc: 'Diagnostic complet puis tarif exact selon gravité (via ticket).' },
+])
 
 const PLAN_LABEL: Record<PlanId, string> = {
-  WINDOWS: 'Optimisation Windows — 20€',
+  BASIC: 'Pack Basic — 20€',
   COMPLET: 'Pack Complet — 25€',
   ULTIME: 'Pack Ultime — 50€',
 }

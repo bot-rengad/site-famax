@@ -7,6 +7,7 @@ interface OrderNotify {
   packageType: string
   amount: number
   paymentMethod: string | null
+  addons?: string[]
   discordUsername: string | null
   discordId: string | null
   email: string
@@ -55,6 +56,9 @@ export async function notifyNewOrder(order: OrderNotify): Promise<void> {
           { name: 'Commande', value: order.orderNumber, inline: true },
           { name: 'Pack', value: `${order.packageType} — ${order.amount}€`, inline: true },
           { name: 'Paiement', value: order.paymentMethod ?? '—', inline: true },
+          ...(order.addons && order.addons.length > 0
+            ? [{ name: 'Add-ons', value: order.addons.join(', '), inline: false }]
+            : []),
           { name: 'Client Discord', value: discordRef, inline: false },
           { name: 'Email', value: order.email, inline: true },
           {

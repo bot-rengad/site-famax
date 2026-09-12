@@ -4,13 +4,7 @@ import { prisma } from '@/lib/db/prisma'
 import { orderSchema } from '@/lib/validations/schemas'
 import { generateOrderNumber } from '@/lib/auth/jwt'
 import { notifyNewOrder } from '@/lib/discord-notify'
-import { PACKAGES } from '@/types'
-
-const PACKAGE_PRICES: Record<string, number> = {
-  WINDOWS: 20,
-  COMPLET: 25,
-  ULTIME: 50,
-}
+import { PACKAGES, ADDONS } from '@/types'
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,14 +23,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { packageType, paymentMethod } = validation.data
+    const { packageType, paymentMethod, addons } = validation.data
     const pkg = PACKAGES.find(p => p.id === packageType)
 
     if (!pkg) {
       return NextResponse.json({ error: 'Pack invalide' }, { status: 400 })
     }
 
-    const amount = PACKAGE_PRICES[packageType] || pkg.price
+    // Add-ons interdits en Ultime (déjà tout inclus) — et total TOUJOURS
+    // recalculé côté serveur, jamais celui envoyé par le client.
+    const cleanAddons = packageType === 'ULTIME' ? [] : (addons || [])
+    const amount =
+      pkg.price + cleanAddons.reduce((sum, id) => sum + (ADDONS.find(a => a.id === id)?.price ?? 0), 0)
 
     // Create order
     const order = await prisma.order.create({
@@ -48,6 +46,7 @@ export async function POST(request: NextRequest) {
         currency: 'EUR',
         status: 'PENDING',
         paymentMethod,
+        addons: JSON.stringify(cleanAddons),
       },
     })
 
@@ -70,6 +69,7 @@ export async function POST(request: NextRequest) {
       packageType,
       amount,
       paymentMethod,
+      addons: cleanAddons,
       discordUsername: buyer?.discordUsername ?? null,
       discordId: buyer?.discordId ?? null,
       email: buyer?.email ?? '',

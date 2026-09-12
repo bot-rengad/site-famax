@@ -178,11 +178,12 @@ export interface Package {
 }
 
 // Offres FMx réelles — Tarifs & Prestations FaMaxOpti
+// L'Ultime inclut déjà tout : les add-ons ne sont proposés qu'en Basic et Complet.
 export const PACKAGES: Package[] = [
   {
-    id: 'WINDOWS',
-    name: 'Optimisation Windows',
-    description: "L'épuration complète du système pour la compétition.",
+    id: 'BASIC',
+    name: 'Pack Basic',
+    description: "L'optimisation Windows complète pour la compétition.",
     price: 20,
     currency: 'EUR',
     features: [
@@ -200,11 +201,11 @@ export const PACKAGES: Package[] = [
   {
     id: 'COMPLET',
     name: 'Pack Complet',
-    description: 'Windows + paramétrage direct de la carte mère.',
+    description: 'Basic + paramétrage direct de la carte mère.',
     price: 25,
     currency: 'EUR',
     features: [
-      "Tout l'Optimisation Windows",
+      "Tout le Pack Basic",
       'Profil haute vitesse de la RAM',
       'Débridage liaison carte graphique / processeur',
       "Coupure des modes d'économie d'énergie",
@@ -223,7 +224,7 @@ export const PACKAGES: Package[] = [
     price: 50,
     currency: 'EUR',
     features: [
-      'Tout le Pack Complet (Windows + BIOS)',
+      'Tout le Pack Complet (Basic + BIOS)',
       'Réinstallation propre de Windows',
       'Pack Undervolt & Overclocking CPU + GPU',
       'Calibrage complet des périphériques',
@@ -235,6 +236,33 @@ export const PACKAGES: Package[] = [
     lifetimeUpdates: true,
   },
 ]
+
+// Add-ons — dispos en Basic et Complet uniquement (l'Ultime inclut déjà tout).
+// Le dépannage (prix variable 5–15€) passe par ticket, pas par la commande.
+export interface Addon {
+  id: string
+  name: string
+  price: number
+  desc: string
+}
+
+export const ADDONS: Addon[] = [
+  { id: 'REINSTALL', name: 'Réinstallation Windows', price: 5, desc: 'Windows officiel vierge avant l’intervention.' },
+  { id: 'STREAM', name: 'Configuration Stream', price: 7, desc: 'Encodage OBS / TikTok Live sans perte de fluidité.' },
+  { id: 'SUIVI_VIE', name: 'Suivi à vie', price: 5, desc: 'Support illimité, réajustements inclus.' },
+  { id: 'PERIPH', name: 'Périphériques', price: 5, desc: 'Calibrage souris/clavier, débridage USB.' },
+  { id: 'UV_OC', name: 'Undervolt & OC', price: 20, desc: 'Fréquences + tensions réglées, zéro risque matériel.' },
+]
+
+export const ADDON_IDS = ADDONS.map(a => a.id)
+
+export function packPrice(id: string): number {
+  return PACKAGES.find(p => p.id === id)?.price ?? 0
+}
+
+export function addonsPrice(ids: string[]): number {
+  return ids.reduce((sum, id) => sum + (ADDONS.find(a => a.id === id)?.price ?? 0), 0)
+}
 
 
 

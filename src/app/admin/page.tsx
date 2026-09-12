@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Fragment } from 'react'
 import { motion } from 'framer-motion'
 import {
   Users, ShoppingCart, KeyRound, LifeBuoy, Euro, TrendingUp,
@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils/helpers'
 import { Button } from '@/components/ui/Button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
+import { OrderChat } from '@/components/orders/OrderChat'
 import { toast } from 'react-hot-toast'
 
 // ---------- Types locaux ----------
@@ -50,9 +51,11 @@ interface AdminOrder {
   amount: number
   status: string
   paymentMethod: string | null
+  addons?: string | null
   createdAt: string
-  user: { email: string; name: string | null }
+  user: { email: string; name: string | null; discordUsername?: string | null; discordId?: string | null }
   license?: { key: string; status: string } | null
+  _count?: { messages: number }
 }
 
 interface AdminLicense {
@@ -105,6 +108,7 @@ export default function AdminPage() {
   const [licenses, setLicenses] = useState<AdminLicense[]>([])
   const [tickets, setTickets] = useState<AdminTicket[]>([])
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({})
+  const [openChatOrderId, setOpenChatOrderId] = useState<string | null>(null)
 
   // Lecture du hash d'URL (#users, #tickets...) pour ouvrir le bon onglet
   useEffect(() => {
@@ -414,29 +418,49 @@ export default function AdminPage() {
                 </thead>
                 <tbody>
                   {orders.map(o => (
-                    <tr key={o.id} className="border-b border-fmx-border/30 last:border-0">
+                    <Fragment key={o.id}>
+                    <tr className="border-b border-fmx-border/30 last:border-0">
                       <td className="py-3 pr-4 font-mono text-xs text-fmx-white-dim">{o.orderNumber}</td>
-                      <td className="py-3 pr-4 text-fmx-white-dim">{o.user.email}</td>
-                      <td className="py-3 pr-4"><Badge variant="red">{o.packageType}</Badge></td>
+                      <td className="py-3 pr-4 text-fmx-white-dim">
+                        {o.user.discordUsername ? `@${o.user.discordUsername}` : o.user.email}
+                        <span className="block text-[11px] text-fmx-gray">{o.user.email}</span>
+                      </td>
+                      <td className="py-3 pr-4">
+                        <Badge variant="red">{o.packageType}</Badge>
+                        {o.addons && o.addons !== '[]' && (
+                          <span className="mt-1 block text-[11px] text-fmx-gray">+ {(JSON.parse(o.addons) as string[]).join(', ')}</span>
+                        )}
+                      </td>
                       <td className="py-3 pr-4 text-fmx-gray">{o.paymentMethod || '—'}</td>
                       <td className="py-3 pr-4 text-fmx-white">{o.amount.toFixed(2)} €</td>
                       <td className="py-3 pr-4 font-mono text-xs text-fmx-red">{o.license?.key || '—'}</td>
                       <td className="py-3 pr-4">{statusBadge(o.status)}</td>
                       <td className="py-3">
-                        {o.status === 'PENDING' ? (
-                          <div className="flex gap-2">
-                            <Button variant="neon" size="sm" onClick={() => validateOrder(o.id, 'PAID')}>
-                              <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Valider
-                            </Button>
-                            <Button variant="danger" size="sm" onClick={() => validateOrder(o.id, 'CANCELLED')}>
-                              <Ban className="w-3.5 h-3.5 mr-1" /> Annuler
-                            </Button>
-                          </div>
-                        ) : (
-                          <span className="text-fmx-gray text-xs">—</span>
-                        )}
+                        <div className="flex gap-2">
+                          <Button variant="ghost" size="sm" onClick={() => setOpenChatOrderId(prev => prev === o.id ? null : o.id)}>
+                            <MessageSquare className="w-3.5 h-3.5 mr-1" /> Chat{o._count?.messages ? ` (${o._count.messages})` : ''}
+                          </Button>
+                          {o.status === 'PENDING' && (
+                            <>
+                              <Button variant="neon" size="sm" onClick={() => validateOrder(o.id, 'PAID')}>
+                                <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Valider
+                              </Button>
+                              <Button variant="danger" size="sm" onClick={() => validateOrder(o.id, 'CANCELLED')}>
+                                <Ban className="w-3.5 h-3.5 mr-1" /> Annuler
+                              </Button>
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
+                    {openChatOrderId === o.id && (
+                      <tr>
+                        <td colSpan={8} className="pb-4">
+                          <OrderChat orderId={o.id} compact />
+                        </td>
+                      </tr>
+                    )}
+                    </Fragment>
                   ))}
                   {orders.length === 0 && (
                     <tr><td colSpan={8} className="py-6 text-center text-fmx-gray">Aucune commande</td></tr>
