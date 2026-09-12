@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     return redirectWith(origin, '/auth/login', { error: 'discord_state' })
   }
 
-  const profile = await exchangeCodeForProfile(code)
+  const profile = await exchangeCodeForProfile(code, origin)
   if (!profile) {
     return redirectWith(origin, '/auth/login', { error: 'discord_exchange' })
   }

@@ -7,8 +7,10 @@ export const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || ''
 
 const DISCORD_API = 'https://discord.com/api/v10'
 
-// URL de rappel enregistrée sur le portail développeur Discord
-export function getRedirectUri(): string {
+// URL de rappel : priorité au domaine réel de la requête (toujours exact,
+// même si NEXT_PUBLIC_APP_URL est périmé), sinon la variable d'env.
+export function getRedirectUri(requestOrigin?: string): string {
+  if (requestOrigin?.startsWith('http')) return `${requestOrigin}/api/auth/discord/callback`
   return process.env.NEXT_PUBLIC_APP_URL?.startsWith('http')
     ? `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/discord/callback`
     : 'http://localhost:3000/api/auth/discord/callback'
@@ -20,10 +22,10 @@ export function isDiscordConfigured(): boolean {
 }
 
 // Construit l'URL d'autorisation Discord (scope identify + email)
-export function buildAuthorizeUrl(state: string): string {
+export function buildAuthorizeUrl(state: string, requestOrigin?: string): string {
   const params = new URLSearchParams({
     client_id: DISCORD_CLIENT_ID,
-    redirect_uri: getRedirectUri(),
+    redirect_uri: getRedirectUri(requestOrigin),
     response_type: 'code',
     scope: 'identify email',
     state,
@@ -77,7 +79,8 @@ export interface DiscordProfile {
 }
 
 // Échange le code d'autorisation contre un token puis récupère le profil
-export async function exchangeCodeForProfile(code: string): Promise<DiscordProfile | null> {
+// (le redirect_uri doit être IDENTIQUE à celui de l'autorisation)
+export async function exchangeCodeForProfile(code: string, requestOrigin?: string): Promise<DiscordProfile | null> {
   try {
     const tokenRes = await fetch(`${DISCORD_API}/oauth2/token`, {
       method: 'POST',
@@ -87,7 +90,7 @@ export async function exchangeCodeForProfile(code: string): Promise<DiscordProfi
         client_secret: DISCORD_CLIENT_SECRET,
         grant_type: 'authorization_code',
         code,
-        redirect_uri: getRedirectUri(),
+        redirect_uri: getRedirectUri(requestOrigin),
       }),
     })
 

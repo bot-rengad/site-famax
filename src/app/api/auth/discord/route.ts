@@ -16,5 +16,6 @@ export async function GET(request: NextRequest) {
   // Utilisateur connecté = liaison de compte, sinon connexion/inscription directe
   const state = createState(session ? 'link' : 'login', session?.userId)
 
-  return NextResponse.redirect(buildAuthorizeUrl(state))
+  // Domaine réel de la requête : le redirect_uri est toujours exact
+  return NextResponse.redirect(buildAuthorizeUrl(state, origin))
 }
