@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { ArrowUp } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
+import { setScrolling } from '@/lib/utils/scroll-state'
 
 // Barre de progression du scroll + bouton retour en haut.
 // Rend la navigation longue (landing) plus fluide et repérable.
@@ -19,9 +20,11 @@ export function ScrollTools() {
       // Pendant le scroll actif : pause les animations déco (orbes, grille, marquee)
       // pour laisser tout le GPU au scroll à Hz natif. Reprise auto à l'arrêt.
       document.documentElement.classList.add('is-scrolling')
+      setScrolling(true)
       if (scrollEndTimer) clearTimeout(scrollEndTimer)
       scrollEndTimer = setTimeout(() => {
         document.documentElement.classList.remove('is-scrolling')
+        setScrolling(false)
       }, 140)
       if (ticking) return
       ticking = true
@@ -47,6 +50,7 @@ export function ScrollTools() {
       window.removeEventListener('scroll', onScroll)
       if (scrollEndTimer) clearTimeout(scrollEndTimer)
       document.documentElement.classList.remove('is-scrolling')
+      setScrolling(false)
     }
   }, [])
 

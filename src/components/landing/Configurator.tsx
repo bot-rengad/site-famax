@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { ScanLine } from 'lucide-react'
 import { detectHardware } from '@/lib/utils/hardware-detect'
+import { isScrolling } from '@/lib/utils/scroll-state'
 
 // ============================================================
 // Base matérielle complète — scores calibrés sur Fortnite
@@ -372,7 +373,8 @@ function PcViewer({ fps, refreshHz, gameLabel }: { fps: number; refreshHz: numbe
     ro.observe(box)
 
     // Fluidité : rendu à chaque frame rAF = vsync native de l'écran (60/120/144/240 Hz…),
-    // mis en pause quand l'onglet est caché OU que le viewer n'est pas visible à l'écran.
+    // mis en pause quand l'onglet est caché, que le viewer n'est pas visible à l'écran
+    // OU que la page scrolle (tout le GPU va au scroll, reprise instantanée à l'arrêt).
     // Mouvements en dt : vitesse identique quel que soit le Hz, zéro saccade.
     // Adaptatif : si le GPU peine durablement, on rend 1 frame sur 2 (dt cumulé,
     // mouvement identique) au lieu de saccader — retour au Hz natif dès que ça respire.
@@ -389,7 +391,7 @@ function PcViewer({ fps, refreshHz, gameLabel }: { fps: number; refreshHz: numbe
 
     const animate = (now: number) => {
       raf = requestAnimationFrame(animate)
-      if (!visible || !inView) { vLast = now; return }
+      if (!visible || !inView || isScrolling()) { vLast = now; return }
       const rawDt = now - vLast
       emaDt += (rawDt - emaDt) * 0.05
       if (emaDt > 27) {
