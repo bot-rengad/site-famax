@@ -18,14 +18,14 @@ export default function MentionsLegales() {
         <section className="fmx-window rounded-2xl p-6">
           <h2 className="mb-2 font-bold text-white">Éditeur du site</h2>
           <p>
-            FMX Optimisation — [À compléter : statut, SIRET, adresse du siège].
+            FMX Optimisation — service d’optimisation PC en ligne.
             <br />
-            Contact : contact@fmx-optimized.fr — Discord : discord.gg/fmx
+            Contact : serveur Discord <a href="https://discord.gg/fmx" target="_blank" rel="noreferrer" className="text-fmx-red hover:underline">discord.gg/fmx</a> (réponse du staff).
           </p>
         </section>
         <section className="fmx-window rounded-2xl p-6">
           <h2 className="mb-2 font-bold text-white">Hébergement</h2>
-          <p>[À compléter : nom et adresse de l’hébergeur, ex. Vercel Inc., 340 S Lemon Ave, Walnut, CA, USA].</p>
+          <p>Vercel Inc., 340 S Lemon Ave, Walnut, CA, USA — vercel.com.</p>
         </section>
         <section className="fmx-window rounded-2xl p-6">
           <h2 className="mb-2 font-bold text-white">Propriété intellectuelle</h2>
@@ -39,7 +39,7 @@ export default function MentionsLegales() {
           <h2 className="mb-2 font-bold text-white">Données personnelles</h2>
           <p>
             Voir la <Link href="/confidentialite" className="text-fmx-red hover:underline">politique de confidentialité</Link>.
-            Pour toute demande : contact@fmx-optimized.fr.
+            Pour toute demande : serveur Discord <a href="https://discord.gg/fmx" target="_blank" rel="noreferrer" className="text-fmx-red hover:underline">discord.gg/fmx</a>.
           </p>
         </section>
       </div>

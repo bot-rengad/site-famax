@@ -183,7 +183,10 @@ export function Pricing({ selectedPlan, onSelect, onOrder }: PricingProps) {
           </button>
         </div>
         <p className="mx-auto mt-4 max-w-[720px] text-[12px] leading-relaxed text-fmx-gray">
-          Règlement par virement ou PayPal. Aucun remboursement une fois le travail commencé
+          <b className="text-white">PayPal • Virement SEPA</b> — les coordonnées exactes s’affichent
+          après ta commande, à l’étape paiement.
+          <br />
+          Aucun remboursement une fois le travail commencé
           (sauf si aucune différence constatée). Suivi garanti 30 jours. Fin du support
           en cas de réinitialisation du PC sans nous prévenir.
         </p>

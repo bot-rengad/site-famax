@@ -53,7 +53,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
-    url: 'https://fmx-optimisation.com',
+    url: 'https://famaxopti.vercel.app',
     siteName: 'FMX Optimisation',
     title: 'FMX Optimisation — Optimisation PC Gaming Premium',
     description: "Diagnostic UserDiag et avis du staff, intervention à distance en 15 minutes, suivi 30 jours.",
@@ -71,10 +71,6 @@ export const metadata: Metadata = {
     title: 'FMX Optimisation',
     description: 'Diagnostic UserDiag et avis du staff, intervention à distance en 15 minutes.',
     images: ['/images/logo.png'],
-    creator: '@fmxopt',
-  },
-  verification: {
-    google: 'google-site-verification-code',
   },
 }
 

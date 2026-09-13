@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import { MessageCircle, Wallet, Landmark } from 'lucide-react'
 import { Logo } from '@/components/ui/Logo'
 
-// Footer FMX — minimaliste, centré, rouge/noir
+// Footer FMX — navigation utile, paiement, contact Discord (pas d'email inventé), légal.
 export function Footer() {
   return (
     <footer className="border-t border-white/[0.08] bg-[#060608]">
@@ -19,26 +20,41 @@ export function Footer() {
           <a href="/#plans" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">Plans</a>
           <a href="/#config" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">Estimateur FPS</a>
           <a href="/#deroulement" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">Déroulé</a>
-          <Link href="/dashboard" className="transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">Espace client</Link>
-          <a href="https://discord.gg/fmx" target="_blank" rel="noreferrer" className="text-fmx-red hover:underline">
-            Discord
-          </a>
+          <a href="/#avis" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">Avis clients</a>
+          <a href="/#faq" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">FAQ</a>
+          <Link href="/dashboard/order" className="font-bold text-fmx-red transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.6)]">Commander →</Link>
         </nav>
 
-        <div className="mx-auto mt-6 max-w-[560px] text-[12px] leading-relaxed text-fmx-gray">
+        <div className="mx-auto mt-6 flex max-w-[560px] flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[12px] text-fmx-gray">
+          <span className="inline-flex items-center gap-1.5">
+            <Wallet className="h-3.5 w-3.5 text-blue-400" /> PayPal
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <Landmark className="h-3.5 w-3.5 text-green-400" /> Virement SEPA
+          </span>
+          <span>Paiement unique, sans abonnement</span>
+        </div>
+
+        <div className="mx-auto mt-4 max-w-[560px] text-[12px] leading-relaxed text-fmx-gray">
           FMX n&apos;est affilié à aucune marque. Optimisations manuelles réalisées à distance.
           <br />
-          Contact : <span className="text-white">contact@fmx-optimized.fr</span> •{' '}
-          <a href="https://discord.gg/fmx" target="_blank" rel="noreferrer" className="text-fmx-red hover:underline">
+          Une question ? Le staff répond sur{' '}
+          <a
+            href="https://discord.gg/fmx"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 font-bold text-fmx-red hover:underline"
+          >
+            <MessageCircle className="h-3.5 w-3.5" />
             discord.gg/fmx
           </a>
         </div>
 
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] text-zinc-600">
-          <Link href="/auth/login" className="hover:text-white">Espace client</Link>
-          <Link href="/conditions-generales" className="hover:text-white">CGV</Link>
-          <Link href="/mentions-legales" className="hover:text-white">Mentions légales</Link>
-          <Link href="/confidentialite" className="hover:text-white">Confidentialité</Link>
+          <Link href="/auth/login" className="transition-colors hover:text-white">Espace client</Link>
+          <Link href="/conditions-generales" className="transition-colors hover:text-white">CGV</Link>
+          <Link href="/mentions-legales" className="transition-colors hover:text-white">Mentions légales</Link>
+          <Link href="/confidentialite" className="transition-colors hover:text-white">Confidentialité</Link>
         </div>
 
         <div className="mt-6 text-[11px] uppercase tracking-[0.14em] text-zinc-600">

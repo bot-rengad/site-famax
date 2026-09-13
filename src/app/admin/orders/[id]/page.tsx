@@ -6,6 +6,7 @@ import { OrderDetailView, type OrderDetailData } from '@/components/orders/Order
 import { toast } from 'react-hot-toast'
 
 interface AdminOrderDetail extends OrderDetailData {
+  licenseKey: string | null
   user: {
     email: string
     name: string | null
@@ -13,6 +14,7 @@ interface AdminOrderDetail extends OrderDetailData {
     discordGlobalName: string | null
     discordId: string | null
   }
+  license: { key: string; status: string } | null
 }
 
 const STATUS: Record<string, { label: string; variant: 'green' | 'yellow' | 'red' | 'gray' }> = {
@@ -55,7 +57,7 @@ export default function AdminOrderDetailPage({ params }: { params: Promise<{ id:
       const data = await res.json().catch(() => ({}))
       if (res.ok) {
         toast.success(data.message || 'Paiement validé')
-        setOrder(prev => (prev ? { ...prev, status: data.order.status } : prev))
+        setOrder(prev => (prev ? { ...prev, status: data.order.status, license: data.licenseKey ? { key: data.licenseKey, status: 'ACTIVE' } : prev.license } : prev))
       } else {
         toast.error(data.error || 'Erreur')
       }
@@ -122,6 +124,7 @@ export default function AdminOrderDetailPage({ params }: { params: Promise<{ id:
       cancelling={cancelling}
       onValidate={validateOrder}
       validating={validating}
+      licenseKey={order.license?.key || order.licenseKey || null}
     />
   )
 }

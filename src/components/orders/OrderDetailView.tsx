@@ -37,6 +37,8 @@ interface OrderDetailViewProps {
   cancelling?: boolean
   onValidate?: () => void
   validating?: boolean
+  /** Clé de licence générée à la validation (affichée côté admin uniquement) */
+  licenseKey?: string | null
 }
 
 function CopyBtn({ text, label = 'Copier' }: { text: string; label?: string }) {
@@ -72,6 +74,7 @@ export function OrderDetailView({
   cancelling = false,
   onValidate,
   validating = false,
+  licenseKey = null,
 }: OrderDetailViewProps) {
   const paid = order.status === 'PAID' || order.status === 'COMPLETED'
   const pack = PACKAGES.find(p => p.id === order.packageType)
@@ -247,6 +250,15 @@ export function OrderDetailView({
                 ))}
                 {addonItems.length === 0 && (
                   <p className="text-[12px] text-fmx-gray">Sans option.</p>
+                )}
+                {isAdmin && paid && licenseKey && (
+                  <div className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-green-500/25 bg-green-500/[0.06] px-3 py-2">
+                    <span className="text-fmx-gray">Licence</span>
+                    <span className="flex items-center gap-2">
+                      <code className="break-all font-mono text-[11px] text-green-300">{licenseKey}</code>
+                      <CopyBtn text={licenseKey} label="Copy" />
+                    </span>
+                  </div>
                 )}
               </div>
             </CardContent>

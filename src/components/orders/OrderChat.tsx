@@ -93,8 +93,10 @@ export function OrderChat({ orderId, compact = false, className }: { orderId: st
       )}
       <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
         {messages.length === 0 && !failed && (
-          <p className="py-6 text-center text-[13px] text-fmx-gray">
-            Aucun message pour le moment. Pose ta question ici, le staff te répond sur cette commande.
+          <p className="mx-auto max-w-[420px] py-6 text-center text-[13px] leading-relaxed text-fmx-gray">
+            Pour démarrer : <b className="text-white">envoie ici ta capture de paiement</b> (ou sur
+            Discord, salon preuves) avec ton pseudo en note, puis pose tes questions —
+            le staff te répond sur cette commande.
           </p>
         )}
         {messages.map(m => (
