@@ -198,10 +198,11 @@ export default function TestEcranPage() {
         }
         const x = (s.speed * step * q) % span
         el.style.transform = `translate3d(${(x - 160).toFixed(1)}px,-50%,0)`
-        // Parallaxe : les étoiles suivent Peely à 15%, quantifiées au même Hz
+        // Étoiles : même vitesse, même direction que Peely (position non wrappée
+        // pour un modulo 1280 sans aucun saut, boucle parfaite)
         const drift = driftRefs.current[i]
         if (drift) {
-          const sx = -((x * 0.15) % 1280)
+          const sx = (s.speed * step * q) % 1280
           drift.style.transform = `translate3d(${sx.toFixed(1)}px,0,0)`
         }
       })
