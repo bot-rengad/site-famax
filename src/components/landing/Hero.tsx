@@ -1,6 +1,6 @@
 'use client'
 
-import { ShieldCheck, Timer, Headset, Wallet, Eye, CreditCard, LifeBuoy } from 'lucide-react'
+import { ShieldCheck, Timer, Headset, Wallet, CreditCard, Zap, Cpu } from 'lucide-react'
 
 // Hero style FMX — badge / gros titre / sous-titre / 2 CTA / 3 infos / trusted row
 export function Hero({ onOrder }: { onOrder?: () => void }) {
@@ -71,10 +71,10 @@ export function Hero({ onOrder }: { onOrder?: () => void }) {
           </div>
           <div className="mx-auto mt-4 grid max-w-[720px] gap-2 text-left sm:grid-cols-2">
             {[
-              { icon: ShieldCheck, color: 'text-green-500', title: 'On refuse la vente si ça sert à rien', desc: "Diagnostic honnête avant de payer, pas de promesse bidon." },
-              { icon: Eye, color: 'text-fmx-red', title: 'Fait main, en direct devant toi', desc: "Un vrai technicien, pas un logiciel miracle opaque." },
-              { icon: CreditCard, color: 'text-fmx-red', title: 'Paiement unique, zéro abonnement', desc: "Tu paies une fois, l'effet est permanent." },
-              { icon: LifeBuoy, color: 'text-green-500', title: 'Suivi 30 jours inclus', desc: "On reste dispo après l'intervention si besoin." },
+              { icon: Zap, color: 'text-fmx-red', title: 'Adieu les micro-freezes', desc: "Optimisation ciblée sur les drops de FPS et les temps de réponse de ton système." },
+              { icon: Cpu, color: 'text-fmx-red', title: '100% sur-mesure pour ton setup', desc: "On adapte chaque tweak à tes composants précis, pas de réglage générique copié-collé." },
+              { icon: ShieldCheck, color: 'text-green-500', title: 'Sécurisé & Réversible', desc: "Point de restauration créé au préalable. Zéro risque de casser ton Windows." },
+              { icon: CreditCard, color: 'text-green-500', title: 'Aucun abonnement caché', desc: "Tu paies une seule fois, les performances restent. Suivi inclus après la prestation." },
             ].map(arg => (
               <div key={arg.title} className="flex items-start gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3">
                 <arg.icon className={`mt-0.5 h-4 w-4 shrink-0 ${arg.color}`} />
