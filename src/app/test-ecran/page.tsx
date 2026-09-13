@@ -6,10 +6,11 @@ import { Play, Pause, RotateCcw, MonitorCheck } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
 import { detectHardware } from '@/lib/utils/hardware-detect'
 
-// Test fluidité écran façon UFO test : un objet défile à vitesse constante,
-// synchronisé sur la vsync native (rAF + dt). Si c'est fluide ici mais pas
-// sur l'accueil, le problème vient des calques de la landing, pas de l'écran.
+// Test fluidité façon UFO test : 4 lignes comparent le Hz natif de l'écran
+// à 120 / 60 / 30 Hz simulés (mouvement quantifié comme Blur Busters).
+// Vitesse constante en px/s, sync vsync native (rAF + dt).
 const SPEEDS = [480, 960, 1920]
+const SKIN_URL = 'https://fortnite-api.com/images/cosmetics/br/cid_349_athena_commando_m_banana/smallicon.png'
 
 interface Stats {
   fps: number
@@ -18,18 +19,31 @@ interface Stats {
   dropped: number
 }
 
+// Soucoupe de repli si l'image Fortnite ne charge pas
+function UfoFallback() {
+  return (
+    <svg viewBox="0 0 110 54" className="h-14 w-[110px] drop-shadow-[0_0_18px_rgba(255,26,26,0.55)]" aria-hidden="true">
+      <ellipse cx="55" cy="38" rx="48" ry="12" fill="#1b1b20" stroke="#FF1A1A" strokeWidth="2" />
+      <ellipse cx="55" cy="26" rx="22" ry="14" fill="#2a2a31" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
+      <circle cx="28" cy="38" r="3.4" fill="#FF1A1A" />
+      <circle cx="55" cy="41" r="3.4" fill="#FF1A1A" />
+      <circle cx="82" cy="38" r="3.4" fill="#FF1A1A" />
+    </svg>
+  )
+}
+
 export default function TestEcranPage() {
-  const trackRef = useRef<HTMLDivElement>(null)
-  const ufoRef = useRef<HTMLDivElement>(null)
+  const rowRefs = useRef<(HTMLDivElement | null)[]>([])
   const graphRef = useRef<HTMLCanvasElement>(null)
   const [running, setRunning] = useState(true)
   const [speed, setSpeed] = useState(960)
   const [hz, setHz] = useState<number | null>(null)
+  const [skinOk, setSkinOk] = useState(true)
   const [stats, setStats] = useState<Stats>({ fps: 0, avgMs: 0, low1Ms: 0, dropped: 0 })
 
   // Refs mutées par la boucle (zéro re-render par frame)
   const sim = useRef({
-    x: 0,
+    t: 0,
     last: 0,
     emaFps: 0,
     deltas: [] as number[],
@@ -53,13 +67,20 @@ export default function TestEcranPage() {
     }).catch(() => {})
   }, [])
 
-  // Reset compteurs
   const reset = () => {
     sim.current.deltas = []
     sim.current.dropped = 0
     sim.current.emaFps = 0
     setStats({ fps: 0, avgMs: 0, low1Ms: 0, dropped: 0 })
   }
+
+  // Lignes : Hz natif + 120 / 60 / 30 simulés
+  const rows = [
+    { key: 'native', fps: hz ?? 165, label: hz ? `Ton écran • ${hz} Hz` : 'Ton écran', hot: true },
+    { key: 'r120', fps: 120, label: '120 Hz', hot: false },
+    { key: 'r60', fps: 60, label: '60 Hz', hot: false },
+    { key: 'r30', fps: 30, label: '30 Hz', hot: false },
+  ]
 
   useEffect(() => {
     const s = sim.current
@@ -76,7 +97,6 @@ export default function TestEcranPage() {
       const interval = 1000 / (s.hz ?? 60)
       const maxMs = Math.max(34, interval * 2.5)
       ctx.clearRect(0, 0, W, H)
-      // Ligne objectif = intervalle vsync
       const yTarget = H - (interval / maxMs) * H
       ctx.strokeStyle = 'rgba(34,197,94,0.5)'
       ctx.setLineDash([4, 4])
@@ -85,7 +105,6 @@ export default function TestEcranPage() {
       ctx.lineTo(W, yTarget)
       ctx.stroke()
       ctx.setLineDash([])
-      // Barres des 120 dernières frames
       const deltas = s.deltas.slice(-120)
       const bw = W / 120
       deltas.forEach((d, i) => {
@@ -100,17 +119,21 @@ export default function TestEcranPage() {
       const dtMs = now - s.last
       s.last = now
       if (!s.running || dtMs <= 0 || dtMs > 250) return
+      s.t += dtMs / 1000
 
-      // Déplacement à vitesse constante (pixels/sec), identique à tout Hz
-      const track = trackRef.current
-      const ufo = ufoRef.current
-      if (track && ufo) {
-        const w = track.clientWidth
-        s.x = (s.x + (s.speed * dtMs) / 1000) % (w + 120)
-        ufo.style.transform = `translate3d(${(s.x - 120).toFixed(1)}px,0,0)`
-      }
+      // Chaque ligne avance par pas de 1/fps : 30 Hz saccade, natif est fluide
+      const trackW = rowRefs.current[0]?.parentElement?.clientWidth ?? 800
+      const span = trackW + 160
+      const list = [s.hz ?? 165, 120, 60, 30]
+      list.forEach((fps, i) => {
+        const el = rowRefs.current[i]
+        if (!el) return
+        const step = 1 / fps
+        const x = (s.speed * step * Math.floor(s.t / step)) % span
+        el.style.transform = `translate3d(${(x - 160).toFixed(1)}px,0,0)`
+      })
 
-      // Stats
+      // Stats (raf natif)
       const interval = 1000 / (s.hz ?? 60)
       s.emaFps += (1000 / dtMs - s.emaFps) * 0.06
       s.deltas.push(dtMs)
@@ -120,7 +143,6 @@ export default function TestEcranPage() {
 
       drawGraph()
 
-      // MAJ React ~6x/sec (pas à chaque frame)
       if (s.frame % 10 === 0) {
         const ds = [...s.deltas].sort((a, b) => a - b)
         const avg = ds.length ? ds.reduce((a, b) => a + b, 0) / ds.length : 0
@@ -150,9 +172,9 @@ export default function TestEcranPage() {
           <div>
             <h1 className="font-display text-display-sm text-fmx-white">Test fluidité écran</h1>
             <p className="mt-1 max-w-[640px] text-[13px] leading-relaxed text-fmx-gray">
-              Même principe que UFO test : la soucoupe défile à vitesse constante, calée sur la
-              vsync de ton écran. Si c&apos;est fluide ici mais saccadé sur l&apos;accueil,
-              le problème vient des calques de la landing — pas de ton écran.
+              Comme UFO test : Peely défile à vitesse constante. La 1re ligne tourne au Hz natif
+              de ton écran, les autres simulent 120 / 60 / 30 Hz. Si la 1re saccade comme la 30 Hz,
+              ton navigateur ne suit pas.
             </p>
           </div>
           <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[13px] font-bold">
@@ -161,28 +183,45 @@ export default function TestEcranPage() {
           </div>
         </div>
 
-        {/* Piste d'animation */}
-        <div
-          ref={trackRef}
-          className="relative mt-6 h-44 overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0a0a0c]"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(90deg, rgba(255,255,255,0.06) 0 1px, transparent 1px 120px)',
-          }}
-        >
-          <div ref={ufoRef} className="absolute left-0 top-1/2 w-[110px] -translate-y-1/2 will-change-transform">
-            {/* Soucoupe FMX */}
-            <svg viewBox="0 0 110 54" className="w-full drop-shadow-[0_0_18px_rgba(255,26,26,0.55)]" aria-hidden="true">
-              <ellipse cx="55" cy="38" rx="48" ry="12" fill="#1b1b20" stroke="#FF1A1A" strokeWidth="2" />
-              <ellipse cx="55" cy="26" rx="22" ry="14" fill="#2a2a31" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
-              <circle cx="28" cy="38" r="3.4" fill="#FF1A1A" />
-              <circle cx="55" cy="41" r="3.4" fill="#FF1A1A" />
-              <circle cx="82" cy="38" r="3.4" fill="#FF1A1A" />
-            </svg>
-          </div>
-          <span className="absolute bottom-2 left-3 text-[11px] font-bold uppercase tracking-[0.18em] text-fmx-gray">
-            {speed} px/s
-          </span>
+        {/* 4 lignes comparatives */}
+        <div className="mt-6 grid gap-3">
+          {rows.map((row, i) => (
+            <div key={row.key} className={cn(
+              'relative h-28 overflow-hidden rounded-2xl border bg-[#0a0a0c]',
+              row.hot ? 'border-fmx-red/40' : 'border-white/[0.08]'
+            )}
+              style={{
+                backgroundImage:
+                  'repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 120px)',
+              }}
+            >
+              <span className={cn(
+                'absolute left-3 top-2.5 z-10 rounded-full px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.14em]',
+                row.hot ? 'bg-fmx-red text-white' : 'border border-white/10 bg-black/60 text-fmx-gray'
+              )}>
+                {row.label}
+              </span>
+              <div
+                ref={el => { rowRefs.current[i] = el }}
+                className="absolute top-1/2 -translate-y-1/2 will-change-transform"
+              >
+                {skinOk ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={SKIN_URL}
+                    alt="Peely Fortnite"
+                    width={76}
+                    height={76}
+                    className="h-[76px] w-[76px] object-contain drop-shadow-[0_0_16px_rgba(255,26,26,0.45)]"
+                    onError={() => setSkinOk(false)}
+                    draggable={false}
+                  />
+                ) : (
+                  <UfoFallback />
+                )}
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Contrôles */}
