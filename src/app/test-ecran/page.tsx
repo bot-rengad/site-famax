@@ -239,8 +239,6 @@ export default function TestEcranPage() {
     return () => cancelAnimationFrame(raf)
   }, [])
 
-  const fluid = hz !== null && stats.fps >= hz - 3 && stats.dropped === 0 && stats.fps > 0
-
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-fmx-black text-fmx-white">
       <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col gap-2 px-5 py-3 lg:px-10">
@@ -362,21 +360,6 @@ export default function TestEcranPage() {
           <canvas ref={graphRef} width={880} height={120} className="h-[80px] w-full" />
         </div>
 
-        {/* Verdict */}
-        <div className={cn(
-          'shrink-0 rounded-xl border px-3 py-2 text-[12px] leading-snug',
-          fluid
-            ? 'border-green-500/30 bg-green-500/[0.06] text-green-200'
-            : 'border-white/[0.08] bg-white/[0.02] text-fmx-gray'
-        )}>
-          {stats.fps === 0 ? (
-            <>Laisse tourner quelques secondes pour le verdict…</>
-          ) : fluid ? (
-            <><b className="text-white">Fluide à {hz} Hz.</b> Ton écran et ton navigateur suivent. Si l&apos;accueil saccade quand même, c&apos;est un calque de la landing.</>
-          ) : (
-            <><b className="text-white">Saccades détectées ici aussi</b> ({stats.dropped} frames sautées) → ça vient de ta machine, pas du site.</>
-          )}
-        </div>
       </div>
     </div>
   )
