@@ -10,7 +10,7 @@ import { detectHardware } from '@/lib/utils/hardware-detect'
 // à 120 / 60 / 30 Hz simulés (mouvement quantifié comme Blur Busters).
 // Vitesse constante en px/s, sync vsync native (rAF + dt).
 const SPEEDS = [480, 960, 1920]
-const SKIN_URL = 'https://fortnite-api.com/images/cosmetics/br/cid_a_215_athena_commando_f_sunrisecastle_48tiz/smallicon.png'
+const SKIN_URL = 'https://fortnite-api.com/images/cosmetics/br/cid_349_athena_commando_m_banana/smallicon.png'
 
 interface Stats {
   fps: number
@@ -39,6 +39,7 @@ export default function TestEcranPage() {
   const [speed, setSpeed] = useState(960)
   const [hz, setHz] = useState<number | null>(null)
   const [skinOk, setSkinOk] = useState(true)
+  const [rates, setRates] = useState<number[]>([])
   const [stats, setStats] = useState<Stats>({ fps: 0, avgMs: 0, low1Ms: 0, dropped: 0 })
 
   // Refs mutées par la boucle (zéro re-render par frame)
@@ -52,6 +53,10 @@ export default function TestEcranPage() {
     running: true,
     speed: 960,
     hz: null as number | null,
+    // Vérification honnête : changements de position réels par ligne et par seconde
+    lastQ: [-1, -1, -1, -1],
+    counts: [0, 0, 0, 0],
+    rateT0: 0,
   })
 
   useEffect(() => { sim.current.running = running }, [running])
@@ -71,6 +76,10 @@ export default function TestEcranPage() {
     sim.current.deltas = []
     sim.current.dropped = 0
     sim.current.emaFps = 0
+    sim.current.lastQ = [-1, -1, -1, -1]
+    sim.current.counts = [0, 0, 0, 0]
+    sim.current.rateT0 = performance.now()
+    setRates([])
     setStats({ fps: 0, avgMs: 0, low1Ms: 0, dropped: 0 })
   }
 
@@ -86,6 +95,7 @@ export default function TestEcranPage() {
   useEffect(() => {
     const s = sim.current
     s.last = performance.now()
+    s.rateT0 = performance.now()
     let raf = 0
 
     const drawGraph = () => {
@@ -122,7 +132,8 @@ export default function TestEcranPage() {
       if (!s.running || dtMs <= 0 || dtMs > 250) return
       s.t += dtMs / 1000
 
-      // Chaque ligne avance par pas de 1/fps : ÷4 saccade, natif est fluide
+      // Chaque ligne avance par pas de 1/fps : ÷4 saccade, natif est fluide.
+      // Le -50% vertical est inclus ici (le transform inline écrase la classe).
       const trackW = rowRefs.current[0]?.parentElement?.clientWidth ?? 800
       const span = trackW + 160
       const b = s.hz ?? 165
@@ -131,9 +142,21 @@ export default function TestEcranPage() {
         const el = rowRefs.current[i]
         if (!el) return
         const step = 1 / fps
-        const x = (s.speed * step * Math.floor(s.t / step)) % span
-        el.style.transform = `translate3d(${(x - 160).toFixed(1)}px,0,0)`
+        const q = Math.floor(s.t / step)
+        if (q !== s.lastQ[i]) {
+          s.lastQ[i] = q
+          s.counts[i] += 1
+        }
+        const x = (s.speed * step * q) % span
+        el.style.transform = `translate3d(${(x - 160).toFixed(1)}px,-50%,0)`
       })
+
+      // Taux réel mesuré par ligne, chaque seconde
+      if (now - s.rateT0 >= 1000) {
+        setRates([...s.counts])
+        s.counts = [0, 0, 0, 0]
+        s.rateT0 = now
+      }
 
       // Stats (raf natif)
       const interval = 1000 / (s.hz ?? 60)
@@ -174,7 +197,7 @@ export default function TestEcranPage() {
           <div>
             <h1 className="font-display text-display-sm text-fmx-white">Test fluidité écran</h1>
             <p className="mt-1 max-w-[640px] text-[13px] leading-relaxed text-fmx-gray">
-              Comme UFO test : Chani défile à vitesse constante. La 1re ligne tourne au Hz natif
+              Comme UFO test : Peely défile à vitesse constante. La 1re ligne tourne au Hz natif
               de ton écran, les autres simulent ÷1.5 / ÷2 / ÷4. Si la 1re saccade comme la ÷4,
               ton navigateur ne suit pas.
             </p>
@@ -203,6 +226,9 @@ export default function TestEcranPage() {
               )}>
                 {row.label}
               </span>
+              <span className="absolute right-3 top-2.5 z-10 rounded-full border border-white/10 bg-black/60 px-3 py-1 font-mono text-[11px] font-bold text-green-400">
+                {rates[i] != null ? `${rates[i]} Hz réels` : 'mesure…'}
+              </span>
               <div
                 ref={el => { rowRefs.current[i] = el }}
                 className="absolute top-1/2 -translate-y-1/2 will-change-transform"
@@ -211,7 +237,7 @@ export default function TestEcranPage() {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={SKIN_URL}
-                    alt="Chani Fortnite"
+                    alt="Peely Fortnite"
                     width={76}
                     height={76}
                     className="h-[76px] w-[76px] object-contain drop-shadow-[0_0_16px_rgba(255,26,26,0.45)]"
