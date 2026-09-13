@@ -51,6 +51,7 @@ function cleanText(raw: string): string {
     .replace(/<:\w+:\d+>/g, '')
     .replace(/https?:\/\/\S+/g, '')
     .replace(/\s+/g, ' ')
+    .replace(/\*+rating\*+\s*[⭐★☆️\s]*$/i, '')
     .trim()
     .slice(0, 400)
 }
