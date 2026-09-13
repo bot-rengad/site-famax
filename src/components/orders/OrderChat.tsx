@@ -15,7 +15,7 @@ interface ChatMessage {
 
 // Fil de discussion d'une commande : client ↔ staff.
 // Rafraîchi toutes les 5 s (simple et fiable, pas de websocket à héberger).
-export function OrderChat({ orderId, compact = false }: { orderId: string; compact?: boolean }) {
+export function OrderChat({ orderId, compact = false, className }: { orderId: string; compact?: boolean; className?: string }) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [draft, setDraft] = useState('')
   const [sending, setSending] = useState(false)
@@ -82,7 +82,7 @@ export function OrderChat({ orderId, compact = false }: { orderId: string; compa
     m.isStaff ? 'Staff FMX' : m.user?.discordGlobalName || m.user?.discordUsername || m.user?.name || 'Client'
 
   return (
-    <div className={cn('flex flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-black/40', compact ? 'max-h-[480px]' : 'max-h-[640px]')}>
+    <div className={cn('flex flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-black/40', compact ? 'max-h-[480px]' : 'max-h-[640px]', className)}>
       {failed && (
         <button
           onClick={load}

@@ -105,7 +105,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   ]
 
   return (
-    <div className="mx-auto max-w-[860px] space-y-6">
+    <div className="mx-auto max-w-[1200px] space-y-6">
       <div>
         <Link href="/dashboard" className="text-[12px] text-fmx-gray hover:text-white">← Retour au parcours</Link>
         <div className="mt-2 flex flex-wrap items-center gap-3">
@@ -123,62 +123,65 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
         </div>
       </div>
 
-      {/* Récap */}
-      <Card variant="glass" padding="lg">
-        <CardContent>
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <b className="text-white">{pack?.name || order.packageType}</b>
-              {addonItems.length > 0 && (
-                <p className="mt-1 text-[13px] text-fmx-gray">
-                  + {addonItems.map(a => `${a.name} (+${a.price}€)`).join(' • ')}
-                </p>
-              )}
-              <p className="mt-1 text-[12px] text-fmx-gray">
-                Payée via {order.paymentMethod === 'PAYPAL' ? 'PayPal' : 'virement'} • {new Date(order.createdAt).toLocaleDateString('fr-FR')}
-              </p>
-            </div>
-            <b className="text-[24px] text-white">{order.amount}€</b>
-          </div>
+      {/* Rappel paiement (commandes en attente) — toujours visible sans scroller */}
+      {!paid && order.status === 'PENDING' && (
+        <div className="rounded-xl border border-yellow-500/25 bg-yellow-500/[0.06] p-4 text-[13px] leading-relaxed text-yellow-200/90">
+          Paie <b>{order.amount}€</b> avec ton <b>pseudo Discord en note</b>{' '}
+          ({order.paymentMethod === 'PAYPAL' ? 'paypal.me/poticatfn, Amis & Proches' : 'IBAN BE15 3632 2722 1530, Jordan Silva'}),
+          puis envoie ta capture sur le Discord.
+        </div>
+      )}
 
-          {!paid && order.status === 'PENDING' && (
-            <div className="mt-4 rounded-xl border border-yellow-500/25 bg-yellow-500/[0.06] p-4 text-[13px] leading-relaxed text-yellow-200/90">
-              Paie <b>{order.amount}€</b> avec ton <b>pseudo Discord en note</b>{' '}
-              ({order.paymentMethod === 'PAYPAL' ? 'paypal.me/poticatfn, Amis & Proches' : 'IBAN BE15 3632 2722 1530, Jordan Silva'}),
-              puis envoie ta capture sur le Discord.
-            </div>
-          )}
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+        {/* Chat commande — à gauche, toute la hauteur visible */}
+        <Card variant="glass" padding="lg" className="min-w-0">
+          <CardHeader className="mb-4">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <MessageCircle className="h-5 w-5 text-fmx-red" />
+              Discussion de la commande
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <OrderChat orderId={order.id} className="h-[calc(100dvh-320px)] max-h-none min-h-[480px]" />
+          </CardContent>
+        </Card>
 
-          {/* Étapes */}
-          <ol className="mt-4 grid gap-2 sm:grid-cols-4">
-            {steps.map((s, i) => (
-              <li
-                key={s.label}
-                className={cn(
-                  'flex items-center gap-2 rounded-xl border px-3 py-2.5 text-[12px] font-bold',
-                  s.done ? 'border-green-500/25 bg-green-500/[0.06] text-green-300' : s.locked ? 'border-white/[0.06] text-fmx-gray opacity-60' : 'border-fmx-red/25 bg-fmx-red/[0.06] text-white'
+        {/* Récap — colonne de droite */}
+        <Card variant="glass" padding="lg" className="min-w-0 lg:sticky lg:top-24">
+          <CardContent>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <b className="text-white">{pack?.name || order.packageType}</b>
+                {addonItems.length > 0 && (
+                  <p className="mt-1 text-[13px] text-fmx-gray">
+                    + {addonItems.map(a => `${a.name} (+${a.price}€)`).join(' • ')}
+                  </p>
                 )}
-              >
-                {s.done ? <Check className="h-4 w-4 shrink-0" /> : s.locked ? <Lock className="h-4 w-4 shrink-0" /> : <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-fmx-red text-[11px] text-white">{i + 1}</span>}
-                {s.label}
-              </li>
-            ))}
-          </ol>
-        </CardContent>
-      </Card>
+                <p className="mt-1 text-[12px] text-fmx-gray">
+                  Payée via {order.paymentMethod === 'PAYPAL' ? 'PayPal' : 'virement'} • {new Date(order.createdAt).toLocaleDateString('fr-FR')}
+                </p>
+              </div>
+              <b className="text-[24px] text-white">{order.amount}€</b>
+            </div>
 
-      {/* Chat commande */}
-      <Card variant="glass" padding="lg">
-        <CardHeader className="mb-4">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <MessageCircle className="h-5 w-5 text-fmx-red" />
-            Discussion de la commande
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <OrderChat orderId={order.id} />
-        </CardContent>
-      </Card>
+            {/* Étapes */}
+            <ol className="mt-4 grid gap-2">
+              {steps.map((s, i) => (
+                <li
+                  key={s.label}
+                  className={cn(
+                    'flex items-center gap-2 rounded-xl border px-3 py-2.5 text-[12px] font-bold',
+                    s.done ? 'border-green-500/25 bg-green-500/[0.06] text-green-300' : s.locked ? 'border-white/[0.06] text-fmx-gray opacity-60' : 'border-fmx-red/25 bg-fmx-red/[0.06] text-white'
+                  )}
+                >
+                  {s.done ? <Check className="h-4 w-4 shrink-0" /> : s.locked ? <Lock className="h-4 w-4 shrink-0" /> : <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-fmx-red text-[11px] text-white">{i + 1}</span>}
+                  {s.label}
+                </li>
+              ))}
+            </ol>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
