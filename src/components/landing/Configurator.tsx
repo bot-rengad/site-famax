@@ -434,7 +434,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
     }
   }
 
-  const selectClass = 'w-full rounded-xl border border-white/[0.08] bg-[#0f0f12] px-3 py-2 text-[12px] text-white transition-all duration-150 hover:border-white/25 hover:bg-[#141418] focus:border-fmx-red/50 focus:outline-none'
+  const selectClass = 'w-full rounded-xl border border-white/[0.08] bg-[#0f0f12] px-3.5 py-2.5 text-[13px] text-white transition-all duration-150 hover:border-white/25 hover:bg-[#141418] focus:border-fmx-red/50 focus:outline-none'
 
   return (
     <section id="config" className="relative mx-auto flex min-h-0 w-full max-w-[1280px] flex-1 flex-col scroll-mt-24 px-5 lg:px-10">
@@ -448,32 +448,32 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
         </p>
       </div>
 
-      <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+      <div className="grid min-h-0 flex-1 gap-5 lg:grid-cols-[1.05fr_0.95fr]">
         <div className="flex min-h-0 flex-col">
           <div className="min-h-0 flex-1">
             <PcViewer3D fps={fps} gain={result.gain} refreshHz={refreshHz} gameLabel={`${game} • ${resolution}`} />
           </div>
           {/* Panneau résultats détaillés */}
-          <div className="mt-2 grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4">
-            <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-2.5 text-center">
-              <div className="text-[10px] uppercase tracking-wider text-fmx-gray">Avant FMX</div>
-              <div className="text-[19px] font-extrabold leading-tight text-fmx-gray">{result.avgStock}</div>
-              <div className="text-[10px] text-fmx-gray">FPS moyens</div>
+          <div className="mt-3 grid shrink-0 grid-cols-2 gap-2.5 sm:grid-cols-4">
+            <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-3 text-center">
+              <div className="text-[11px] uppercase tracking-wider text-fmx-gray">Avant FMX</div>
+              <div className="text-[21px] font-extrabold leading-tight text-fmx-gray">{result.avgStock}</div>
+              <div className="text-[11px] text-fmx-gray">FPS moyens</div>
             </div>
-            <div className="rounded-xl border border-fmx-red/30 bg-fmx-red/[0.07] p-2.5 text-center">
-              <div className="text-[10px] uppercase tracking-wider text-fmx-red">Après FMX</div>
-              <div className="text-[19px] font-extrabold leading-tight text-white">{result.avg}</div>
-              <div className="text-[10px] text-green-400">+{result.gain} FPS</div>
+            <div className="rounded-xl border border-fmx-red/30 bg-fmx-red/[0.07] p-3 text-center">
+              <div className="text-[11px] uppercase tracking-wider text-fmx-red">Après FMX</div>
+              <div className="text-[21px] font-extrabold leading-tight text-white">{result.avg}</div>
+              <div className="text-[11px] text-green-400">+{result.gain} FPS</div>
             </div>
-            <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-2.5 text-center">
-              <div className="text-[10px] uppercase tracking-wider text-fmx-gray">1% Low</div>
-              <div className="text-[19px] font-extrabold leading-tight text-white">{result.low1}</div>
-              <div className="text-[10px] text-fmx-gray">fluidité min</div>
+            <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-3 text-center">
+              <div className="text-[11px] uppercase tracking-wider text-fmx-gray">1% Low</div>
+              <div className="text-[21px] font-extrabold leading-tight text-white">{result.low1}</div>
+              <div className="text-[11px] text-fmx-gray">fluidité min</div>
             </div>
-            <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-2.5 text-center">
-              <div className="text-[10px] uppercase tracking-wider text-fmx-gray">Limite</div>
-              <div className={`text-[16px] font-extrabold leading-tight ${result.bottleneck === 'Équilibré' ? 'text-green-400' : 'text-yellow-400'}`}>{result.bottleneck}</div>
-              <div className="text-[10px] text-fmx-gray">{result.bottleneck === 'Équilibré' ? 'config équilibrée' : `bridé ${result.bottleneck} · ${result.bottleneckPct}%`}</div>
+            <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-3 text-center">
+              <div className="text-[11px] uppercase tracking-wider text-fmx-gray">Limite</div>
+              <div className={`text-[18px] font-extrabold leading-tight ${result.bottleneck === 'Équilibré' ? 'text-green-400' : 'text-yellow-400'}`}>{result.bottleneck}</div>
+              <div className="text-[11px] text-fmx-gray">{result.bottleneck === 'Équilibré' ? 'config équilibrée' : `bridé ${result.bottleneck} · ${result.bottleneckPct}%`}</div>
             </div>
           </div>
           {result.stutterRisk && (
@@ -483,7 +483,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
           )}
         </div>
 
-        <div className="rounded-[20px] border border-white/[0.08] bg-fmx-carbon p-4">
+        <div className="rounded-[20px] border border-white/[0.08] bg-fmx-carbon p-5">
           <div className="flex items-start justify-between gap-3">
             <div>
               <h3 className="text-[15px] font-semibold text-white">Configure ta config</h3>
@@ -501,14 +501,14 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
           {detectedMsg && <p className="mt-2 text-[11px] text-green-400">{detectedMsg}</p>}
 
           {/* GPU en cascade */}
-          <div className="mb-1 mt-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-gray-300">Carte graphique</div>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="grid grid-cols-2 gap-2">
+          <div className="mb-1.5 mt-3 text-xs font-semibold uppercase tracking-[0.08em] text-gray-300">Carte graphique</div>
+          <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-2 gap-2.5">
               {(['NVIDIA', 'AMD'] as const).map(b => (
                 <button
                   key={b}
                   onClick={() => changeGpuBrand(b)}
-                  className={`rounded-xl border py-2 text-xs font-bold transition-all duration-150 hover:scale-[1.03] hover:border-fmx-red/50 hover:shadow-[0_0_14px_rgba(255,26,26,0.2)] ${
+                  className={`rounded-xl border py-2.5 text-xs font-bold transition-all duration-150 hover:scale-[1.03] hover:border-fmx-red/50 hover:shadow-[0_0_14px_rgba(255,26,26,0.2)] ${
                     gpuBrand === b ? 'border-fmx-red bg-fmx-red/15 text-fmx-red' : 'border-white/[0.08] bg-[#0f0f12] text-fmx-gray hover:text-white'
                   }`}
                 >
@@ -520,7 +520,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
               {gpuRanges.map(r => <option key={r} value={r}>{r}</option>)}
             </select>
           </div>
-          <div className="mt-2 grid grid-cols-2 gap-2">
+          <div className="mt-2.5 grid grid-cols-2 gap-2.5">
             <select
               value={gpuGen}
               onChange={e => { setGpuGen(e.target.value); setGpuIdx(0) }}
@@ -535,14 +535,14 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
           </div>
 
           {/* CPU en cascade */}
-          <div className="mb-1 mt-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-gray-300">Processeur</div>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="grid grid-cols-2 gap-2">
+          <div className="mb-1.5 mt-3 text-xs font-semibold uppercase tracking-[0.08em] text-gray-300">Processeur</div>
+          <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-2 gap-2.5">
               {(['AMD', 'Intel'] as const).map(b => (
                 <button
                   key={b}
                   onClick={() => changeCpuBrand(b)}
-                  className={`rounded-xl border py-2 text-xs font-bold transition-all duration-150 hover:scale-[1.03] hover:border-fmx-red/50 hover:shadow-[0_0_14px_rgba(255,26,26,0.2)] ${
+                  className={`rounded-xl border py-2.5 text-xs font-bold transition-all duration-150 hover:scale-[1.03] hover:border-fmx-red/50 hover:shadow-[0_0_14px_rgba(255,26,26,0.2)] ${
                     cpuBrand === b ? 'border-fmx-red bg-fmx-red/15 text-fmx-red' : 'border-white/[0.08] bg-[#0f0f12] text-fmx-gray hover:text-white'
                   }`}
                 >
@@ -554,14 +554,14 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
               {cpuGens.map(g => <option key={g} value={g}>{g}</option>)}
             </select>
           </div>
-          <div className="mt-2">
+          <div className="mt-2.5">
             <select value={cpuIdx} onChange={e => setCpuIdx(Number(e.target.value))} className={selectClass} aria-label="Modèle CPU">
               {cpuModels.map((m, i) => <option key={m.name} value={i}>{m.name}{m.score >= 1000 ? ' — X3D' : ''}</option>)}
             </select>
           </div>
 
           {/* RAM / DDR / Fréquence */}
-          <div className="mt-2 grid grid-cols-2 gap-2">
+          <div className="mt-2.5 grid grid-cols-2 gap-2.5">
             <select value={ram} onChange={e => setRam(Number(e.target.value))} className={selectClass} aria-label="RAM">
               {['8 Go', '16 Go', '32 Go', '64 Go'].map((o, i) => <option key={o} value={i}>RAM — {o}</option>)}
             </select>
@@ -581,7 +581,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
               {Object.entries(RESOLUTIONS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
             </select>
           </div>
-          <div className="mt-2">
+          <div className="mt-2.5">
             <select value={game} onChange={e => setGame(e.target.value)} className={selectClass} aria-label="Jeu">
               {Object.entries(GAMES).map(([k, v]) => <option key={k} value={k}>{k} — {v.label}</option>)}
             </select>
@@ -593,7 +593,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
           )}
 
           {/* Offre */}
-          <div className="mb-2 mt-2.5">
+          <div className="mb-2 mt-3">
             <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.08em] text-gray-300">
               Ce qui est inclus
             </label>
@@ -602,7 +602,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
                 <button
                   key={o}
                   onClick={() => setOffer(o)}
-                  className={`flex-1 rounded-full py-2 text-xs font-extrabold transition-all duration-150 hover:scale-105 ${
+                  className={`flex-1 rounded-full py-2.5 text-xs font-extrabold transition-all duration-150 hover:scale-105 ${
                     offer === o ? 'border border-fmx-red bg-fmx-red text-white hover:shadow-[0_0_18px_rgba(255,26,26,0.45)]' : 'border border-white/[0.08] bg-white/[0.06] text-fmx-gray hover:border-white/25 hover:text-white'
                   }`}
                 >
@@ -610,30 +610,30 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
                 </button>
               ))}
             </div>
-            <div className="grid gap-1.5 sm:grid-cols-2">
-              <div className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-[#0f0f12] px-3 py-2 text-[12px]">
+            <div className="grid gap-2 sm:grid-cols-2">
+              <div className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-[#0f0f12] px-3 py-2.5 text-[13px]">
                 <span className="text-fmx-red">✓</span> Épuration système + priorités jeu
-                <span className="ml-auto text-[10px] font-bold text-fmx-red">+FPS</span>
+                <span className="ml-auto text-[11px] font-bold text-fmx-red">+FPS</span>
               </div>
-              <div className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-[#0f0f12] px-3 py-2 text-[12px]">
+              <div className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-[#0f0f12] px-3 py-2.5 text-[13px]">
                 <span className="text-fmx-red">✓</span> Pilote GPU + réseau stabilisé
-                <span className="ml-auto text-[10px] font-bold text-fmx-gray">+FPS</span>
+                <span className="ml-auto text-[11px] font-bold text-fmx-gray">+FPS</span>
               </div>
-              <div className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-[12px] transition-colors ${
+              <div className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-[13px] transition-colors ${
                 offer >= 25 ? 'border-fmx-red/35 opacity-100' : 'border-[#26262b] opacity-[0.38]'
               }`}>
                 {offer >= 25 ? <span className="text-fmx-red">✓</span> : <span>✕</span>}
                 CM : RAM haute vitesse + débridage
-                <span className={`ml-auto text-[10px] font-bold ${offer >= 25 ? 'text-fmx-red' : 'text-fmx-gray-dark'}`}>
+                <span className={`ml-auto text-[11px] font-bold ${offer >= 25 ? 'text-fmx-red' : 'text-fmx-gray-dark'}`}>
                   {offer >= 25 ? 'inclus' : '25€'}
                 </span>
               </div>
-              <div className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-[12px] transition-colors ${
+              <div className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-[13px] transition-colors ${
                 offer === 50 ? 'border-fmx-red/35 opacity-100' : 'border-[#26262b] opacity-[0.38]'
               }`}>
                 {offer === 50 ? <span className="text-fmx-red">✓</span> : <span>✕</span>}
                 Ultime : Windows propre + suivi à vie
-                <span className={`ml-auto text-[10px] font-bold ${offer === 50 ? 'text-fmx-red' : 'text-fmx-gray-dark'}`}>
+                <span className={`ml-auto text-[11px] font-bold ${offer === 50 ? 'text-fmx-red' : 'text-fmx-gray-dark'}`}>
                   {offer === 50 ? 'inclus' : '50€'}
                 </span>
               </div>
@@ -641,13 +641,13 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
           </div>
 
           {/* Prix + CTA */}
-          <div className="mt-2 flex items-center justify-between gap-3 rounded-2xl border border-fmx-red/20 p-3" style={{ background: 'linear-gradient(135deg, #111113, #1a0a0a)' }}>
+          <div className="mt-2.5 flex items-center justify-between gap-3 rounded-2xl border border-fmx-red/20 p-4" style={{ background: 'linear-gradient(135deg, #111113, #1a0a0a)' }}>
             <div>
-              <div className="text-[10px] uppercase tracking-[0.14em] text-fmx-gray">Total estimation</div>
-              <strong className="text-[22px] leading-tight text-white">{offer}€</strong>
-              <div className="text-[10px] text-green-500">● Paiement unique</div>
+              <div className="text-[11px] uppercase tracking-[0.14em] text-fmx-gray">Total estimation</div>
+              <strong className="text-[24px] leading-tight text-white">{offer}€</strong>
+              <div className="text-[11px] text-green-500">● Paiement unique</div>
             </div>
-            <button onClick={() => onOrder(offer === 20 ? 'BASIC' : offer === 25 ? 'COMPLET' : 'ULTIME')} className="rounded-full bg-fmx-red px-5 py-2.5 text-[13px] font-bold text-white transition-all duration-150 hover:scale-[1.03] hover:shadow-[0_0_24px_rgba(255,26,26,0.5)]">
+            <button onClick={() => onOrder(offer === 20 ? 'BASIC' : offer === 25 ? 'COMPLET' : 'ULTIME')} className="rounded-full bg-fmx-red px-5 py-3 text-sm font-bold text-white transition-all duration-150 hover:scale-[1.03] hover:shadow-[0_0_24px_rgba(255,26,26,0.5)]">
               Commander →
             </button>
           </div>

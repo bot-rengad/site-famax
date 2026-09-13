@@ -40,7 +40,7 @@ export function PcViewer3D({
     const scene = new THREE.Scene()
     scene.background = new THREE.Color(0x0a0a0c)
     const camera = new THREE.PerspectiveCamera(44, 1, 0.1, 100)
-    camera.position.set(0, 0.92, 3.55)
+    camera.position.set(0, 0.78, 2.95)
 
     const resize = () => {
       const r = box.getBoundingClientRect()
