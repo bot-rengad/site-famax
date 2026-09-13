@@ -52,7 +52,7 @@ export default function DashboardLayout({
 
       {/* Barre unique */}
       <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-fmx-black/90">
-        <div className="mx-auto flex h-16 max-w-[1080px] items-center justify-between gap-3 px-5 lg:px-10">
+        <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between gap-3 px-5 lg:px-10">
           <div className="flex items-center gap-5">
             <Link href="/dashboard" aria-label="FMx — Mon parcours">
               <Logo size={30} />
@@ -111,7 +111,7 @@ export default function DashboardLayout({
 
       {/* Contenu */}
       <main className="relative z-10">
-        <div className="mx-auto max-w-[1080px] px-5 py-8 lg:px-10">
+        <div className="mx-auto max-w-[1400px] px-5 py-8 lg:px-10">
           <motion.div
             key={pathname}
             initial={{ opacity: 0, y: 12 }}

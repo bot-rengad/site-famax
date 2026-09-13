@@ -56,9 +56,9 @@ function CopyBtn({ text, label = 'Copier' }: { text: string; label?: string }) {
   )
 }
 
-// Vue commande plein écran (un seul écran, sans scroll de page sur desktop) :
-// chat à gauche, récap + reminder paiement + 4 étapes à droite.
-// Utilisée telle quelle côté client ET côté admin (miroir + bandeau MODE ADMIN).
+// Vue commande simple et aérée : chat à gauche, récap + reminder paiement
+// + 4 étapes à droite. Utilisée telle quelle côté client ET côté admin
+// (miroir + bandeau MODE ADMIN).
 export function OrderDetailView({
   order,
   pseudo,
@@ -87,7 +87,7 @@ export function OrderDetailView({
     {
       icon: ShoppingCart,
       title: '1. Commande créée',
-      desc: `${packName} • ${order.amount}€ — ${order.orderNumber} ouverte.`,
+      desc: `${packName} • ${order.amount}€ — commande ${order.orderNumber} ouverte.`,
       done: true,
       current: false,
       locked: false,
@@ -97,7 +97,7 @@ export function OrderDetailView({
       title: '2. Paiement + preuve',
       desc: paid
         ? 'Paiement reçu, preuve envoyée.'
-        : `${order.amount}€ via ${methodLabel} (${pseudoNote} en note) + capture Discord.`,
+        : `Paie ${order.amount}€ via ${methodLabel} avec ${pseudoNote} en note, puis envoie la capture sur Discord.`,
       done: paid,
       current: !paid && order.status === 'PENDING',
       locked: false,
@@ -105,7 +105,9 @@ export function OrderDetailView({
     {
       icon: BadgeCheck,
       title: '3. Validation staff',
-      desc: paid ? 'Paiement validé par le staff.' : 'Vérifiée dès réception de la preuve.',
+      desc: paid
+        ? 'Paiement validé par le staff.'
+        : 'Le staff vérifie ton paiement dès réception de la preuve.',
       done: paid,
       current: false,
       locked: !paid,
@@ -113,7 +115,9 @@ export function OrderDetailView({
     {
       icon: MessageCircle,
       title: '4. Ticket Discord + opti',
-      desc: paid ? 'Ticket + UserDiag → opti 15 min planifiée.' : 'Débloqué après validation.',
+      desc: paid
+        ? 'Ouvre un ticket avec ton rapport UserDiag, on planifie ton opti 15 min.'
+        : 'Débloqué après validation du paiement.',
       done: false,
       current: paid,
       locked: !paid,
@@ -121,25 +125,25 @@ export function OrderDetailView({
   ]
 
   return (
-    <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-3 lg:h-[calc(100dvh-170px)] lg:min-h-[540px] lg:overflow-hidden">
+    <div className="mx-auto w-full max-w-[1400px] space-y-5">
       {/* Bandeau MODE ADMIN — impossible à confondre avec l'écran client */}
       {isAdmin && (
-        <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/[0.08] px-4 py-2 text-[12px] font-bold text-amber-200">
-          <ShieldAlert className="h-4 w-4 shrink-0" />
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-amber-500/40 bg-amber-500/[0.08] px-5 py-3 text-[13px] font-bold text-amber-200">
+          <ShieldAlert className="h-5 w-5 shrink-0" />
           <span className="mr-auto">MODE ADMIN — écran de <b className="text-white">{adminClientLabel || pseudoNote}</b> (<code className="font-mono">{order.orderNumber}</code>)</span>
           {order.status === 'PENDING' && (
             <>
               <button
                 onClick={onValidate}
                 disabled={validating}
-                className="rounded-full bg-green-600 px-4 py-1.5 text-[12px] font-bold text-white transition-all duration-150 hover:scale-105 hover:bg-green-500 hover:shadow-[0_0_16px_rgba(34,197,94,0.5)] disabled:opacity-50"
+                className="rounded-full bg-green-600 px-5 py-2 text-[13px] font-bold text-white transition-all duration-150 hover:scale-105 hover:bg-green-500 hover:shadow-[0_0_16px_rgba(34,197,94,0.5)] disabled:opacity-50"
               >
                 {validating ? 'Validation…' : '✓ Valider le paiement'}
               </button>
               <button
                 onClick={onCancel}
                 disabled={cancelling}
-                className="rounded-full border border-red-500/40 px-4 py-1.5 text-[12px] font-bold text-red-400 transition-all duration-150 hover:scale-105 hover:bg-red-500/10 disabled:opacity-50"
+                className="rounded-full border border-red-500/40 px-5 py-2 text-[13px] font-bold text-red-400 transition-all duration-150 hover:scale-105 hover:bg-red-500/10 disabled:opacity-50"
               >
                 {cancelling ? 'Annulation…' : 'Annuler'}
               </button>
@@ -148,54 +152,56 @@ export function OrderDetailView({
         </div>
       )}
 
-      {/* En-tête compact */}
-      <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1">
-        <Link href={backHref} className="text-[12px] text-fmx-gray transition-colors hover:text-white">{backLabel}</Link>
-        <h1 className="font-display text-[22px] font-bold text-fmx-white">
-          Commande <code className="break-all font-mono text-[18px]">{order.orderNumber}</code>
-        </h1>
-        <Badge variant={statusVariant} dot>{statusLabel}</Badge>
-        {!isAdmin && order.status === 'PENDING' && (
-          <button
-            onClick={onCancel}
-            disabled={cancelling}
-            className="rounded-full border border-red-500/40 px-4 py-1.5 text-[12px] font-bold text-red-400 transition-all duration-150 hover:scale-105 hover:bg-red-500/10 disabled:opacity-50"
-          >
-            {cancelling ? 'Annulation…' : 'Annuler la commande'}
-          </button>
-        )}
+      {/* En-tête */}
+      <div>
+        <Link href={backHref} className="text-[13px] text-fmx-gray transition-all duration-150 hover:text-white">{backLabel}</Link>
+        <div className="mt-2 flex flex-wrap items-center gap-3">
+          <h1 className="font-display text-display-sm text-fmx-white">
+            Commande <code className="break-all font-mono">{order.orderNumber}</code>
+          </h1>
+          <Badge variant={statusVariant} dot>{statusLabel}</Badge>
+          {!isAdmin && order.status === 'PENDING' && (
+            <button
+              onClick={onCancel}
+              disabled={cancelling}
+              className="rounded-full border border-red-500/40 px-4 py-1.5 text-[12px] font-bold text-red-400 transition-all duration-150 hover:scale-105 hover:bg-red-500/10 disabled:opacity-50"
+            >
+              {cancelling ? 'Annulation…' : 'Annuler la commande'}
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_340px] lg:overflow-hidden">
-        {/* Chat — toute la hauteur */}
-        <Card variant="glass" padding="lg" className="flex min-h-[420px] min-w-0 flex-col p-5 lg:h-full lg:min-h-0">
-          <CardHeader className="mb-3 shrink-0">
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+        {/* Chat — à gauche, toute la hauteur visible */}
+        <Card variant="glass" padding="lg" className="min-w-0">
+          <CardHeader className="mb-4">
             <CardTitle className="flex items-center gap-2 text-base">
               <MessageCircle className="h-5 w-5 text-fmx-red" />
               Discussion de la commande
               {isAdmin && <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-amber-300">staff</span>}
             </CardTitle>
           </CardHeader>
-          <CardContent className="flex min-h-0 flex-1 flex-col">
-            <OrderChat orderId={order.id} className="h-[480px] flex-1 lg:h-full lg:min-h-0" />
+          <CardContent>
+            <OrderChat orderId={order.id} className="h-[560px] max-h-none min-h-[480px] xl:h-[calc(100dvh-330px)]" />
           </CardContent>
         </Card>
 
-        {/* Colonne droite compacte */}
-        <div className="min-w-0 space-y-3 lg:min-h-0 lg:overflow-y-auto lg:pr-0.5">
-          {/* Récap */}
-          <Card variant="glass" padding="lg" className="min-w-0 p-4">
+        {/* Colonne droite : récap + reminder paiement + 4 étapes */}
+        <div className="min-w-0 space-y-5">
+          {/* Récap pack + tous les add-ons */}
+          <Card variant="glass" padding="lg" className="min-w-0">
             <CardContent>
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <b className="text-white">{packName}</b>
-                  <p className="mt-0.5 text-[11px] text-fmx-gray">
-                    {methodLabel} • {new Date(order.createdAt).toLocaleDateString('fr-FR')}
+                  <b className="text-[15px] text-white">{packName}</b>
+                  <p className="mt-1 text-[12px] text-fmx-gray">
+                    {methodLabel} • {new Date(order.createdAt).toLocaleDateString('fr-FR')} • {order.orderNumber}
                   </p>
                 </div>
-                <b className="text-[22px] text-white">{order.amount}€</b>
+                <b className="text-[26px] text-white">{order.amount}€</b>
               </div>
-              <div className="mt-2 grid gap-1 border-t border-white/[0.06] pt-2 text-[12px]">
+              <div className="mt-3 grid gap-1.5 border-t border-white/[0.06] pt-3 text-[13px]">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-fmx-gray">{packName}</span>
                   <b className="text-white">{pack?.price ?? order.amount}€</b>
@@ -206,28 +212,30 @@ export function OrderDetailView({
                     <b className="text-white">+{a.price}€</b>
                   </div>
                 ))}
-                {addonItems.length === 0 && <p className="text-[11px] text-fmx-gray">Sans option.</p>}
+                {addonItems.length === 0 && (
+                  <p className="text-[12px] text-fmx-gray">Sans option.</p>
+                )}
               </div>
             </CardContent>
           </Card>
 
-          {/* Reminder moyen de paiement */}
+          {/* Reminder moyen de paiement choisi */}
           {!paid && order.status === 'PENDING' ? (
-            <Card variant="glass" padding="lg" className="min-w-0 border-yellow-500/25 p-4">
-              <CardHeader className="mb-2 shrink-0">
-                <CardTitle className="flex items-center gap-2 text-[14px]">
-                  {isPaypal ? <Wallet className="h-4 w-4 text-blue-400" /> : <Landmark className="h-4 w-4 text-green-400" />}
+            <Card variant="glass" padding="lg" className="min-w-0 border-yellow-500/25">
+              <CardHeader className="mb-3">
+                <CardTitle className="flex items-center gap-2 text-[15px]">
+                  {isPaypal ? <Wallet className="h-5 w-5 text-blue-400" /> : <Landmark className="h-5 w-5 text-green-400" />}
                   Régler {order.amount}€ via {methodLabel}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {isPaypal ? (
-                  <div className="grid gap-2 text-center">
-                    <div className="rounded-xl bg-[#003087]/20 p-2">
-                      <div className="text-[10px] uppercase tracking-wider text-blue-300">Envoyer uniquement en</div>
-                      <div className="text-[14px] font-extrabold text-white">AMIS & PROCHES</div>
+                  <div className="grid gap-3 text-center">
+                    <div className="rounded-xl bg-[#003087]/20 p-3">
+                      <div className="text-[11px] uppercase tracking-wider text-blue-300">Envoyer uniquement en</div>
+                      <div className="text-[15px] font-extrabold text-white">AMIS & PROCHES</div>
                     </div>
-                    <code className="flex items-center justify-between gap-2 rounded-lg bg-black/60 px-3 py-2 font-mono text-[12px] text-white">
+                    <code className="flex items-center justify-between gap-2 rounded-lg bg-black/60 px-4 py-3 font-mono text-[13px] text-white">
                       <span className="truncate">{PAYPAL_NAME}</span>
                       <CopyBtn text={PAYPAL_LINK} label="Copy" />
                     </code>
@@ -236,28 +244,28 @@ export function OrderDetailView({
                         href={PAYPAL_LINK}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-full bg-[#0070BA] px-5 py-2 text-[12px] font-bold text-white transition-all duration-150 hover:scale-105 hover:shadow-[0_0_18px_rgba(0,112,186,0.6)]"
+                        className="inline-flex items-center gap-1.5 rounded-full bg-[#0070BA] px-5 py-2.5 text-[13px] font-bold text-white transition-all duration-150 hover:scale-105 hover:shadow-[0_0_18px_rgba(0,112,186,0.6)]"
                       >
                         Ouvrir PayPal <ExternalLink className="h-3.5 w-3.5" />
                       </a>
                       <CopyBtn text={pseudo ?? ''} label={pseudo ? `Copier @${pseudo}` : 'Pseudo Discord'} />
                     </div>
-                    <p className="rounded-lg border border-fmx-red/25 bg-fmx-red/[0.07] p-2 text-[11px] leading-relaxed text-white">
-                      Note = <b className="text-fmx-red">{pseudoNote}</b>
-                      <span className="block font-normal text-fmx-gray">Sans ça, paiement introuvable.</span>
+                    <p className="rounded-lg border border-fmx-red/25 bg-fmx-red/[0.07] p-3 text-[12px] leading-relaxed text-white">
+                      Note du paiement = <b className="text-fmx-red">{pseudoNote}</b>
+                      <span className="mt-0.5 block font-normal text-fmx-gray">Sans ça, impossible de retrouver ton paiement.</span>
                     </p>
                   </div>
                 ) : (
-                  <div className="grid gap-1.5 text-[12px]">
-                    <div className="flex items-center justify-between gap-2 border-b border-white/[0.06] pb-1.5">
+                  <div className="grid gap-2 text-[13px]">
+                    <div className="flex items-center justify-between gap-2 border-b border-white/[0.06] pb-2">
                       <span className="text-fmx-gray">IBAN</span>
                       <span className="flex items-center gap-2">
-                        <code className="break-all font-mono text-[11px] text-white">{IBAN_DISPLAY}</code>
+                        <code className="break-all font-mono text-[12px] text-white">{IBAN_DISPLAY}</code>
                         <CopyBtn text={IBAN_RAW} label="Copy" />
                       </span>
                     </div>
-                    <div className="flex justify-between border-b border-white/[0.06] pb-1.5"><span className="text-fmx-gray">Titulaire</span><span className="text-white">{TITULAIRE}</span></div>
-                    <div className="flex justify-between border-b border-white/[0.06] pb-1.5"><span className="text-fmx-gray">Montant</span><b className="text-fmx-red">{order.amount}€</b></div>
+                    <div className="flex justify-between border-b border-white/[0.06] pb-2"><span className="text-fmx-gray">Titulaire</span><span className="text-white">{TITULAIRE}</span></div>
+                    <div className="flex justify-between border-b border-white/[0.06] pb-2"><span className="text-fmx-gray">Montant</span><b className="text-fmx-red">{order.amount}€</b></div>
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-fmx-gray">Motif</span>
                       <span className="flex items-center gap-2">
@@ -265,6 +273,9 @@ export function OrderDetailView({
                         {pseudo && <CopyBtn text={pseudo} label="Copier" />}
                       </span>
                     </div>
+                    <p className="rounded-lg border border-fmx-red/25 bg-fmx-red/[0.07] p-3 text-center text-[12px] font-bold text-white">
+                      Virement instantané + motif = {pseudoNote}
+                    </p>
                   </div>
                 )}
                 {!isAdmin && (
@@ -272,26 +283,26 @@ export function OrderDetailView({
                     href={DISCORD_INVITE}
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-2 block rounded-xl border border-[#5865F2]/25 bg-[#5865F2]/[0.07] p-2 text-center text-[11px] leading-relaxed text-fmx-gray transition-all duration-150 hover:scale-[1.02] hover:bg-[#5865F2]/[0.14]"
+                    className="mt-3 block rounded-xl border border-[#5865F2]/25 bg-[#5865F2]/[0.07] p-3 text-center text-[12px] leading-relaxed text-fmx-gray transition-all duration-150 hover:scale-[1.02] hover:bg-[#5865F2]/[0.14]"
                   >
-                    <b className="text-white">Après paiement :</b> capture sur Discord → salon preuves.
+                    <b className="text-white">Après paiement :</b> envoie ta capture sur Discord → salon preuves.
                   </a>
                 )}
               </CardContent>
             </Card>
           ) : paid ? (
-            <Card variant="glass" padding="lg" className="min-w-0 border-green-500/25 p-4">
+            <Card variant="glass" padding="lg" className="min-w-0 border-green-500/25">
               <CardContent>
-                <p className="flex items-center gap-2 rounded-xl border border-green-500/25 bg-green-500/[0.06] p-2.5 text-[12px] font-bold text-green-300">
+                <p className="flex items-center gap-2 rounded-xl border border-green-500/25 bg-green-500/[0.06] p-3 text-[13px] font-bold text-green-300">
                   <Check className="h-4 w-4 shrink-0" />
-                  Paiement validé — étape 4.
+                  Paiement validé — passe à l’étape 4.
                 </p>
                 {!isAdmin && (
                   <a
                     href={DISCORD_INVITE}
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-2 block rounded-full bg-[#5865F2] px-5 py-2 text-center text-[12px] font-bold text-white transition-all duration-150 hover:scale-105 hover:bg-[#4752C4]"
+                    className="mt-3 block rounded-full bg-[#5865F2] px-5 py-2.5 text-center text-[13px] font-bold text-white transition-all duration-150 hover:scale-105 hover:bg-[#4752C4]"
                   >
                     Ouvrir un ticket Discord →
                   </a>
@@ -300,18 +311,18 @@ export function OrderDetailView({
             </Card>
           ) : null}
 
-          {/* 4 étapes compactes */}
-          <Card variant="glass" padding="lg" className="min-w-0 p-4">
-            <CardHeader className="mb-2 shrink-0">
-              <CardTitle className="text-[14px]">Suivi de la commande</CardTitle>
+          {/* Suivi en 4 étapes */}
+          <Card variant="glass" padding="lg" className="min-w-0">
+            <CardHeader className="mb-3">
+              <CardTitle className="text-[15px]">Suivi de la commande</CardTitle>
             </CardHeader>
             <CardContent>
-              <ol className="grid gap-1.5">
+              <ol className="grid gap-2">
                 {steps.map(s => (
                   <li
                     key={s.title}
                     className={cn(
-                      'flex items-start gap-2 rounded-xl border px-2.5 py-2',
+                      'flex items-start gap-3 rounded-xl border px-4 py-3',
                       s.done
                         ? 'border-green-500/25 bg-green-500/[0.06]'
                         : s.current
@@ -322,17 +333,17 @@ export function OrderDetailView({
                     )}
                   >
                     <span className={cn(
-                      'grid h-6 w-6 shrink-0 place-items-center rounded-full',
+                      'grid h-8 w-8 shrink-0 place-items-center rounded-full',
                       s.done ? 'bg-green-500/20 text-green-400' : s.current ? 'bg-fmx-red text-white' : 'bg-white/[0.06] text-fmx-gray'
                     )}>
-                      {s.done ? <Check className="h-3 w-3" /> : s.locked ? <Lock className="h-3 w-3" /> : <s.icon className="h-3 w-3" />}
+                      {s.done ? <Check className="h-4 w-4" /> : s.locked ? <Lock className="h-4 w-4" /> : <s.icon className="h-4 w-4" />}
                     </span>
                     <span className="min-w-0">
-                      <b className={cn('block text-[11px]', s.done ? 'text-green-300' : s.locked ? 'text-fmx-gray' : 'text-white')}>
+                      <b className={cn('block text-[13px]', s.done ? 'text-green-300' : s.locked ? 'text-fmx-gray' : 'text-white')}>
                         {s.title}
-                        {s.current && <span className="ml-1.5 rounded-full bg-fmx-red px-1.5 py-px text-[9px] font-extrabold uppercase tracking-wide text-white">En cours</span>}
+                        {s.current && <span className="ml-2 rounded-full bg-fmx-red px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-white">En cours</span>}
                       </b>
-                      <span className="mt-px block truncate text-[11px] leading-snug text-fmx-gray" title={s.desc}>{s.desc}</span>
+                      <span className="mt-0.5 block text-[12px] leading-relaxed text-fmx-gray">{s.desc}</span>
                     </span>
                   </li>
                 ))}

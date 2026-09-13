@@ -122,7 +122,7 @@ export function OrderChat({ orderId, compact = false, className }: { orderId: st
           <textarea
             ref={taRef}
             value={draft}
-            rows={2}
+            rows={3}
             onChange={e => setDraft(e.target.value)}
             onKeyDown={e => {
               if (e.key === 'Enter' && !e.shiftKey) {
@@ -132,13 +132,13 @@ export function OrderChat({ orderId, compact = false, className }: { orderId: st
             }}
             placeholder="Écris ton message…"
             maxLength={2000}
-            className="max-h-[180px] min-h-[56px] flex-1 resize-none overflow-y-auto rounded-2xl border border-white/[0.08] bg-[#0f0f12] px-4 py-2.5 text-[14px] leading-relaxed text-white placeholder:text-fmx-gray focus:border-fmx-red/50 focus:outline-none"
+            className="max-h-[180px] min-h-[76px] flex-1 resize-none overflow-y-auto rounded-2xl border border-white/[0.08] bg-[#0f0f12] px-4 py-3 text-[14px] leading-relaxed text-white placeholder:text-fmx-gray focus:border-fmx-red/50 focus:outline-none"
           />
           <button
             onClick={send}
             disabled={sending || !draft.trim()}
             aria-label="Envoyer"
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-fmx-red text-white transition-all duration-150 hover:scale-105 hover:bg-[#ff2b2b] hover:shadow-[0_0_20px_rgba(255,26,26,0.5)] disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-none"
+            className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-fmx-red text-white transition-all duration-150 hover:scale-105 hover:bg-[#ff2b2b] hover:shadow-[0_0_20px_rgba(255,26,26,0.5)] disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-none"
           >
             {sending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
           </button>
