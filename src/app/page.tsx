@@ -8,7 +8,6 @@ import { ScrollTools } from '@/components/layout/ScrollTools'
 import { ShinamiBackground } from '@/components/landing/ShinamiBackground'
 import { Hero } from '@/components/landing/Hero'
 import { Services } from '@/components/landing/Services'
-import { Configurator } from '@/components/landing/Configurator'
 import { Pricing, type PlanId } from '@/components/landing/Pricing'
 import { Faq } from '@/components/landing/Faq'
 import { Testimonials } from '@/components/landing/Testimonials'
@@ -51,7 +50,7 @@ export default function HomePage() {
       <ScrollTools />
       <Header />
 
-      {/* Structure : Hero / Plans / Estimateur / Détails / Avis — le paiement se fait après commande, dans le tunnel */}
+      {/* Structure : Hero / Plans / Détails / Avis — estimateur et test écran sur leurs pages */}
       <main id="main-content" className="relative z-10 pt-16 lg:pt-[72px]">
         <Hero onOrder={handleOrder} />
         <Pricing
@@ -59,7 +58,6 @@ export default function HomePage() {
           onSelect={setSelectedPlan}
           onOrder={handleOrder}
         />
-        <Configurator onOrder={handleOrder} />
         <Services />
         <Faq />
         <Testimonials />

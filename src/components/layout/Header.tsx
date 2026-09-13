@@ -8,7 +8,7 @@ import { Logo } from '@/components/ui/Logo'
 
 const navLinks = [
   { href: '/#plans', label: 'Plans', section: 'plans' },
-  { href: '/#config', label: 'Estimateur FPS', section: 'config' },
+  { href: '/estimateur', label: 'Estimateur FPS', section: 'estimateur' },
   { href: '/#deroulement', label: 'Déroulé', section: 'deroulement' },
 ]
 
