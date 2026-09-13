@@ -111,7 +111,7 @@ export default function DashboardLayout({
 
       {/* Contenu */}
       <main className="relative z-10">
-        <div className="mx-auto max-w-[1400px] px-5 py-8 lg:px-10">
+        <div className="mx-auto max-w-[1400px] px-5 py-6 lg:px-10">
           <motion.div
             key={pathname}
             initial={{ opacity: 0, y: 12 }}

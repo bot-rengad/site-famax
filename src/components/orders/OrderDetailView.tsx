@@ -125,7 +125,7 @@ export function OrderDetailView({
   ]
 
   return (
-    <div className="mx-auto w-full max-w-[1400px] space-y-5">
+    <div className="mx-auto w-full max-w-[1400px] space-y-4">
       {/* Bandeau MODE ADMIN — impossible à confondre avec l'écran client */}
       {isAdmin && (
         <div className="flex flex-wrap items-center gap-3 rounded-xl border border-amber-500/40 bg-amber-500/[0.08] px-5 py-3 text-[13px] font-bold text-amber-200">
@@ -172,23 +172,56 @@ export function OrderDetailView({
         </div>
       </div>
 
-      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
-        {/* Chat — à gauche, toute la hauteur visible */}
-        <Card variant="glass" padding="lg" className="min-w-0">
-          <CardHeader className="mb-4">
+      {/* Suivi en 4 étapes — bandeau horizontal, lisible d'un coup d'œil */}
+      <ol className="grid shrink-0 grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
+        {steps.map(s => (
+          <li
+            key={s.title}
+            className={cn(
+              'flex items-start gap-2.5 rounded-xl border px-3.5 py-2.5',
+              s.done
+                ? 'border-green-500/25 bg-green-500/[0.06]'
+                : s.current
+                  ? 'border-fmx-red/40 bg-fmx-red/[0.08] shadow-[0_0_24px_rgba(255,26,26,0.12)]'
+                  : s.locked
+                    ? 'border-white/[0.06] opacity-60'
+                    : 'border-white/[0.08] bg-white/[0.02]'
+            )}
+          >
+            <span className={cn(
+              'grid h-7 w-7 shrink-0 place-items-center rounded-full',
+              s.done ? 'bg-green-500/20 text-green-400' : s.current ? 'bg-fmx-red text-white' : 'bg-white/[0.06] text-fmx-gray'
+            )}>
+              {s.done ? <Check className="h-3.5 w-3.5" /> : s.locked ? <Lock className="h-3.5 w-3.5" /> : <s.icon className="h-3.5 w-3.5" />}
+            </span>
+            <span className="min-w-0">
+              <b className={cn('block text-[12px]', s.done ? 'text-green-300' : s.locked ? 'text-fmx-gray' : 'text-white')}>
+                {s.title}
+                {s.current && <span className="ml-1.5 rounded-full bg-fmx-red px-1.5 py-px text-[9px] font-extrabold uppercase tracking-wide text-white">En cours</span>}
+              </b>
+              <span className="mt-0.5 block text-[11px] leading-snug text-fmx-gray">{s.desc}</span>
+            </span>
+          </li>
+        ))}
+      </ol>
+
+      <div className="grid items-start gap-4 xl:h-[calc(100dvh-360px)] xl:min-h-[500px] xl:grid-cols-[minmax(0,1fr)_380px] xl:overflow-hidden">
+        {/* Chat — à gauche, remplit la hauteur de l'écran */}
+        <Card variant="glass" padding="lg" className="flex min-w-0 flex-col xl:h-full xl:min-h-0">
+          <CardHeader className="mb-4 shrink-0">
             <CardTitle className="flex items-center gap-2 text-base">
               <MessageCircle className="h-5 w-5 text-fmx-red" />
               Discussion de la commande
               {isAdmin && <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-amber-300">staff</span>}
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <OrderChat orderId={order.id} className="h-[560px] max-h-none min-h-[480px] xl:h-[calc(100dvh-330px)]" />
+          <CardContent className="flex min-h-0 flex-1 flex-col">
+            <OrderChat orderId={order.id} className="h-[540px] max-h-none flex-1 xl:h-full xl:min-h-0" />
           </CardContent>
         </Card>
 
-        {/* Colonne droite : récap + reminder paiement + 4 étapes */}
-        <div className="min-w-0 space-y-5">
+        {/* Colonne droite : récap + reminder paiement */}
+        <div className="min-w-0 space-y-4 xl:min-h-0 xl:overflow-y-auto xl:pb-1">
           {/* Récap pack + tous les add-ons */}
           <Card variant="glass" padding="lg" className="min-w-0">
             <CardContent>
@@ -310,46 +343,6 @@ export function OrderDetailView({
               </CardContent>
             </Card>
           ) : null}
-
-          {/* Suivi en 4 étapes */}
-          <Card variant="glass" padding="lg" className="min-w-0">
-            <CardHeader className="mb-3">
-              <CardTitle className="text-[15px]">Suivi de la commande</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ol className="grid gap-2">
-                {steps.map(s => (
-                  <li
-                    key={s.title}
-                    className={cn(
-                      'flex items-start gap-3 rounded-xl border px-4 py-3',
-                      s.done
-                        ? 'border-green-500/25 bg-green-500/[0.06]'
-                        : s.current
-                          ? 'border-fmx-red/40 bg-fmx-red/[0.08] shadow-[0_0_24px_rgba(255,26,26,0.12)]'
-                          : s.locked
-                            ? 'border-white/[0.06] opacity-60'
-                            : 'border-white/[0.08] bg-white/[0.02]'
-                    )}
-                  >
-                    <span className={cn(
-                      'grid h-8 w-8 shrink-0 place-items-center rounded-full',
-                      s.done ? 'bg-green-500/20 text-green-400' : s.current ? 'bg-fmx-red text-white' : 'bg-white/[0.06] text-fmx-gray'
-                    )}>
-                      {s.done ? <Check className="h-4 w-4" /> : s.locked ? <Lock className="h-4 w-4" /> : <s.icon className="h-4 w-4" />}
-                    </span>
-                    <span className="min-w-0">
-                      <b className={cn('block text-[13px]', s.done ? 'text-green-300' : s.locked ? 'text-fmx-gray' : 'text-white')}>
-                        {s.title}
-                        {s.current && <span className="ml-2 rounded-full bg-fmx-red px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-white">En cours</span>}
-                      </b>
-                      <span className="mt-0.5 block text-[12px] leading-relaxed text-fmx-gray">{s.desc}</span>
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>
