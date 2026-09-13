@@ -121,6 +121,13 @@ export function Header() {
               <span aria-hidden="true" className="absolute -bottom-0.5 left-0 h-[2px] w-full origin-left scale-x-0 rounded-full bg-white transition-transform duration-200 group-hover:scale-x-100" />
             </a>
           )}
+          <Link
+            href="/test-ecran"
+            className="group relative py-1.5 transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_10px_rgba(255,26,26,0.45)]"
+          >
+            Test écran
+            <span aria-hidden="true" className="absolute -bottom-0.5 left-0 h-[2px] w-full origin-left scale-x-0 rounded-full bg-fmx-red shadow-[0_0_12px_rgba(255,26,26,0.8)] transition-transform duration-200 group-hover:scale-x-100" />
+          </Link>
         </div>
 
         <div className="flex items-center gap-3">
@@ -193,6 +200,13 @@ export function Header() {
                 {link.label}
               </a>
             ))}
+            <Link
+              href="/test-ecran"
+              onClick={() => setMobileOpen(false)}
+              className="rounded-lg px-3 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-fmx-gray transition-all duration-150 hover:translate-x-1 hover:bg-white/5 hover:text-white"
+            >
+              Test écran
+            </Link>
             {me?.role === 'ADMIN' && (
               <Link
                 href="/admin"
