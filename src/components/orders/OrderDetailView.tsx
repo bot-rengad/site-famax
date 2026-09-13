@@ -223,7 +223,7 @@ export function OrderDetailView({
         {/* Colonne droite : récap + reminder paiement */}
         <div className="min-w-0 space-y-4 xl:min-h-0 xl:overflow-y-auto xl:pb-1">
           {/* Récap pack + tous les add-ons */}
-          <Card variant="glass" padding="lg" className="min-w-0">
+          <Card variant="glass" padding="lg" className="min-w-0 p-5">
             <CardContent>
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0">
@@ -254,8 +254,8 @@ export function OrderDetailView({
 
           {/* Reminder moyen de paiement choisi */}
           {!paid && order.status === 'PENDING' ? (
-            <Card variant="glass" padding="lg" className="min-w-0 border-yellow-500/25">
-              <CardHeader className="mb-3">
+            <Card variant="glass" padding="lg" className="min-w-0 border-yellow-500/25 p-5">
+              <CardHeader className="mb-2">
                 <CardTitle className="flex items-center gap-2 text-[15px]">
                   {isPaypal ? <Wallet className="h-5 w-5 text-blue-400" /> : <Landmark className="h-5 w-5 text-green-400" />}
                   Régler {order.amount}€ via {methodLabel}
@@ -263,12 +263,12 @@ export function OrderDetailView({
               </CardHeader>
               <CardContent>
                 {isPaypal ? (
-                  <div className="grid gap-3 text-center">
-                    <div className="rounded-xl bg-[#003087]/20 p-3">
+                  <div className="grid gap-2.5 text-center">
+                    <div className="rounded-xl bg-[#003087]/20 p-2">
                       <div className="text-[11px] uppercase tracking-wider text-blue-300">Envoyer uniquement en</div>
                       <div className="text-[15px] font-extrabold text-white">AMIS & PROCHES</div>
                     </div>
-                    <code className="flex items-center justify-between gap-2 rounded-lg bg-black/60 px-4 py-3 font-mono text-[13px] text-white">
+                    <code className="flex items-center justify-between gap-2 rounded-lg bg-black/60 px-4 py-2.5 font-mono text-[13px] text-white">
                       <span className="truncate">{PAYPAL_NAME}</span>
                       <CopyBtn text={PAYPAL_LINK} label="Copy" />
                     </code>
@@ -283,22 +283,22 @@ export function OrderDetailView({
                       </a>
                       <CopyBtn text={pseudo ?? ''} label={pseudo ? `Copier @${pseudo}` : 'Pseudo Discord'} />
                     </div>
-                    <p className="rounded-lg border border-fmx-red/25 bg-fmx-red/[0.07] p-3 text-[12px] leading-relaxed text-white">
+                    <p className="rounded-lg border border-fmx-red/25 bg-fmx-red/[0.07] p-2.5 text-[12px] leading-relaxed text-white">
                       Note du paiement = <b className="text-fmx-red">{pseudoNote}</b>
                       <span className="mt-0.5 block font-normal text-fmx-gray">Sans ça, impossible de retrouver ton paiement.</span>
                     </p>
                   </div>
                 ) : (
-                  <div className="grid gap-2 text-[13px]">
-                    <div className="flex items-center justify-between gap-2 border-b border-white/[0.06] pb-2">
+                  <div className="grid gap-1.5 text-[13px]">
+                    <div className="flex items-center justify-between gap-2 border-b border-white/[0.06] pb-1.5">
                       <span className="text-fmx-gray">IBAN</span>
                       <span className="flex items-center gap-2">
                         <code className="break-all font-mono text-[12px] text-white">{IBAN_DISPLAY}</code>
                         <CopyBtn text={IBAN_RAW} label="Copy" />
                       </span>
                     </div>
-                    <div className="flex justify-between border-b border-white/[0.06] pb-2"><span className="text-fmx-gray">Titulaire</span><span className="text-white">{TITULAIRE}</span></div>
-                    <div className="flex justify-between border-b border-white/[0.06] pb-2"><span className="text-fmx-gray">Montant</span><b className="text-fmx-red">{order.amount}€</b></div>
+                    <div className="flex justify-between border-b border-white/[0.06] pb-1.5"><span className="text-fmx-gray">Titulaire</span><span className="text-white">{TITULAIRE}</span></div>
+                    <div className="flex justify-between border-b border-white/[0.06] pb-1.5"><span className="text-fmx-gray">Montant</span><b className="text-fmx-red">{order.amount}€</b></div>
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-fmx-gray">Motif</span>
                       <span className="flex items-center gap-2">
@@ -306,7 +306,7 @@ export function OrderDetailView({
                         {pseudo && <CopyBtn text={pseudo} label="Copier" />}
                       </span>
                     </div>
-                    <p className="rounded-lg border border-fmx-red/25 bg-fmx-red/[0.07] p-3 text-center text-[12px] font-bold text-white">
+                    <p className="rounded-lg border border-fmx-red/25 bg-fmx-red/[0.07] p-2.5 text-center text-[12px] font-bold text-white">
                       Virement instantané + motif = {pseudoNote}
                     </p>
                   </div>
@@ -316,7 +316,7 @@ export function OrderDetailView({
                     href={DISCORD_INVITE}
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-3 block rounded-xl border border-[#5865F2]/25 bg-[#5865F2]/[0.07] p-3 text-center text-[12px] leading-relaxed text-fmx-gray transition-all duration-150 hover:scale-[1.02] hover:bg-[#5865F2]/[0.14]"
+                    className="mt-2.5 block rounded-xl border border-[#5865F2]/25 bg-[#5865F2]/[0.07] p-2.5 text-center text-[12px] leading-relaxed text-fmx-gray transition-all duration-150 hover:scale-[1.02] hover:bg-[#5865F2]/[0.14]"
                   >
                     <b className="text-white">Après paiement :</b> envoie ta capture sur Discord → salon preuves.
                   </a>
