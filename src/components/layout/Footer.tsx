@@ -52,6 +52,7 @@ export function Footer() {
 
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] text-zinc-600">
           <Link href="/auth/login" className="transition-colors hover:text-white">Espace client</Link>
+          <Link href="/test-ecran" className="transition-colors hover:text-white">Test écran</Link>
           <Link href="/conditions-generales" className="transition-colors hover:text-white">CGV</Link>
           <Link href="/mentions-legales" className="transition-colors hover:text-white">Mentions légales</Link>
           <Link href="/confidentialite" className="transition-colors hover:text-white">Confidentialité</Link>
