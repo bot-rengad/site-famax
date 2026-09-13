@@ -16,7 +16,7 @@ const faqs = [
   },
   {
     q: 'Comment je paie ?',
-    a: 'PayPal (Amis & Proches) ou virement SEPA instantané, avec ton pseudo Discord en note, puis capture envoyée sur le Discord. Coordonnées exactes dans la section « Paiement ».',
+    a: 'PayPal (Amis & Proches) ou virement SEPA instantané, avec ton pseudo Discord en note, puis capture envoyée sur le Discord. Les coordonnées exactes s’affichent après ta commande, à l’étape paiement.',
   },
   {
     q: 'Et si ça ne change rien sur mon PC ?',
@@ -46,16 +46,24 @@ export function Faq() {
         {faqs.map((f, i) => {
           const isOpen = open === i
           return (
-            <div key={f.q} className="fmx-window overflow-hidden rounded-2xl">
+            <div
+              key={f.q}
+              className={cn(
+                'fmx-window group overflow-hidden rounded-2xl transition-all duration-200 hover:-translate-y-px hover:border-fmx-red/30 hover:shadow-[0_0_28px_rgba(255,26,26,0.12)]',
+                isOpen && 'border-fmx-red/30 shadow-[0_0_28px_rgba(255,26,26,0.12)]'
+              )}
+            >
               <button
                 onClick={() => setOpen(isOpen ? null : i)}
                 aria-expanded={isOpen}
-                className="flex w-full items-center justify-between gap-4 p-5 text-left"
+                className="flex w-full items-center justify-between gap-4 p-5 text-left transition-colors duration-200 hover:bg-white/[0.03]"
               >
-                <span className="text-[14px] font-bold text-white">{f.q}</span>
+                <span className="text-[14px] font-bold text-white transition-all duration-200 group-hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.45)]">
+                  {f.q}
+                </span>
                 <span
                   className={cn(
-                    'grid h-8 w-8 shrink-0 place-items-center rounded-full border border-white/10 bg-white/[0.06] transition-transform duration-200',
+                    'grid h-8 w-8 shrink-0 place-items-center rounded-full border border-white/10 bg-white/[0.06] transition-all duration-200 group-hover:scale-110 group-hover:border-fmx-red/40 group-hover:bg-fmx-red/15 group-hover:shadow-[0_0_16px_rgba(255,26,26,0.35)]',
                     isOpen && 'rotate-45 border-fmx-red/40 bg-fmx-red/15'
                   )}
                 >

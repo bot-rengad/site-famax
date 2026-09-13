@@ -342,7 +342,7 @@ export default function AdminPage() {
                   <tbody>
                     {recentOrders.map(o => (
                       <tr key={o.id} className="border-b border-fmx-border/30 last:border-0">
-                        <td className="py-3 pr-4 font-mono text-xs text-fmx-white-dim">{o.orderNumber}</td>
+                        <td className="py-3 pr-4 font-mono text-xs"><a href={`/admin/orders/${o.id}`} className="text-fmx-white-dim transition-colors hover:text-fmx-red hover:underline">{o.orderNumber}</a></td>
                         <td className="py-3 pr-4 text-fmx-white-dim">{o.user.email}</td>
                         <td className="py-3 pr-4"><Badge variant="red">{o.packageType}</Badge></td>
                         <td className="py-3 pr-4 text-fmx-white">{o.amount.toFixed(2)} €</td>
@@ -392,7 +392,7 @@ export default function AdminPage() {
                       {u.orders.map(o => (
                         <div key={o.id}>
                           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                            <code className="font-mono text-[12px] text-white">{o.orderNumber}</code>
+                            <a href={`/admin/orders/${o.id}`} className="font-mono text-[12px] text-white transition-colors hover:text-fmx-red hover:underline">{o.orderNumber}</a>
                             <Badge variant="red">{o.packageType}</Badge>
                             <span className="text-[12px] text-fmx-white-dim">{o.amount}€</span>
                             {statusBadge(o.status)}
@@ -540,6 +540,12 @@ export default function AdminPage() {
                       <td className="py-3 pr-4">{statusBadge(o.status)}</td>
                       <td className="py-3">
                         <div className="flex gap-2">
+                          <a
+                            href={`/admin/orders/${o.id}`}
+                            className="inline-flex items-center rounded-lg border border-fmx-red/40 bg-fmx-red/10 px-3 py-1.5 text-[12px] font-bold text-fmx-red transition-all duration-150 hover:scale-105 hover:bg-fmx-red/20"
+                          >
+                            Ouvrir →
+                          </a>
                           <Button variant="ghost" size="sm" onClick={() => setOpenChatOrderId(prev => prev === o.id ? null : o.id)}>
                             <MessageSquare className="w-3.5 h-3.5 mr-1" /> Chat{o._count?.messages ? ` (${o._count.messages})` : ''}
                           </Button>

@@ -124,12 +124,12 @@ export function Pricing({ selectedPlan, onSelect, onOrder }: PricingProps) {
                   onOrder(plan.id)
                 }}
                 className={cn(
-                  'w-full rounded-full py-3.5 text-sm font-bold transition-all',
+                  'w-full rounded-full py-3.5 text-sm font-bold transition-all duration-150 hover:-translate-y-px',
                   isSelected
-                    ? 'bg-fmx-red text-white shadow-[0_10px_28px_rgba(255,26,26,0.35)]'
+                    ? 'bg-fmx-red text-white shadow-[0_10px_28px_rgba(255,26,26,0.35)] hover:shadow-[0_0_28px_rgba(255,26,26,0.55)]'
                     : plan.popular
-                      ? 'bg-fmx-red text-white shadow-[0_10px_28px_rgba(255,26,26,0.35)]'
-                      : 'border border-white/15 bg-white/[0.06] text-white hover:bg-white/[0.12]'
+                      ? 'bg-fmx-red text-white shadow-[0_10px_28px_rgba(255,26,26,0.35)] hover:shadow-[0_0_28px_rgba(255,26,26,0.55)]'
+                      : 'border border-white/15 bg-white/[0.06] text-white hover:border-fmx-red/40 hover:bg-white/[0.12] hover:shadow-[0_0_20px_rgba(255,26,26,0.2)]'
                 )}
               >
                 {isSelected ? 'Sélectionné ✓' : plan.cta}
@@ -171,13 +171,13 @@ export function Pricing({ selectedPlan, onSelect, onOrder }: PricingProps) {
         <div className="mt-4 flex flex-wrap justify-center gap-3">
           <button
             onClick={() => onOrder(selectedPlan ?? 'COMPLET')}
-            className="rounded-full bg-fmx-red px-6 py-3 text-sm font-bold text-white shadow-[0_10px_28px_rgba(255,26,26,0.35)] transition-transform hover:-translate-y-px"
+            className="rounded-full bg-fmx-red px-6 py-3 text-sm font-bold text-white shadow-[0_10px_28px_rgba(255,26,26,0.35)] transition-all duration-150 hover:-translate-y-px hover:shadow-[0_0_28px_rgba(255,26,26,0.55)]"
           >
             Commander{selectedPlan ? ` — ${PLAN_LABEL[selectedPlan]}` : ' — Pack Complet'} →
           </button>
           <button
             onClick={() => onOrder(selectedPlan ?? 'COMPLET')}
-            className="rounded-full border border-white/15 bg-white/[0.06] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/[0.12]"
+            className="rounded-full border border-white/15 bg-white/[0.06] px-6 py-3 text-sm font-semibold text-white transition-all duration-150 hover:-translate-y-px hover:border-fmx-red/40 hover:bg-white/[0.12]"
           >
             Passer au paiement →
           </button>

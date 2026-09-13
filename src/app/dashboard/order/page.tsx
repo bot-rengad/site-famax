@@ -180,7 +180,7 @@ function OrderContent() {
                       key={p.id}
                       onClick={() => { setPack(p.id as PackId); if (p.id === 'ULTIME') setAddons([]) }}
                       className={cn(
-                        'fmx-window rounded-2xl p-5 text-left transition-all',
+                        'fmx-window rounded-2xl p-5 text-left transition-all duration-150 hover:-translate-y-px hover:border-fmx-red/40 hover:shadow-[0_0_28px_rgba(255,26,26,0.15)]',
                         selected && 'border-fmx-red shadow-[0_0_32px_rgba(255,26,26,0.18)]'
                       )}
                     >
@@ -217,7 +217,7 @@ function OrderContent() {
                         key={a.id}
                         onClick={() => toggleAddon(a.id)}
                         className={cn(
-                          'flex items-center gap-3 rounded-xl border p-4 text-left transition-all',
+                          'flex items-center gap-3 rounded-xl border p-4 text-left transition-all duration-150 hover:-translate-y-px hover:border-fmx-red/40 hover:shadow-[0_0_20px_rgba(255,26,26,0.12)]',
                           on ? 'border-fmx-red bg-fmx-red/[0.08]' : 'border-white/[0.08] bg-white/[0.02] hover:border-white/20'
                         )}
                       >
@@ -258,7 +258,7 @@ function OrderContent() {
             {/* Rappel commande */}
             <button
               onClick={() => setStep(1)}
-              className="mb-4 flex w-full items-center justify-between gap-2 rounded-xl border border-white/[0.08] bg-black/40 px-5 py-3 text-left transition-colors hover:border-white/20"
+              className="mb-4 flex w-full items-center justify-between gap-2 rounded-xl border border-white/[0.08] bg-black/40 px-5 py-3 text-left transition-all duration-150 hover:-translate-y-px hover:border-fmx-red/40 hover:bg-black/60"
             >
               <span className="text-[13px] text-fmx-gray">
                 <b className="text-white">{packName}</b>
@@ -295,7 +295,7 @@ function OrderContent() {
               <button
                 onClick={() => setMethod('PAYPAL')}
                 className={cn(
-                  'flex items-center gap-3 rounded-xl border p-4 text-left',
+                  'flex items-center gap-3 rounded-xl border p-4 text-left transition-all duration-150 hover:-translate-y-px hover:border-fmx-red/40 hover:shadow-[0_0_20px_rgba(255,26,26,0.12)]',
                   method === 'PAYPAL' ? 'border-fmx-red bg-fmx-red/[0.08]' : 'border-white/[0.08] bg-white/[0.02]'
                 )}
               >
@@ -308,7 +308,7 @@ function OrderContent() {
               <button
                 onClick={() => setMethod('BANK_TRANSFER')}
                 className={cn(
-                  'flex items-center gap-3 rounded-xl border p-4 text-left',
+                  'flex items-center gap-3 rounded-xl border p-4 text-left transition-all duration-150 hover:-translate-y-px hover:border-fmx-red/40 hover:shadow-[0_0_20px_rgba(255,26,26,0.12)]',
                   method === 'BANK_TRANSFER' ? 'border-fmx-red bg-fmx-red/[0.08]' : 'border-white/[0.08] bg-white/[0.02]'
                 )}
               >

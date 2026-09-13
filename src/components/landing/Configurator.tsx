@@ -590,7 +590,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
     }
   }
 
-  const selectClass = 'w-full rounded-xl border border-white/[0.08] bg-[#0f0f12] px-3.5 py-3 text-[13px] text-white focus:border-fmx-red/50 focus:outline-none'
+  const selectClass = 'w-full rounded-xl border border-white/[0.08] bg-[#0f0f12] px-3.5 py-3 text-[13px] text-white transition-all duration-150 hover:border-white/25 hover:bg-[#141418] focus:border-fmx-red/50 focus:outline-none'
 
   return (
     <section id="config" className="relative mx-auto max-w-[1280px] scroll-mt-24 px-5 py-16 lg:px-10">
@@ -646,7 +646,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
             <button
               onClick={handleDetect}
               disabled={scanning}
-              className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-full border border-fmx-red/40 px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-fmx-red transition-colors hover:bg-fmx-red/10 disabled:opacity-50"
+              className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-full border border-fmx-red/40 px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-fmx-red transition-all duration-150 hover:scale-105 hover:bg-fmx-red/10 hover:shadow-[0_0_16px_rgba(255,26,26,0.3)] disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-none"
             >
               <ScanLine className={`h-3.5 w-3.5 ${scanning ? 'animate-pulse' : ''}`} />
               {scanning ? 'Scan...' : 'Détecter'}
@@ -662,7 +662,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
                 <button
                   key={b}
                   onClick={() => changeGpuBrand(b)}
-                  className={`rounded-xl border py-2.5 text-xs font-bold transition-colors ${
+                  className={`rounded-xl border py-2.5 text-xs font-bold transition-all duration-150 hover:scale-[1.03] hover:border-fmx-red/50 hover:shadow-[0_0_14px_rgba(255,26,26,0.2)] ${
                     gpuBrand === b ? 'border-fmx-red bg-fmx-red/15 text-fmx-red' : 'border-white/[0.08] bg-[#0f0f12] text-fmx-gray hover:text-white'
                   }`}
                 >
@@ -696,7 +696,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
                 <button
                   key={b}
                   onClick={() => changeCpuBrand(b)}
-                  className={`rounded-xl border py-2.5 text-xs font-bold transition-colors ${
+                  className={`rounded-xl border py-2.5 text-xs font-bold transition-all duration-150 hover:scale-[1.03] hover:border-fmx-red/50 hover:shadow-[0_0_14px_rgba(255,26,26,0.2)] ${
                     cpuBrand === b ? 'border-fmx-red bg-fmx-red/15 text-fmx-red' : 'border-white/[0.08] bg-[#0f0f12] text-fmx-gray hover:text-white'
                   }`}
                 >
@@ -756,8 +756,8 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
                 <button
                   key={o}
                   onClick={() => setOffer(o)}
-                  className={`flex-1 rounded-full py-2.5 text-xs font-extrabold transition-colors ${
-                    offer === o ? 'border border-fmx-red bg-fmx-red text-white' : 'border border-white/[0.08] bg-white/[0.06] text-fmx-gray hover:text-white'
+                  className={`flex-1 rounded-full py-2.5 text-xs font-extrabold transition-all duration-150 hover:scale-105 ${
+                    offer === o ? 'border border-fmx-red bg-fmx-red text-white hover:shadow-[0_0_18px_rgba(255,26,26,0.45)]' : 'border border-white/[0.08] bg-white/[0.06] text-fmx-gray hover:border-white/25 hover:text-white'
                   }`}
                 >
                   {o === 20 ? 'Windows 20€' : o === 25 ? 'Complet 25€' : 'Ultime 50€'}
@@ -801,7 +801,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
               <strong className="text-[28px] text-white">{offer}€</strong>
               <div className="text-[11px] text-green-500">● Paiement unique</div>
             </div>
-            <button onClick={() => onOrder(offer === 20 ? 'BASIC' : offer === 25 ? 'COMPLET' : 'ULTIME')} className="rounded-full bg-fmx-red px-5 py-3 font-bold text-white transition-transform hover:scale-[1.03]">
+            <button onClick={() => onOrder(offer === 20 ? 'BASIC' : offer === 25 ? 'COMPLET' : 'ULTIME')} className="rounded-full bg-fmx-red px-5 py-3 font-bold text-white transition-all duration-150 hover:scale-[1.03] hover:shadow-[0_0_24px_rgba(255,26,26,0.5)]">
               Commander →
             </button>
           </div>

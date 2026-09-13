@@ -37,7 +37,7 @@ export function Hero({ onOrder }: { onOrder?: () => void }) {
           </a>
           <button
             onClick={onOrder}
-            className="inline-flex items-center gap-2 rounded-full border border-white/[0.1] bg-[#17171b] px-7 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-[#202027]"
+            className="inline-flex items-center gap-2 rounded-full border border-white/[0.1] bg-[#17171b] px-7 py-3.5 text-sm font-semibold text-white transition-all duration-150 hover:-translate-y-0.5 hover:border-fmx-red/40 hover:bg-[#202027] hover:shadow-[0_0_24px_rgba(255,26,26,0.25)]"
           >
             <Wallet className="h-4 w-4" />
             Commander une opti

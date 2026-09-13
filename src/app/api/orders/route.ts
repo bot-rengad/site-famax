@@ -36,11 +36,27 @@ export async function POST(request: NextRequest) {
     const amount =
       pkg.price + cleanAddons.reduce((sum, id) => sum + (ADDONS.find(a => a.id === id)?.price ?? 0), 0)
 
+    // Pseudo du client pour un N° de commande lisible (FMX-pseudo-482)
+    const buyerUpfront = await prisma.user.findUnique({
+      where: { id: session.userId },
+      select: { email: true, discordUsername: true, discordGlobalName: true, discordId: true },
+    })
+    const pseudoForNumber =
+      buyerUpfront?.discordUsername || buyerUpfront?.discordGlobalName || buyerUpfront?.email.split('@')[0] || null
+
+    // N° unique : on régénère les 3 chiffres en cas de collision (même pseudo)
+    let orderNumber = generateOrderNumber(pseudoForNumber)
+    for (let i = 0; i < 10; i++) {
+      const exists = await prisma.order.findUnique({ where: { orderNumber }, select: { id: true } })
+      if (!exists) break
+      orderNumber = generateOrderNumber(pseudoForNumber)
+    }
+
     // Create order
     const order = await prisma.order.create({
       data: {
         userId: session.userId,
-        orderNumber: generateOrderNumber(),
+        orderNumber,
         packageType,
         amount,
         currency: 'EUR',

@@ -50,12 +50,10 @@ export function generateLicenseKey(): string {
   return `FMX-${key}`
 }
 
-export function generateOrderNumber(): string {
-  // Format court et lisible : FMX-8K2N4P (sans caractères ambigus 0/O, 1/I)
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  let code = ''
-  for (let i = 0; i < 6; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length))
-  }
-  return `FMX-${code}`
+export function generateOrderNumber(pseudo?: string | null): string {
+  // Format lisible lié au client : FMX-pseudo-482 (pseudo nettoyé + 3 chiffres).
+  // Ancien format FMX-8K2N4P toujours accepté en lecture (commandes existantes).
+  const clean = (pseudo || 'client').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12) || 'client'
+  const digits = String(Math.floor(100 + Math.random() * 900))
+  return `FMX-${clean}-${digits}`
 }
