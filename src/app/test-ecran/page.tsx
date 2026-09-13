@@ -43,7 +43,7 @@ function mulberry32(seed: number) {
   }
 }
 
-function Starfield({ paused }: { paused: boolean }) {
+function Starfield({ driftRef }: { driftRef: (el: HTMLDivElement | null) => void }) {
   const [big, small] = useMemo(() => {
     const rng = mulberry32(1337)
     // Période de 1280px : chaque étoile est dupliquée à +1280 pour une boucle parfaite
@@ -70,10 +70,9 @@ function Starfield({ paused }: { paused: boolean }) {
   }, [])
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-      <div
-        className="stars-drift absolute inset-y-0 left-0 w-[2560px]"
-        style={{ animationPlayState: paused ? 'paused' : 'running' }}
-      >
+      {/* La dérive est pilotée par la boucle rAF (parallaxe 15% de Peely) :
+          suit à chaque Hz, pause auto avec lecture/pause */}
+      <div ref={driftRef} className="absolute inset-y-0 left-0 w-[2560px] will-change-transform">
         <div className="absolute left-0 top-0 h-[2px] w-[2px] rounded-full bg-transparent" style={{ boxShadow: big }} />
         <div className="absolute left-0 top-0 h-[1px] w-[1px] rounded-full bg-transparent" style={{ boxShadow: small }} />
       </div>
@@ -83,6 +82,7 @@ function Starfield({ paused }: { paused: boolean }) {
 
 export default function TestEcranPage() {
   const rowRefs = useRef<(HTMLDivElement | null)[]>([])
+  const driftRefs = useRef<(HTMLDivElement | null)[]>([])
   const graphRef = useRef<HTMLCanvasElement>(null)
   const [running, setRunning] = useState(true)
   const [speed, setSpeed] = useState(960)
@@ -198,6 +198,12 @@ export default function TestEcranPage() {
         }
         const x = (s.speed * step * q) % span
         el.style.transform = `translate3d(${(x - 160).toFixed(1)}px,-50%,0)`
+        // Parallaxe : les étoiles suivent Peely à 15%, quantifiées au même Hz
+        const drift = driftRefs.current[i]
+        if (drift) {
+          const sx = -((x * 0.15) % 1280)
+          drift.style.transform = `translate3d(${sx.toFixed(1)}px,0,0)`
+        }
       })
 
       // Taux réel mesuré par ligne, chaque seconde
@@ -265,7 +271,7 @@ export default function TestEcranPage() {
               row.hot ? 'border-fmx-red/40' : 'border-white/[0.08]'
             )}
             >
-              <Starfield paused={!running} />
+              <Starfield driftRef={el => { driftRefs.current[i] = el }} />
               {/* Gros fps à gauche, comme UFO test */}
               <span className="absolute left-6 top-1/2 -translate-y-1/2 text-[26px] font-extrabold tracking-tight text-white/90 [text-shadow:0_0_12px_rgba(0,0,0,0.9)]">
                 {Math.round(row.fps)} <span className="text-[18px] font-bold">fps</span>
