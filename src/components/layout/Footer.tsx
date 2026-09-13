@@ -16,10 +16,10 @@ export function Footer() {
         </p>
 
         <nav aria-label="Navigation pied de page" className="mt-6 flex flex-wrap items-center justify-center gap-x-7 gap-y-2 text-[13px] text-fmx-gray">
-          <a href="/#plans" className="transition-colors hover:text-white">Plans</a>
-          <a href="/#config" className="transition-colors hover:text-white">Estimateur FPS</a>
-          <a href="/#deroulement" className="transition-colors hover:text-white">Déroulé</a>
-          <Link href="/dashboard" className="transition-colors hover:text-white">Espace client</Link>
+          <a href="/#plans" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">Plans</a>
+          <a href="/#config" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">Estimateur FPS</a>
+          <a href="/#deroulement" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">Déroulé</a>
+          <Link href="/dashboard" className="transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">Espace client</Link>
           <a href="https://discord.gg/fmx" target="_blank" rel="noreferrer" className="text-fmx-red hover:underline">
             Discord
           </a>

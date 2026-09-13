@@ -91,7 +91,7 @@ export function Header() {
           <Logo size={30} />
         </Link>
 
-        {/* Liens desktop */}
+        {/* Liens desktop — survol souris : soulignement animé + halo */}
         <div className="hidden items-center gap-8 text-[13px] font-medium text-fmx-gray lg:flex">
           {navLinks.map(link => (
             <a
@@ -99,19 +99,24 @@ export function Header() {
               href={link.href}
               aria-current={active === link.section ? 'true' : undefined}
               className={cn(
-                'relative py-1 transition-colors hover:text-white',
+                'group relative py-1.5 transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_10px_rgba(255,26,26,0.45)]',
                 active === link.section && 'font-bold text-white'
               )}
             >
               {link.label}
-              {active === link.section && (
-                <span className="absolute -bottom-0.5 left-0 right-0 h-px bg-fmx-red" aria-hidden="true" />
-              )}
+              <span
+                aria-hidden="true"
+                className={cn(
+                  'absolute -bottom-0.5 left-0 h-[2px] w-full origin-left rounded-full bg-fmx-red shadow-[0_0_12px_rgba(255,26,26,0.8)] transition-transform duration-200',
+                  active === link.section ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                )}
+              />
             </a>
           ))}
           {me && (
-            <a href={latestOrderId ? `/dashboard/orders/${latestOrderId}` : '/dashboard/order'} className="font-bold text-fmx-red transition-colors hover:text-white">
+            <a href={latestOrderId ? `/dashboard/orders/${latestOrderId}` : '/dashboard/order'} className="group relative py-1.5 font-bold text-fmx-red transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_10px_rgba(255,26,26,0.6)]">
               Ma commande
+              <span aria-hidden="true" className="absolute -bottom-0.5 left-0 h-[2px] w-full origin-left scale-x-0 rounded-full bg-white transition-transform duration-200 group-hover:scale-x-100" />
             </a>
           )}
         </div>
@@ -181,7 +186,7 @@ export function Header() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className="rounded-lg px-3 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-fmx-gray hover:bg-white/5 hover:text-white"
+                className="rounded-lg px-3 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-fmx-gray transition-all duration-150 hover:translate-x-1 hover:bg-white/5 hover:text-white hover:shadow-[0_0_16px_rgba(255,26,26,0.15)]"
               >
                 {link.label}
               </a>

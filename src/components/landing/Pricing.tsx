@@ -175,12 +175,12 @@ export function Pricing({ selectedPlan, onSelect, onOrder }: PricingProps) {
           >
             Commander{selectedPlan ? ` — ${PLAN_LABEL[selectedPlan]}` : ' — Pack Complet'} →
           </button>
-          <a
-            href="#payments"
+          <button
+            onClick={() => onOrder(selectedPlan ?? 'COMPLET')}
             className="rounded-full border border-white/15 bg-white/[0.06] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/[0.12]"
           >
-            Voir les moyens de paiement
-          </a>
+            Passer au paiement →
+          </button>
         </div>
         <p className="mx-auto mt-4 max-w-[720px] text-[12px] leading-relaxed text-fmx-gray">
           Règlement par virement ou PayPal. Aucun remboursement une fois le travail commencé

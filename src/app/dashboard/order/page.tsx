@@ -320,36 +320,75 @@ function OrderContent() {
               </button>
             </div>
 
-            {/* Détails du moyen choisi */}
+            {/* Détails du moyen choisi — repris de l'ancien bloc paiement landing */}
             {method === 'PAYPAL' ? (
-              <div className="mt-3 rounded-xl border border-white/[0.08] bg-white/[0.02] p-5 text-center">
-                <p className="text-[13px] text-fmx-gray">Envoie <b className="text-[18px] text-white">{total}€</b> en <b className="text-white">Amis & Proches</b> à :</p>
-                <code className="mx-auto mt-3 flex max-w-[400px] items-center justify-between gap-3 rounded-lg bg-black/60 px-4 py-3 font-mono text-[13px] text-white">
-                  {PAYPAL_NAME}
-                  <CopyBtn text={PAYPAL_LINK} />
-                </code>
-                <a
-                  href={PAYPAL_LINK}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-3 inline-block rounded-full bg-[#0070BA] px-6 py-3 text-sm font-bold text-white transition-transform hover:-translate-y-px"
-                >
-                  Ouvrir PayPal →
-                </a>
+              <div className="mt-3 grid gap-3">
+                <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5 text-center">
+                  <p className="text-[13px] text-fmx-gray">Envoie <b className="text-[18px] text-white">{total}€</b> en <b className="text-white">Amis & Proches</b> à :</p>
+                  <div className="mx-auto mt-3 max-w-[400px] rounded-xl bg-[#003087]/20 p-3">
+                    <div className="text-[11px] uppercase tracking-wider text-blue-300">Envoyer uniquement en</div>
+                    <div className="text-[15px] font-extrabold text-white">AMIS & PROCHES</div>
+                    <div className="text-[11px] text-fmx-gray">Friends & Family — sinon remboursement automatique</div>
+                  </div>
+                  <code className="mx-auto mt-3 flex max-w-[400px] items-center justify-between gap-3 rounded-lg bg-black/60 px-4 py-3 font-mono text-[13px] text-white">
+                    {PAYPAL_NAME}
+                    <CopyBtn text={PAYPAL_LINK} />
+                  </code>
+                  <a
+                    href={PAYPAL_LINK}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-3 inline-block rounded-full bg-[#0070BA] px-6 py-3 text-sm font-bold text-white transition-transform hover:-translate-y-px"
+                  >
+                    Ouvrir PayPal →
+                  </a>
+                  <p className="mx-auto mt-3 max-w-[400px] rounded-lg border border-fmx-red/25 bg-fmx-red/[0.07] p-3 text-[12px] font-bold text-white">
+                    ⚠ Note du paiement = ton <span className="text-fmx-red">pseudo Discord</span> exact
+                    <span className="mt-1 block font-normal text-fmx-gray">{pseudo ? <>Ex : @{pseudo} — sans ça, impossible de retrouver ton paiement.</> : 'Sans ça, impossible de retrouver ton paiement.'}</span>
+                  </p>
+                </div>
+                <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 text-[12px] leading-relaxed text-fmx-gray">
+                  <b className="text-white">✓ Comment ça marche</b>
+                  <ol className="mt-2 list-decimal space-y-1 pl-5">
+                    <li>Paie <b className="text-white">{total}€</b> en <b className="text-white">Ami & Proche</b> avec <b className="text-white">{pseudo ? `@${pseudo}` : 'ton pseudo Discord'}</b> en note</li>
+                    <li>Coche « J&apos;ai payé » ci-dessous → ta commande est créée</li>
+                    <li>Envoie la capture sur <a href={DISCORD_INVITE} target="_blank" rel="noreferrer" className="text-fmx-red hover:underline">Discord FMX</a> → salon preuves</li>
+                  </ol>
+                  <p className="mt-2 text-green-400">⚡ Commande validée par le staff après vérification de la preuve.</p>
+                </div>
               </div>
             ) : (
-              <div className="mt-3 rounded-xl border border-white/[0.08] bg-white/[0.02] p-5">
-                <div className="grid gap-2 text-[13px]">
-                  <div className="flex flex-col gap-2 border-b border-white/[0.06] pb-2 sm:flex-row sm:items-center sm:justify-between">
-                    <span className="text-fmx-gray">IBAN</span>
-                    <span className="flex items-center justify-between gap-2">
-                      <code className="break-all font-mono text-white">{IBAN_DISPLAY}</code>
-                      <CopyBtn text={IBAN_RAW} />
-                    </span>
+              <div className="mt-3 grid gap-3">
+                <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5">
+                  <div className="flex items-center justify-between">
+                    <b className="text-white">🇧🇪 Belgique — SEPA Instantané</b>
+                    <CopyBtn text={`${IBAN_DISPLAY} - ${TITULAIRE}`} label="Copy" />
                   </div>
-                  <div className="flex justify-between border-b border-white/[0.06] pb-2"><span className="text-fmx-gray">Titulaire</span><span className="text-white">{TITULAIRE}</span></div>
-                  <div className="flex justify-between border-b border-white/[0.06] pb-2"><span className="text-fmx-gray">Montant</span><b className="text-fmx-red">{total}€</b></div>
-                  <div className="flex justify-between"><span className="text-fmx-gray">Motif</span><span className="font-bold text-white">Ton pseudo Discord</span></div>
+                  <div className="mt-3 grid gap-2 text-[13px]">
+                    <div className="flex flex-col gap-2 border-b border-white/[0.06] pb-2 sm:flex-row sm:items-center sm:justify-between">
+                      <span className="text-fmx-gray">IBAN</span>
+                      <span className="flex items-center justify-between gap-2">
+                        <code className="break-all font-mono text-white">{IBAN_DISPLAY}</code>
+                        <CopyBtn text={IBAN_RAW} />
+                      </span>
+                    </div>
+                    <div className="flex justify-between border-b border-white/[0.06] pb-2"><span className="text-fmx-gray">Titulaire</span><span className="text-white">{TITULAIRE}</span></div>
+                    <div className="flex justify-between border-b border-white/[0.06] pb-2"><span className="text-fmx-gray">Type</span><span className="text-green-400">Virement instantané ⚡</span></div>
+                    <div className="flex justify-between border-b border-white/[0.06] pb-2"><span className="text-fmx-gray">Montant</span><b className="text-fmx-red">{total}€</b></div>
+                    <div className="flex justify-between"><span className="text-fmx-gray">Motif / Référence</span><span className="font-bold text-white">{pseudo ? `@${pseudo}` : 'Ton pseudo Discord'}</span></div>
+                  </div>
+                  <p className="mt-3 rounded-lg border border-fmx-red/25 bg-fmx-red/[0.07] p-3 text-center text-[12px] font-bold text-white">
+                    ⚠ Motif du virement = ton <span className="text-fmx-red">pseudo Discord</span> exact
+                  </p>
+                </div>
+                <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 text-[12px] leading-relaxed text-fmx-gray">
+                  <b className="text-white">✓ Instructions</b>
+                  <ol className="mt-2 list-decimal space-y-1 pl-5">
+                    <li>Virement instantané de <b className="text-white">{total}€</b> vers <b className="text-white">{IBAN_DISPLAY}</b> ({TITULAIRE})</li>
+                    <li>Motif = <b className="text-white">{pseudo ? `@${pseudo}` : 'ton pseudo Discord'}</b></li>
+                    <li>Coche « J&apos;ai payé » ci-dessous, puis envoie la capture sur <a href={DISCORD_INVITE} target="_blank" rel="noreferrer" className="text-fmx-red hover:underline">Discord FMX</a> → salon preuves</li>
+                  </ol>
+                  <p className="mt-2 text-green-400">Virement instantané = validation en quelques minutes après vérification.</p>
                 </div>
               </div>
             )}
@@ -376,9 +415,24 @@ function OrderContent() {
               {loading ? 'Création...' : 'Confirmer et ouvrir ma commande →'}
               {!loading && <PartyPopper className="ml-2 h-4 w-4" />}
             </Button>
-            <p className="mt-2 text-center text-[11px] text-fmx-gray">
-              Ensuite : discussion avec le staff sur ta commande + envoi de ta preuve sur <a href={DISCORD_INVITE} target="_blank" rel="noreferrer" className="text-fmx-red hover:underline">Discord</a>.
-            </p>
+            {/* Étape finale : preuve Discord — repris de l'ancien bloc landing */}
+            <div className="mt-4 flex flex-col items-center gap-3 rounded-2xl border border-[#5865F2]/25 bg-[#5865F2]/[0.07] p-5 text-center">
+              <MessageCircle className="h-6 w-6 text-[#8b9bff]" />
+              <p className="max-w-[520px] text-[13px] leading-relaxed text-fmx-gray">
+                <b className="text-white">Étape finale : envoie ta preuve sur Discord.</b>
+                <br />
+                Capture du paiement ({method === 'PAYPAL' ? 'PayPal' : 'virement'} {total}€) avec {pseudo ? <>@{pseudo}</> : 'ton pseudo Discord'} visible.
+                Le staff vérifie puis valide ta commande.
+              </p>
+              <a
+                href={DISCORD_INVITE}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-full bg-[#5865F2] px-6 py-3 text-sm font-bold text-white transition-transform hover:-translate-y-px hover:bg-[#4752C4]"
+              >
+                Ouvrir le Discord FMX →
+              </a>
+            </div>
           </CardContent>
         </Card>
       )}
