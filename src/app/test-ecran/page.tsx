@@ -46,7 +46,9 @@ function mulberry32(seed: number) {
 function Starfield({ driftRef }: { driftRef: (el: HTMLDivElement | null) => void }) {
   const [big, small] = useMemo(() => {
     const rng = mulberry32(1337)
-    // Période de 1280px : chaque étoile est dupliquée à +1280 pour une boucle parfaite
+    // Période de 1280px : chaque étoile est dupliquée sur 4 périodes
+    // (-1280 / 0 / +1280 / +2560) pour une boucle parfaite, quel que soit
+    // le décalage — aucun côté ne se vide jamais.
     const P = 1280
     const H = 112
     const mk = (n: number) => {
@@ -62,7 +64,7 @@ function Starfield({ driftRef }: { driftRef: (el: HTMLDivElement | null) => void
             : r < 0.93
               ? `rgba(255,120,120,${0.2 + rng() * 0.4})`
               : `rgba(150,180,255,${0.2 + rng() * 0.4})`
-        parts.push(`${x}px ${y}px 0 ${c}`, `${x + P}px ${y}px 0 ${c}`)
+        parts.push(`${x}px ${y}px 0 ${c}`, `${x + P}px ${y}px 0 ${c}`, `${x + 2 * P}px ${y}px 0 ${c}`, `${x + 3 * P}px ${y}px 0 ${c}`)
       }
       return parts.join(',')
     }
@@ -70,9 +72,7 @@ function Starfield({ driftRef }: { driftRef: (el: HTMLDivElement | null) => void
   }, [])
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-      {/* La dérive est pilotée par la boucle rAF (parallaxe 15% de Peely) :
-          suit à chaque Hz, pause auto avec lecture/pause */}
-      <div ref={driftRef} className="absolute inset-y-0 left-0 w-[2560px] will-change-transform">
+      <div ref={driftRef} className="absolute inset-y-0 -left-[1280px] w-[5120px] will-change-transform">
         <div className="absolute left-0 top-0 h-[2px] w-[2px] rounded-full bg-transparent" style={{ boxShadow: big }} />
         <div className="absolute left-0 top-0 h-[1px] w-[1px] rounded-full bg-transparent" style={{ boxShadow: small }} />
       </div>
