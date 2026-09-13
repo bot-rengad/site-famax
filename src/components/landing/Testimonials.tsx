@@ -11,10 +11,19 @@ export function Testimonials() {
   const [reviews, setReviews] = useState<PublicReview[] | null>(null)
 
   useEffect(() => {
-    fetch('/api/reviews')
+    // Timeout : si l'API ne répond pas en 8s, on affiche le repli statique
+    // au lieu de rester bloqué sur les placeholders.
+    const ctrl = new AbortController()
+    const timer = setTimeout(() => ctrl.abort(), 8000)
+    fetch('/api/reviews', { signal: ctrl.signal })
       .then(r => (r.ok ? r.json() : null))
       .then(data => setReviews(Array.isArray(data?.reviews) ? data.reviews : []))
       .catch(() => setReviews([]))
+      .finally(() => clearTimeout(timer))
+    return () => {
+      clearTimeout(timer)
+      ctrl.abort()
+    }
   }, [])
 
   return (
