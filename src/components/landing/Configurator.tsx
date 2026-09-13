@@ -55,7 +55,7 @@ const GPUS: Record<string, Record<string, Record<string, GpuModel[]>>> = {
         { name: 'RTX 3090 Ti', score: 335 },
       ],
       'Série 40': [
-        { name: 'RTX 4060', score: 245 }, { name: 'RTX 4060 Ti', score: 265 },
+        { name: 'RTX 4060', score: 200 }, { name: 'RTX 4060 Ti', score: 265 },
         { name: 'RTX 4070', score: 295 }, { name: 'RTX 4070 Super', score: 315 },
         { name: 'RTX 4070 Ti Super', score: 335 }, { name: 'RTX 4080', score: 365 },
         { name: 'RTX 4080 Super', score: 380 }, { name: 'RTX 4090', score: 440 },
@@ -84,7 +84,7 @@ const GPUS: Record<string, Record<string, Record<string, GpuModel[]>>> = {
         { name: 'RX 6950 XT', score: 330 },
       ],
       'RX 7000': [
-        { name: 'RX 7600', score: 240 }, { name: 'RX 7700 XT', score: 285 },
+        { name: 'RX 7600', score: 230 }, { name: 'RX 7700 XT', score: 285 },
         { name: 'RX 7800 XT', score: 305 }, { name: 'RX 7900 GRE', score: 335 },
         { name: 'RX 7900 XT', score: 360 }, { name: 'RX 7900 XTX', score: 385 },
       ],
@@ -134,19 +134,19 @@ const CPUS: Record<string, Record<string, CpuModel[]>> = {
     ],
     'Ryzen 4000/5000': [
       { name: 'R5 4500', score: 250 }, { name: 'R5 5500', score: 330 },
-      { name: 'R5 5600G', score: 340 }, { name: 'R5 5600', score: 570 },
+      { name: 'R5 5600G', score: 340 },       { name: 'R5 5600', score: 590 },
       { name: 'R5 5600X', score: 620 }, { name: 'R7 5700X', score: 620 },
-      { name: 'R7 5700X3D', score: 830 }, { name: 'R7 5800X', score: 430 },
+      { name: 'R7 5700X3D', score: 830 }, { name: 'R7 5800X', score: 630 },
       { name: 'R7 5800X3D', score: 870 }, { name: 'R9 5900X', score: 640 }, { name: 'R9 5950X', score: 660 },
     ],
     'Ryzen 7000': [
       { name: 'R5 7600', score: 560 }, { name: 'R5 7600X', score: 585 },
-      { name: 'R7 7700X', score: 680 }, { name: 'R7 7800X3D', score: 1050 },
-      { name: 'R9 7900X', score: 660 }, { name: 'R9 7950X3D', score: 980 },
+      { name: 'R7 7700X', score: 625 }, { name: 'R7 7800X3D', score: 1050 },
+      { name: 'R9 7900X', score: 640 }, { name: 'R9 7950X3D', score: 980 },
     ],
     'Ryzen 9000': [
-      { name: 'R5 9600X', score: 640 }, { name: 'R7 9700X', score: 700 },
-      { name: 'R7 9800X3D', score: 1100 }, { name: 'R9 9900X', score: 720 }, { name: 'R9 9950X3D', score: 1080 },
+      { name: 'R5 9600X', score: 640 }, { name: 'R7 9700X', score: 670 },
+      { name: 'R7 9800X3D', score: 1100 }, { name: 'R9 9900X', score: 690 }, { name: 'R9 9950X3D', score: 1080 },
     ],
   },
 }
@@ -188,9 +188,9 @@ const DDR_COMPAT: Record<string, ('DDR4' | 'DDR5')[]> = {
 // Gain opti en pourcentage : proportionnel, n'inflate pas les petites configs
 const OPTI_PCT: Record<20 | 25 | 50, number> = { 20: 0.12, 25: 0.15, 50: 0.18 }
 
-// Moteur V3 — multi-jeux + résolution + bottleneck
-// Chaque jeu a son poids CPU/GPU + une CIBLE FPS réelle (config de référence
-// 7800X3D + RTX 5060 Ti + 32 Go DDR5-6000 @1080p, réglages compétitifs).
+// Moteur V3 — Fortnite Performance + résolution + bottleneck
+// Profil calibré sur la config de référence (7800X3D + RTX 5060 Ti +
+// 32 Go DDR5-6000 @1080p, réglages compétitifs).
 // Le coefficient est calculé pour que la référence tombe pile sur la cible :
 // les autres configs héritent d'une échelle réaliste, sans inflation.
 export interface GameProfile {
@@ -212,12 +212,8 @@ function rawScore(cpuW: number, gpuW: number): number {
 }
 
 const GAME_DEFS: Record<string, { cpuW: number; gpuW: number; target: number; label: string }> = {
+  // Fortnite uniquement : mode Performance illimité, réglages compétitifs
   'Fortnite Performance (illimité)': { cpuW: 0.75, gpuW: 0.35, target: 965, label: 'CPU-bound • illimité' },
-  'Fortnite DX12': { cpuW: 0.62, gpuW: 0.55, target: 430, label: 'Équilibré • DX12' },
-  'Valorant (low 1080p)': { cpuW: 0.85, gpuW: 0.22, target: 710, label: 'Très CPU-bound' },
-  'Counter-Strike 2': { cpuW: 0.72, gpuW: 0.38, target: 400, label: 'CPU-bound' },
-  'Warzone (1080p équilibré)': { cpuW: 0.5, gpuW: 0.62, target: 200, label: 'GPU-bound' },
-  'Apex Legends': { cpuW: 0.6, gpuW: 0.5, target: 250, label: 'Équilibré' },
 }
 
 export const GAMES: Record<string, GameProfile> = Object.fromEntries(
@@ -230,7 +226,6 @@ export const GAMES: Record<string, GameProfile> = Object.fromEntries(
 export const RESOLUTIONS: Record<string, { gpuMult: number; cpuMult: number; label: string }> = {
   '1080p': { gpuMult: 1, cpuMult: 1, label: '1080p — compétitif' },
   '1440p': { gpuMult: 0.68, cpuMult: 0.97, label: '1440p — QHD' },
-  '4K': { gpuMult: 0.42, cpuMult: 0.94, label: '4K — UHD' },
 }
 
 export interface FpsResult {
@@ -243,10 +238,10 @@ export interface FpsResult {
   stutterRisk: boolean
 }
 
-// Formule V3 calibrée (moyennes APRÈS opti Windows 20%, 1080p) :
-//   7800X3D + 5060 Ti + DDR5-6000 32Go -> Fortnite ~1080 / Valo ~795 / CS2 ~450 / WZ ~225 / Apex ~280
-//   5600X   + 5060   + DDR4-3200 16Go  -> Fortnite ~630 / CS2 ~265 / WZ ~140
-//   10100F  + GTX 1050 + DDR4 8Go      -> Fortnite ~110 (1% low bas + alerte stutter)
+// Formule V3 calibrée Fortnite Performance (moyennes APRÈS opti, 1080p) :
+//   7800X3D + 5060 Ti + DDR5-6000 32Go -> ~1080 (965 stock, 1% low ~713, Équilibré)
+//   5600X   + 5060   + DDR4-3200 16Go  -> ~630, bottleneck CPU @1080p
+//   10100F  + GTX 1050 + DDR4 8Go      -> ~110 + alerte stutter
 // Bottleneck : 7800X3D+5060Ti = Équilibré @1080p, GPU @1440p ; 5600+5060 = CPU @1080p, Équilibré @1440p.
 export function estimateFpsDetailed(
   cpuScore: number,
@@ -263,7 +258,7 @@ export function estimateFpsDetailed(
   const cpuPart = cpuScore * g.cpuW * r.cpuMult
   const gpuPart = gpuScore * g.gpuW * r.gpuMult
   const ramCap = RAM_FACTOR[ramIdx] ?? 1
-  // Fréquence RAM : impacte surtout les jeux CPU-bound
+  // Fréquence RAM : impacte surtout Fortnite, très sensible à la latence CPU
   const ramFreq = mhzAdd * (0.6 + g.cpuW * 0.6)
 
   const stock = Math.max(40, (cpuPart + gpuPart + ramFreq) * ramCap * g.scale)
@@ -278,7 +273,7 @@ export function estimateFpsDetailed(
   // Bottleneck : plafonds indépendants CPU vs GPU, calibrés sur la référence.
   // cpuCap = FPS max que le CPU peut alimenter, gpuCap = FPS max que le GPU
   // peut afficher (résolution incluse). Le plus bas des deux limite vraiment.
-  // Recherche : à 1080p le CPU plafonne en premier (high-refresh), à 1440p/4K
+  // En pratique : à 1080p le CPU plafonne en premier (high-refresh), à 1440p
   // c'est le GPU — le modèle reproduit ce basculement tout seul.
   const cpuCap = (cpuPart / (REF.cpu * g.cpuW)) * g.target
   const gpuCap = (gpuPart / (REF.gpu * g.gpuW)) * g.target
@@ -313,7 +308,8 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
   const [ram, setRam] = useState(2)
   const [ddr, setDdr] = useState<'DDR4' | 'DDR5'>('DDR5')
   const [mhzIdx, setMhzIdx] = useState(2) // 6000 MHz par défaut
-  const [game, setGame] = useState('Fortnite Performance (illimité)')
+  // Fortnite uniquement — pas de sélecteur de jeu
+  const game = 'Fortnite Performance (illimité)'
   const [resolution, setResolution] = useState('1080p')
   const [offer, setOffer] = useState<20 | 25 | 50>(20)
   const [scanning, setScanning] = useState(false)
@@ -343,7 +339,8 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
     const compat = DDR_COMPAT[gen] ?? ['DDR4', 'DDR5']
     if (!compat.includes(ddr)) {
       setDdr(compat[0])
-      setMhzIdx(0)
+      // Défaut : 6000 MHz en DDR5, 3200 MHz en DDR4
+      setMhzIdx(compat[0] === 'DDR4' ? 1 : 2)
     }
   }
 
@@ -422,7 +419,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
         const compat = DDR_COMPAT[gen] ?? ['DDR4', 'DDR5']
         if (!compat.includes(ddr)) {
           setDdr(compat[0])
-          setMhzIdx(0)
+          setMhzIdx(compat[0] === 'DDR4' ? 1 : 2)
         }
       }
       if (specs.ramGB) setRam(specs.ramGB >= 64 ? 3 : specs.ramGB >= 32 ? 2 : specs.ramGB >= 16 ? 1 : 0)
@@ -566,7 +563,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
             </select>
             <select
               value={ddr}
-              onChange={e => { const v = e.target.value as 'DDR4' | 'DDR5'; setDdr(v); setMhzIdx(0) }}
+              onChange={e => { const v = e.target.value as 'DDR4' | 'DDR5'; setDdr(v); setMhzIdx(v === 'DDR4' ? 1 : 2) }}
               className={selectClass}
               aria-label="Type de RAM"
               title={compatibleDdr.length === 1 ? `Seul ${compatibleDdr[0]} est compatible avec ce CPU` : ''}
@@ -580,10 +577,9 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
               {Object.entries(RESOLUTIONS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
             </select>
           </div>
-          <div className="mt-2.5">
-            <select value={game} onChange={e => setGame(e.target.value)} className={selectClass} aria-label="Jeu">
-              {Object.entries(GAMES).map(([k, v]) => <option key={k} value={k}>{k} — {v.label}</option>)}
-            </select>
+          <div className="mt-2.5 flex items-center justify-between gap-2 rounded-xl border border-white/[0.08] bg-[#0f0f12] px-3.5 py-2.5">
+            <span className="text-[13px] font-bold text-white">Fortnite — Performance, illimité</span>
+            <span className="shrink-0 rounded-full bg-fmx-red/15 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-fmx-red">CPU-bound</span>
           </div>
           {compatibleDdr.length === 1 && (
             <p className="mt-1.5 text-[11px] text-fmx-gray">
