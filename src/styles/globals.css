@@ -427,6 +427,15 @@
   .fmx-cursor-glow { display: none; }
 }
 
+/* Pendant le scroll actif : fige les animations déco pour laisser tout le GPU
+   au scroll au Hz natif de l'écran. La position est conservée, reprise fluide. */
+.is-scrolling .fmx-bg-grid,
+.is-scrolling .fmx-orb,
+.is-scrolling .animate-marquee,
+.is-scrolling .gradient-text {
+  animation-play-state: paused !important;
+}
+
 /* Polices chargées via next/font dans app/layout.tsx (Inter, Space Grotesk,
    JetBrains Mono, Syne) — pas d'@import bloquant ici pour garder un bon LCP. */
 

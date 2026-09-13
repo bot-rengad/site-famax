@@ -14,7 +14,15 @@ export function ScrollTools() {
     let ticking = false
     let lastProgress = -1
     let lastShowTop = false
+    let scrollEndTimer: ReturnType<typeof setTimeout> | null = null
     const onScroll = () => {
+      // Pendant le scroll actif : pause les animations déco (orbes, grille, marquee)
+      // pour laisser tout le GPU au scroll à Hz natif. Reprise auto à l'arrêt.
+      document.documentElement.classList.add('is-scrolling')
+      if (scrollEndTimer) clearTimeout(scrollEndTimer)
+      scrollEndTimer = setTimeout(() => {
+        document.documentElement.classList.remove('is-scrolling')
+      }, 140)
       if (ticking) return
       ticking = true
       requestAnimationFrame(() => {
@@ -35,7 +43,11 @@ export function ScrollTools() {
     }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (scrollEndTimer) clearTimeout(scrollEndTimer)
+      document.documentElement.classList.remove('is-scrolling')
+    }
   }, [])
 
   return (

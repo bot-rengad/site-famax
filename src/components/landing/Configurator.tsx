@@ -374,7 +374,11 @@ function PcViewer({ fps, refreshHz, gameLabel }: { fps: number; refreshHz: numbe
     // Fluidité : rendu à chaque frame rAF = vsync native de l'écran (60/120/144/240 Hz…),
     // mis en pause quand l'onglet est caché OU que le viewer n'est pas visible à l'écran.
     // Mouvements en dt : vitesse identique quel que soit le Hz, zéro saccade.
+    // Adaptatif : si le GPU peine durablement, on rend 1 frame sur 2 (dt cumulé,
+    // mouvement identique) au lieu de saccader — retour au Hz natif dès que ça respire.
     let vLast = performance.now()
+    let emaDt = 1000 / 60
+    let skipNext = false
     let raf = 0
     let visible = !document.hidden
     let inView = true
@@ -386,7 +390,13 @@ function PcViewer({ fps, refreshHz, gameLabel }: { fps: number; refreshHz: numbe
     const animate = (now: number) => {
       raf = requestAnimationFrame(animate)
       if (!visible || !inView) { vLast = now; return }
-      const dt = Math.min((now - vLast) / 1000, 0.05)
+      const rawDt = now - vLast
+      emaDt += (rawDt - emaDt) * 0.05
+      if (emaDt > 27) {
+        skipNext = !skipNext
+        if (skipNext) { vLast = now; return }
+      }
+      const dt = Math.min(rawDt / 1000, 0.05)
       vLast = now
       if (!drag) rot += dt * 0.55
       pcGroup.rotation.y = rot
