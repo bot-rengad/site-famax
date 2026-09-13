@@ -43,15 +43,16 @@ function mulberry32(seed: number) {
   }
 }
 
-function Starfield() {
+function Starfield({ paused }: { paused: boolean }) {
   const [big, small] = useMemo(() => {
     const rng = mulberry32(1337)
-    const W = 2560
+    // Période de 1280px : chaque étoile est dupliquée à +1280 pour une boucle parfaite
+    const P = 1280
     const H = 112
     const mk = (n: number) => {
       const parts: string[] = []
       for (let k = 0; k < n; k++) {
-        const x = Math.floor(rng() * W)
+        const x = Math.floor(rng() * P)
         const y = Math.floor(rng() * H)
         const r = rng()
         const c = r < 0.62
@@ -61,7 +62,7 @@ function Starfield() {
             : r < 0.93
               ? `rgba(255,120,120,${0.2 + rng() * 0.4})`
               : `rgba(150,180,255,${0.2 + rng() * 0.4})`
-        parts.push(`${x}px ${y}px 0 ${c}`)
+        parts.push(`${x}px ${y}px 0 ${c}`, `${x + P}px ${y}px 0 ${c}`)
       }
       return parts.join(',')
     }
@@ -69,8 +70,13 @@ function Starfield() {
   }, [])
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-      <div className="absolute left-0 top-0 h-[2px] w-[2px] rounded-full bg-transparent" style={{ boxShadow: big }} />
-      <div className="absolute left-0 top-0 h-[1px] w-[1px] rounded-full bg-transparent" style={{ boxShadow: small }} />
+      <div
+        className="stars-drift absolute inset-y-0 left-0 w-[2560px]"
+        style={{ animationPlayState: paused ? 'paused' : 'running' }}
+      >
+        <div className="absolute left-0 top-0 h-[2px] w-[2px] rounded-full bg-transparent" style={{ boxShadow: big }} />
+        <div className="absolute left-0 top-0 h-[1px] w-[1px] rounded-full bg-transparent" style={{ boxShadow: small }} />
+      </div>
     </div>
   )
 }
@@ -259,7 +265,7 @@ export default function TestEcranPage() {
               row.hot ? 'border-fmx-red/40' : 'border-white/[0.08]'
             )}
             >
-              <Starfield />
+              <Starfield paused={!running} />
               {/* Gros fps à gauche, comme UFO test */}
               <span className="absolute left-6 top-1/2 -translate-y-1/2 text-[26px] font-extrabold tracking-tight text-white/90 [text-shadow:0_0_12px_rgba(0,0,0,0.9)]">
                 {Math.round(row.fps)} <span className="text-[18px] font-bold">fps</span>

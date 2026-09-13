@@ -423,12 +423,23 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .fmx-bg-grid, .fmx-orb { animation: none !important; }
+  .fmx-bg-grid, .fmx-orb, .stars-drift { animation: none !important; }
   .fmx-cursor-glow { display: none; }
 }
 
 /* (content-visibility retiré : il figeait au scroll rapide — le navigateur
    recalculait les sections à la volée. Test fluidité sans.) */
+
+/* Dérive parallaxe du champ d'étoiles (page test écran) : le fond suit en sens
+   inverse comme une caméra qui tracke — boucle parfaite de 1280px, GPU pur. */
+@keyframes fmx-stars-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-1280px, 0, 0); }
+}
+.stars-drift {
+  animation: fmx-stars-drift 30s linear infinite;
+  will-change: transform;
+}
 
 /* Pendant le scroll actif : fige les animations déco pour laisser tout le GPU
    au scroll au Hz natif de l'écran. La position est conservée, reprise fluide. */
