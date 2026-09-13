@@ -103,8 +103,8 @@ export default function TestEcranPage() {
     speed: 960,
     hz: null as number | null,
     // Vérification honnête : changements de position réels par ligne et par seconde
-    lastQ: [-1, -1, -1, -1],
-    counts: [0, 0, 0, 0],
+    lastQ: [-1, -1, -1],
+    counts: [0, 0, 0],
     rateT0: 0,
   })
 
@@ -125,18 +125,17 @@ export default function TestEcranPage() {
     sim.current.deltas = []
     sim.current.dropped = 0
     sim.current.emaFps = 0
-    sim.current.lastQ = [-1, -1, -1, -1]
-    sim.current.counts = [0, 0, 0, 0]
+    sim.current.lastQ = [-1, -1, -1]
+    sim.current.counts = [0, 0, 0]
     sim.current.rateT0 = performance.now()
     setRates([])
     setStats({ fps: 0, avgMs: 0, low1Ms: 0, dropped: 0 })
   }
 
-  // Lignes : Hz natif + divisions (÷1.5 / ÷2 / ÷4) comme UFO test
+  // Lignes : Hz natif + divisions (÷2 / ÷4) comme UFO test
   const base = hz ?? 165
   const rows = [
     { key: 'native', fps: base, label: hz ? `Ton écran • ${hz} Hz` : 'Ton écran', hot: true },
-    { key: 'd15', fps: base / 1.5, label: `${Math.round(base / 1.5)} Hz (÷1.5)`, hot: false },
     { key: 'd2', fps: base / 2, label: `${Math.round(base / 2)} Hz (÷2)`, hot: false },
     { key: 'd4', fps: base / 4, label: `${Math.round(base / 4)} Hz (÷4)`, hot: false },
   ]
@@ -186,7 +185,7 @@ export default function TestEcranPage() {
       const trackW = rowRefs.current[0]?.parentElement?.clientWidth ?? 800
       const span = trackW + 160
       const b = s.hz ?? 165
-      const list = [b, b / 1.5, b / 2, b / 4]
+      const list = [b, b / 2, b / 4]
       list.forEach((fps, i) => {
         const el = rowRefs.current[i]
         if (!el) return
@@ -210,7 +209,7 @@ export default function TestEcranPage() {
       // Taux réel mesuré par ligne, chaque seconde
       if (now - s.rateT0 >= 1000) {
         setRates([...s.counts])
-        s.counts = [0, 0, 0, 0]
+        s.counts = [0, 0, 0]
         s.rateT0 = now
       }
 
@@ -254,7 +253,7 @@ export default function TestEcranPage() {
             <h1 className="font-display text-[22px] font-semibold text-fmx-white">Test fluidité écran</h1>
             <p className="mt-0.5 max-w-[640px] text-[12px] leading-snug text-fmx-gray">
               Comme UFO test : Peely défile à vitesse constante. 1re ligne = Hz natif,
-              autres = ÷1.5 / ÷2 / ÷4.
+              autres = ÷2 / ÷4.
             </p>
           </div>
           <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-[12px] font-bold">
@@ -264,7 +263,7 @@ export default function TestEcranPage() {
         </div>
 
         {/* 4 lignes comparatives — plein écran pour tracker jusqu'au bout */}
-        <div className="relative left-1/2 grid min-h-0 w-screen max-w-none flex-1 -translate-x-1/2 grid-rows-4 gap-2">
+        <div className="relative left-1/2 grid min-h-0 w-screen max-w-none flex-1 -translate-x-1/2 grid-rows-3 gap-2">
           {rows.map((row, i) => (
             <div key={row.key} className={cn(
               'relative min-h-[62px] overflow-hidden border-y bg-[#050508]',
