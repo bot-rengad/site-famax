@@ -371,28 +371,23 @@ function PcViewer({ fps, refreshHz, gameLabel }: { fps: number; refreshHz: numbe
     const ro = new ResizeObserver(resize)
     ro.observe(box)
 
-    // Fluidité : rendu synchronisé sur le rafraîchissement natif de l'écran (rAF),
+    // Fluidité : rendu à chaque frame rAF = vsync native de l'écran (60/120/144/240 Hz…),
     // mis en pause quand l'onglet est caché OU que le viewer n'est pas visible à l'écran.
-    // Plafond 60 FPS : sur écran 144/240 Hz on saute des frames (mouvement identique,
-    // dt cumulé) au lieu de rendre 2-4x pour rien — fini le saccadage.
-    const FRAME_BUDGET = 1000 / 62
+    // Mouvements en dt : vitesse identique quel que soit le Hz, zéro saccade.
     let vLast = performance.now()
-    let lastFrame = 0
     let raf = 0
     let visible = !document.hidden
     let inView = true
-    const onVis = () => { visible = !document.hidden; vLast = performance.now(); lastFrame = vLast }
+    const onVis = () => { visible = !document.hidden; vLast = performance.now() }
     document.addEventListener('visibilitychange', onVis)
     const io = new IntersectionObserver(entries => { inView = entries[0]?.isIntersecting ?? true }, { threshold: 0 })
     io.observe(box)
 
     const animate = (now: number) => {
       raf = requestAnimationFrame(animate)
-      if (!visible || !inView) { vLast = now; lastFrame = now; return }
-      if (now - lastFrame < FRAME_BUDGET) return
+      if (!visible || !inView) { vLast = now; return }
       const dt = Math.min((now - vLast) / 1000, 0.05)
       vLast = now
-      lastFrame = now
       if (!drag) rot += dt * 0.55
       pcGroup.rotation.y = rot
       logoPlane.position.y = 0.18 + Math.sin(now * 0.0011) * 0.01
