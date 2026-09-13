@@ -427,13 +427,8 @@
   .fmx-cursor-glow { display: none; }
 }
 
-/* Sections landing sous la ligne de flottaison : le navigateur saute layout/paint
-   hors écran pendant le scroll (gros gain en fluidité). La taille mémorisée
-   évite tout saut de mise en page. */
-#plans, #config, #deroulement, #faq, #avis {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 800px;
-}
+/* (content-visibility retiré : il figeait au scroll rapide — le navigateur
+   recalculait les sections à la volée. Test fluidité sans.) */
 
 /* Pendant le scroll actif : fige les animations déco pour laisser tout le GPU
    au scroll au Hz natif de l'écran. La position est conservée, reprise fluide. */
