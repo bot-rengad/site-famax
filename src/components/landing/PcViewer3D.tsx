@@ -40,7 +40,7 @@ export function PcViewer3D({
     const scene = new THREE.Scene()
     scene.background = new THREE.Color(0x0a0a0c)
     const camera = new THREE.PerspectiveCamera(44, 1, 0.1, 100)
-    camera.position.set(0, 0.78, 2.95)
+    camera.position.set(0, 0.85, 3.25)
 
     const resize = () => {
       const r = box.getBoundingClientRect()
@@ -55,8 +55,8 @@ export function PcViewer3D({
     const vDir = new THREE.DirectionalLight(0xffffff, 1.35)
     vDir.position.set(2, 4, 3)
     scene.add(vDir)
-    const vRed = new THREE.PointLight(0xff1a1a, 11, 7)
-    vRed.position.set(0, 0.8, 1.1)
+    const vRed = new THREE.PointLight(0xff1a1a, 5, 8)
+    vRed.position.set(0, 0.8, 1.5)
     scene.add(vRed)
 
     const pcGroup = new THREE.Group()
@@ -64,7 +64,7 @@ export function PcViewer3D({
     base.position.y = -0.62
     const tower = new THREE.Mesh(new THREE.BoxGeometry(1.44, 1.22, 0.98), new THREE.MeshStandardMaterial({ color: 0x0f0f12, roughness: 0.32, metalness: 0.38 }))
     tower.position.y = 0.06
-    const glass = new THREE.Mesh(new THREE.BoxGeometry(1.45, 1.23, 0.02), new THREE.MeshStandardMaterial({ color: 0xff1a1a, transparent: true, opacity: 0.07, emissive: 0xff1a1a, emissiveIntensity: 0.28 }))
+    const glass = new THREE.Mesh(new THREE.BoxGeometry(1.45, 1.23, 0.02), new THREE.MeshStandardMaterial({ color: 0xff1a1a, transparent: true, opacity: 0.07, emissive: 0xff1a1a, emissiveIntensity: 0.18 }))
     glass.position.set(0, 0.06, 0.5)
 
     // Logo FMX en texture

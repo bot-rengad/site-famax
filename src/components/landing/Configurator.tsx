@@ -443,8 +443,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
           Estimateur FPS
         </h2>
         <p className="mx-auto mt-1 max-w-[640px] text-[12px] leading-snug text-fmx-gray">
-          Sélectionne ta config exacte — CPU, GPU, RAM, jeu et résolution. Moteur V3 calibré sur
-          benchs réels, avec bottleneck CPU/GPU, 1% lows et gain après optimisation FMX.
+          CPU, GPU, RAM, jeu et résolution — moteur V3 calibré sur benchs réels.
         </p>
       </div>
 
@@ -610,50 +609,37 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
                 </button>
               ))}
             </div>
-            <div className="grid gap-2 sm:grid-cols-2">
-              <div className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-[#0f0f12] px-3 py-2.5 text-[13px]">
-                <span className="text-fmx-red">✓</span> Épuration système + priorités jeu
-                <span className="ml-auto text-[11px] font-bold text-fmx-red">+FPS</span>
-              </div>
-              <div className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-[#0f0f12] px-3 py-2.5 text-[13px]">
-                <span className="text-fmx-red">✓</span> Pilote GPU + réseau stabilisé
-                <span className="ml-auto text-[11px] font-bold text-fmx-gray">+FPS</span>
-              </div>
-              <div className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-[13px] transition-colors ${
-                offer >= 25 ? 'border-fmx-red/35 opacity-100' : 'border-[#26262b] opacity-[0.38]'
-              }`}>
-                {offer >= 25 ? <span className="text-fmx-red">✓</span> : <span>✕</span>}
-                CM : RAM haute vitesse + débridage
-                <span className={`ml-auto text-[11px] font-bold ${offer >= 25 ? 'text-fmx-red' : 'text-fmx-gray-dark'}`}>
-                  {offer >= 25 ? 'inclus' : '25€'}
-                </span>
-              </div>
-              <div className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-[13px] transition-colors ${
-                offer === 50 ? 'border-fmx-red/35 opacity-100' : 'border-[#26262b] opacity-[0.38]'
-              }`}>
-                {offer === 50 ? <span className="text-fmx-red">✓</span> : <span>✕</span>}
-                Ultime : Windows propre + suivi à vie
-                <span className={`ml-auto text-[11px] font-bold ${offer === 50 ? 'text-fmx-red' : 'text-fmx-gray-dark'}`}>
-                  {offer === 50 ? 'inclus' : '50€'}
-                </span>
-              </div>
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { short: 'Système', on: true, extra: '' },
+                { short: 'Pilotes', on: true, extra: '' },
+                { short: 'CM', on: offer >= 25, extra: offer >= 25 ? 'inclus' : '25€' },
+                { short: 'Ultime', on: offer === 50, extra: offer === 50 ? 'inclus' : '50€' },
+              ].map(f => (
+                <div
+                  key={f.short}
+                  title={f.short === 'Système' ? 'Épuration système + priorités jeu' : f.short === 'Pilotes' ? 'Pilote GPU + réseau stabilisé' : f.short === 'CM' ? 'Carte mère : RAM haute vitesse + débridage' : 'Windows propre + UV/OC + suivi à vie'}
+                  className={`truncate rounded-lg border px-2 py-2 text-center text-[11px] font-bold transition-colors ${
+                    f.on ? 'border-fmx-red/35 bg-fmx-red/[0.07] text-white' : 'border-[#26262b] text-fmx-gray-dark'
+                  }`}
+                >
+                  {f.on ? <span className="text-fmx-red">✓ </span> : <span>✕ </span>}
+                  {f.short}{f.extra ? <span className={f.on ? 'text-fmx-red' : ''}> · {f.extra}</span> : null}
+                </div>
+              ))}
             </div>
           </div>
 
           {/* Prix + CTA */}
-          <div className="mt-2.5 flex items-center justify-between gap-3 rounded-2xl border border-fmx-red/20 p-4" style={{ background: 'linear-gradient(135deg, #111113, #1a0a0a)' }}>
-            <div>
-              <div className="text-[11px] uppercase tracking-[0.14em] text-fmx-gray">Total estimation</div>
-              <strong className="text-[24px] leading-tight text-white">{offer}€</strong>
-              <div className="text-[11px] text-green-500">● Paiement unique</div>
+          <div className="mt-2.5 flex items-center justify-between gap-3 rounded-2xl border border-fmx-red/20 px-4 py-2.5" style={{ background: 'linear-gradient(135deg, #111113, #1a0a0a)' }}>
+            <div className="flex items-baseline gap-2">
+              <strong className="text-[24px] leading-none text-white">{offer}€</strong>
+              <span className="text-[11px] text-fmx-gray">paiement unique</span>
             </div>
-            <button onClick={() => onOrder(offer === 20 ? 'BASIC' : offer === 25 ? 'COMPLET' : 'ULTIME')} className="rounded-full bg-fmx-red px-5 py-3 text-sm font-bold text-white transition-all duration-150 hover:scale-[1.03] hover:shadow-[0_0_24px_rgba(255,26,26,0.5)]">
+            <button onClick={() => onOrder(offer === 20 ? 'BASIC' : offer === 25 ? 'COMPLET' : 'ULTIME')} className="rounded-full bg-fmx-red px-5 py-2.5 text-sm font-bold text-white transition-all duration-150 hover:scale-[1.03] hover:shadow-[0_0_24px_rgba(255,26,26,0.5)]">
               Commander →
             </button>
           </div>
-          <p className="mt-1.5 text-center text-[10px] text-fmx-gray">
-            Estimation indicative {game} en {resolution} — varie selon drivers et scène en jeu.
-          </p>
         </div>
       </div>
     </section>
