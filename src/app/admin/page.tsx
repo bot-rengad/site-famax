@@ -298,7 +298,7 @@ export default function AdminPage() {
               </span>
               <span className="flex-1">
                 <b className="block text-white">Commandes en attente de validation</b>
-                <span className="block text-[13px] text-fmx-gray">Vérifie les preuves sur Discord puis valide →</span>
+                <span className="block text-[13px] text-fmx-gray">Vérifie la preuve dans le ticket puis valide →</span>
               </span>
             </button>
           )}

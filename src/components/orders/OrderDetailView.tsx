@@ -330,7 +330,7 @@ export function OrderDetailView({
                     rel="noreferrer"
                     className="mt-2.5 block rounded-xl border border-[#5865F2]/25 bg-[#5865F2]/[0.07] p-2.5 text-center text-[12px] leading-relaxed text-fmx-gray transition-all duration-150 hover:scale-[1.02] hover:bg-[#5865F2]/[0.14]"
                   >
-                    <b className="text-white">Après paiement :</b> envoie ta capture sur Discord → salon preuves.
+                    <b className="text-white">Après paiement :</b> envoie ta capture dans ton ticket Discord.
                   </a>
                 )}
               </CardContent>

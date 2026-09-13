@@ -377,7 +377,7 @@ function OrderContent() {
                 <p className="mt-2 text-center text-[11px] leading-relaxed text-fmx-gray">
                   1. Paie <b className="text-white">{total}€</b> avec <b className="text-white">{pseudo ? `@${pseudo}` : 'ton pseudo'}</b> en note
                   {' '}→ 2. Coche « J&apos;ai payé » à droite
-                  {' '}→ 3. Capture sur <a href={DISCORD_INVITE} target="_blank" rel="noreferrer" className="font-bold text-fmx-red hover:underline">Discord FMX</a> (salon preuves)
+                  {' '}→ 3. Envoie la capture dans ton ticket
                 </p>
               </CardContent>
             </Card>
@@ -449,11 +449,11 @@ function OrderContent() {
               </CardContent>
             </Card>
 
-            {/* Étape finale : preuve Discord — 1 ligne */}
+            {/* Dernière étape : preuve dans le ticket — 1 ligne */}
             <div className="flex items-center gap-2.5 rounded-xl border border-[#5865F2]/25 bg-[#5865F2]/[0.07] px-3 py-2.5">
               <MessageCircle className="h-5 w-5 shrink-0 text-[#8b9bff]" />
               <p className="flex-1 text-[11px] leading-snug text-fmx-gray">
-                <b className="text-white">Preuve sur Discord :</b> capture {method === 'PAYPAL' ? 'PayPal' : 'virement'} {total}€
+                <b className="text-white">Dernière étape :</b> envoie ta capture ({method === 'PAYPAL' ? 'PayPal' : 'virement'} {total}€) dans ton ticket
               </p>
               <a
                 href={DISCORD_INVITE}

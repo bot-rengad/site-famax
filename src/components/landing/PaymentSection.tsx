@@ -126,7 +126,7 @@ export function PaymentSection({ selectedPlan, onOrder }: PaymentSectionProps) {
                 <li>Vérifie ton Discord avec le bouton ci-dessus</li>
                 <li>Va sur <a href={PAYPAL_LINK} target="_blank" rel="noreferrer" className="text-white underline">{PAYPAL_NAME}</a> → Envoyer → <b className="text-white">Ami & Proche</b></li>
                 <li>Montant exact ({amount}) + note = ton <b className="text-white">utilisateur Discord</b></li>
-                <li>Reviens sur <a href={DISCORD_INVITE} target="_blank" rel="noreferrer" className="text-fmx-red hover:underline">Discord FMX</a> → salon preuves → envoie la capture du paiement</li>
+                <li>Ouvre ton ticket sur <a href={DISCORD_INVITE} target="_blank" rel="noreferrer" className="text-fmx-red hover:underline">Discord FMX</a> → envoie la capture du paiement</li>
               </ol>
               <p className="mt-2 text-green-400">⚡ Clé envoyée sur Discord après vérification de la preuve.</p>
             </div>
@@ -163,7 +163,7 @@ export function PaymentSection({ selectedPlan, onOrder }: PaymentSectionProps) {
                 <li>Vérifie ton Discord avec le bouton ci-dessus</li>
                 <li>Virement instantané de <b className="text-white">{amount}</b> vers <b className="text-white">{IBAN_DISPLAY}</b> ({TITULAIRE})</li>
                 <li>Motif = <b className="text-white">ton utilisateur Discord</b></li>
-                <li>Envoie la capture sur <a href={DISCORD_INVITE} target="_blank" rel="noreferrer" className="text-fmx-red hover:underline">Discord FMX</a> → salon preuves</li>
+                <li>Envoie la capture dans ton ticket sur <a href={DISCORD_INVITE} target="_blank" rel="noreferrer" className="text-fmx-red hover:underline">Discord FMX</a></li>
               </ol>
               <p className="mt-2 text-green-400">Virement instantané = clé envoyée en quelques minutes après vérification.</p>
             </div>
