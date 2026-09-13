@@ -313,7 +313,7 @@ function OrderContent() {
                   </button>
                 </div>
               </CardHeader>
-              <CardContent className="flex flex-1 flex-col">
+              <CardContent className="flex flex-col">
                 {/* Pseudo Discord à mettre en note — 1 ligne */}
                 {discordLinked && pseudo ? (
                   <div className="rounded-xl border border-[#5865F2]/25 bg-[#5865F2]/[0.07] px-4 py-3">
@@ -336,7 +336,7 @@ function OrderContent() {
 
                 {/* Détails du moyen choisi — prend l'espace restant */}
                 {method === 'PAYPAL' ? (
-                  <div className="mt-3 flex flex-1 flex-col justify-center rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 text-center lg:p-5">
+                  <div className="mt-3 flex flex-col rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 text-center lg:p-5">
                     <p className="text-[14px] text-fmx-gray">
                       Envoie <b className="text-[20px] text-white">{total}€</b> en{' '}
                       <span className="rounded-full bg-[#003087]/40 px-2.5 py-1 text-[12px] font-extrabold uppercase tracking-wide text-blue-200">Amis & Proches</span>{' '}
@@ -356,7 +356,7 @@ function OrderContent() {
                     </p>
                   </div>
                 ) : (
-                  <div className="mt-3 flex flex-1 flex-col justify-center rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 lg:p-5">
+                  <div className="mt-3 flex flex-col rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 lg:p-5">
                     <b className="text-[14px] text-white">🇧🇪 SEPA Instantané — {total}€</b>
                     <div className="mt-3 grid gap-2 text-[13px]">
                       <div className="flex flex-wrap items-center gap-x-2 border-b border-white/[0.06] pb-2">
