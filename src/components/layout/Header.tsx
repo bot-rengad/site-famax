@@ -81,8 +81,10 @@ export function Header() {
   return (
     <nav
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 border-b border-white/[0.08] backdrop-blur-xl transition-colors duration-300',
-        scrolled ? 'bg-[#060608]/95 shadow-[0_8px_32px_rgba(0,0,0,0.45)]' : 'bg-[#060608]/80'
+        // Pas de backdrop-blur ici : reflouter toute la largeur à chaque frame de scroll
+        // bride le scroll sous les 120+ Hz. Fond quasi opaque = même look, zéro coût.
+        'fixed top-0 left-0 right-0 z-50 border-b border-white/[0.08] transition-colors duration-300',
+        scrolled ? 'bg-[#060608]/95 shadow-[0_8px_32px_rgba(0,0,0,0.45)]' : 'bg-[#060608]/90'
       )}
       aria-label="Navigation principale"
     >

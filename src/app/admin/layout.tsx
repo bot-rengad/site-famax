@@ -142,7 +142,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <main
         className={cn('min-h-screen transition-all duration-300 ease-expo', sidebarOpen ? 'lg:ml-64' : 'lg:ml-20')}
       >
-        <header className="sticky top-0 z-30 bg-fmx-black/95 backdrop-blur-xl border-b border-white/[0.08] h-16 flex items-center px-6 lg:px-8">
+        <header className="sticky top-0 z-30 bg-fmx-black border-b border-white/[0.08] h-16 flex items-center px-6 lg:px-8">
           <h1 className="font-display text-heading-lg text-fmx-white">{TAB_TITLES[hash] || 'Administration'}</h1>
         </header>
         <div className="p-6 lg:p-8">{children}</div>

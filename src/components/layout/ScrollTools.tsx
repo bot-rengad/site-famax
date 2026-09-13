@@ -12,14 +12,25 @@ export function ScrollTools() {
 
   useEffect(() => {
     let ticking = false
+    let lastProgress = -1
+    let lastShowTop = false
     const onScroll = () => {
       if (ticking) return
       ticking = true
       requestAnimationFrame(() => {
         ticking = false
         const max = document.documentElement.scrollHeight - window.innerHeight
-        setProgress(max > 0 ? Math.min(1, window.scrollY / max) : 0)
-        setShowTop(window.scrollY > 700)
+        const p = max > 0 ? Math.min(1, window.scrollY / max) : 0
+        // Évite un re-render React à chaque frame : MAJ seulement si ça bouge vraiment
+        if (Math.abs(p - lastProgress) > 0.002) {
+          lastProgress = p
+          setProgress(p)
+        }
+        const show = window.scrollY > 700
+        if (show !== lastShowTop) {
+          lastShowTop = show
+          setShowTop(show)
+        }
       })
     }
     onScroll()
