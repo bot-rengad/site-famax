@@ -10,7 +10,7 @@ import { detectHardware } from '@/lib/utils/hardware-detect'
 // à 120 / 60 / 30 Hz simulés (mouvement quantifié comme Blur Busters).
 // Vitesse constante en px/s, sync vsync native (rAF + dt).
 const SPEEDS = [480, 960, 1920]
-const SKIN_URL = 'https://fortnite-api.com/images/cosmetics/br/cid_349_athena_commando_m_banana/smallicon.png'
+const SKIN_URL = 'https://fortnite-api.com/images/cosmetics/br/cid_a_215_athena_commando_f_sunrisecastle_48tiz/smallicon.png'
 
 interface Stats {
   fps: number
@@ -74,12 +74,13 @@ export default function TestEcranPage() {
     setStats({ fps: 0, avgMs: 0, low1Ms: 0, dropped: 0 })
   }
 
-  // Lignes : Hz natif + 120 / 60 / 30 simulés
+  // Lignes : Hz natif + divisions (÷1.5 / ÷2 / ÷4) comme UFO test
+  const base = hz ?? 165
   const rows = [
-    { key: 'native', fps: hz ?? 165, label: hz ? `Ton écran • ${hz} Hz` : 'Ton écran', hot: true },
-    { key: 'r120', fps: 120, label: '120 Hz', hot: false },
-    { key: 'r60', fps: 60, label: '60 Hz', hot: false },
-    { key: 'r30', fps: 30, label: '30 Hz', hot: false },
+    { key: 'native', fps: base, label: hz ? `Ton écran • ${hz} Hz` : 'Ton écran', hot: true },
+    { key: 'd15', fps: base / 1.5, label: `${Math.round(base / 1.5)} Hz (÷1.5)`, hot: false },
+    { key: 'd2', fps: base / 2, label: `${Math.round(base / 2)} Hz (÷2)`, hot: false },
+    { key: 'd4', fps: base / 4, label: `${Math.round(base / 4)} Hz (÷4)`, hot: false },
   ]
 
   useEffect(() => {
@@ -121,10 +122,11 @@ export default function TestEcranPage() {
       if (!s.running || dtMs <= 0 || dtMs > 250) return
       s.t += dtMs / 1000
 
-      // Chaque ligne avance par pas de 1/fps : 30 Hz saccade, natif est fluide
+      // Chaque ligne avance par pas de 1/fps : ÷4 saccade, natif est fluide
       const trackW = rowRefs.current[0]?.parentElement?.clientWidth ?? 800
       const span = trackW + 160
-      const list = [s.hz ?? 165, 120, 60, 30]
+      const b = s.hz ?? 165
+      const list = [b, b / 1.5, b / 2, b / 4]
       list.forEach((fps, i) => {
         const el = rowRefs.current[i]
         if (!el) return
@@ -172,8 +174,8 @@ export default function TestEcranPage() {
           <div>
             <h1 className="font-display text-display-sm text-fmx-white">Test fluidité écran</h1>
             <p className="mt-1 max-w-[640px] text-[13px] leading-relaxed text-fmx-gray">
-              Comme UFO test : Peely défile à vitesse constante. La 1re ligne tourne au Hz natif
-              de ton écran, les autres simulent 120 / 60 / 30 Hz. Si la 1re saccade comme la 30 Hz,
+              Comme UFO test : Chani défile à vitesse constante. La 1re ligne tourne au Hz natif
+              de ton écran, les autres simulent ÷1.5 / ÷2 / ÷4. Si la 1re saccade comme la ÷4,
               ton navigateur ne suit pas.
             </p>
           </div>
@@ -209,7 +211,7 @@ export default function TestEcranPage() {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={SKIN_URL}
-                    alt="Peely Fortnite"
+                    alt="Chani Fortnite"
                     width={76}
                     height={76}
                     className="h-[76px] w-[76px] object-contain drop-shadow-[0_0_16px_rgba(255,26,26,0.45)]"
