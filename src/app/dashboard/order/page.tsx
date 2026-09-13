@@ -316,12 +316,11 @@ function OrderContent() {
               <CardContent className="flex flex-1 flex-col">
                 {/* Pseudo Discord à mettre en note — 1 ligne */}
                 {discordLinked && pseudo ? (
-                  <div className="flex items-center justify-between gap-3 rounded-xl border border-[#5865F2]/25 bg-[#5865F2]/[0.07] px-4 py-3">
+                  <div className="rounded-xl border border-[#5865F2]/25 bg-[#5865F2]/[0.07] px-4 py-3">
                     <p className="truncate text-[13px] text-fmx-gray">
                       <b className="text-white">Note du paiement :</b>
                       <code className="ml-2 rounded bg-black/50 px-2 py-1 font-mono text-[13px] text-white">@{pseudo}</code>
                     </p>
-                    <CopyBtn text={pseudo} label="Copier le pseudo" />
                   </div>
                 ) : (
                   <div className="flex flex-wrap items-center gap-3 rounded-xl border border-yellow-500/25 bg-yellow-500/[0.06] px-4 py-3 text-[13px] text-yellow-200/90">
@@ -358,10 +357,7 @@ function OrderContent() {
                   </div>
                 ) : (
                   <div className="mt-3 flex flex-1 flex-col justify-center rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 lg:p-5">
-                    <div className="flex items-center justify-between gap-2">
-                      <b className="text-[14px] text-white">🇧🇪 SEPA Instantané — {total}€</b>
-                      <CopyBtn text={`${IBAN_DISPLAY} - ${TITULAIRE}`} label="Copier" />
-                    </div>
+                    <b className="text-[14px] text-white">🇧🇪 SEPA Instantané — {total}€</b>
                     <div className="mt-3 grid gap-2 text-[13px]">
                       <div className="flex flex-wrap items-center gap-x-2 border-b border-white/[0.06] pb-2">
                         <span className="text-fmx-gray">IBAN</span>
