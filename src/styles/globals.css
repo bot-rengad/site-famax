@@ -58,7 +58,9 @@
     background-image:
       radial-gradient(ellipse 60% 45% at 85% -10%, rgba(229, 9, 20, 0.07), transparent 70%),
       radial-gradient(ellipse 50% 40% at 0% 110%, rgba(229, 9, 20, 0.05), transparent 70%);
-    background-attachment: fixed;
+    /* Pas de background-attachment: fixed ici : il forçait un repaint complet
+       à chaque frame de scroll (scroll saccadé, effet 60 Hz sur écran 120+ Hz).
+       L'ambiance fixed est déjà gérée par des calques composited (.fmx-bg-layer, halos). */
   }
 
   html {
