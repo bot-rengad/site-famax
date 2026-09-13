@@ -187,7 +187,7 @@ export default function TestEcranPage() {
   const fluid = hz !== null && stats.fps >= hz - 3 && stats.dropped === 0 && stats.fps > 0
 
   return (
-    <div className="min-h-screen bg-fmx-black text-fmx-white">
+    <div className="min-h-screen overflow-x-clip bg-fmx-black text-fmx-white">
       <div className="mx-auto w-full max-w-[1100px] px-5 py-8 lg:px-10">
         <Link href="/" className="text-[13px] font-medium text-fmx-gray transition-colors hover:text-white">
           ← Accueil du site
@@ -208,11 +208,11 @@ export default function TestEcranPage() {
           </div>
         </div>
 
-        {/* 4 lignes comparatives */}
-        <div className="mt-6 grid gap-3">
+        {/* 4 lignes comparatives — plein écran pour tracker jusqu'au bout */}
+        <div className="relative left-1/2 mt-6 grid w-screen max-w-none -translate-x-1/2 gap-3">
           {rows.map((row, i) => (
             <div key={row.key} className={cn(
-              'relative h-28 overflow-hidden rounded-2xl border bg-[#0a0a0c]',
+              'relative h-28 overflow-hidden border-y bg-[#0a0a0c]',
               row.hot ? 'border-fmx-red/40' : 'border-white/[0.08]'
             )}
               style={{
@@ -221,12 +221,12 @@ export default function TestEcranPage() {
               }}
             >
               <span className={cn(
-                'absolute left-3 top-2.5 z-10 rounded-full px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.14em]',
+                'absolute left-5 top-2.5 z-10 rounded-full px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.14em]',
                 row.hot ? 'bg-fmx-red text-white' : 'border border-white/10 bg-black/60 text-fmx-gray'
               )}>
                 {row.label}
               </span>
-              <span className="absolute right-3 top-2.5 z-10 rounded-full border border-white/10 bg-black/60 px-3 py-1 font-mono text-[11px] font-bold text-green-400">
+              <span className="absolute right-5 top-2.5 z-10 rounded-full border border-white/10 bg-black/60 px-3 py-1 font-mono text-[11px] font-bold text-green-400">
                 {rates[i] != null ? `${rates[i]} Hz réels` : 'mesure…'}
               </span>
               <div
