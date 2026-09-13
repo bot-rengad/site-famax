@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { Play, Pause, RotateCcw, MonitorCheck } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
@@ -29,6 +29,49 @@ function UfoFallback() {
       <circle cx="55" cy="41" r="3.4" fill="#FF1A1A" />
       <circle cx="82" cy="38" r="3.4" fill="#FF1A1A" />
     </svg>
+  )
+}
+
+// Champ d'étoiles statique façon UFO test (PRNG seedé = identique serveur/client,
+// zéro coût par frame : rasterisé une fois, juste composité pendant le scroll)
+function mulberry32(seed: number) {
+  return () => {
+    seed |= 0; seed = (seed + 0x6d2b79f5) | 0
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+function Starfield() {
+  const [big, small] = useMemo(() => {
+    const rng = mulberry32(1337)
+    const W = 2560
+    const H = 112
+    const mk = (n: number) => {
+      const parts: string[] = []
+      for (let k = 0; k < n; k++) {
+        const x = Math.floor(rng() * W)
+        const y = Math.floor(rng() * H)
+        const r = rng()
+        const c = r < 0.62
+          ? `rgba(255,255,255,${0.25 + rng() * 0.55})`
+          : r < 0.82
+            ? `rgba(255,217,160,${0.3 + rng() * 0.5})`
+            : r < 0.93
+              ? `rgba(255,120,120,${0.2 + rng() * 0.4})`
+              : `rgba(150,180,255,${0.2 + rng() * 0.4})`
+        parts.push(`${x}px ${y}px 0 ${c}`)
+      }
+      return parts.join(',')
+    }
+    return [mk(70), mk(150)]
+  }, [])
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+      <div className="absolute left-0 top-0 h-[2px] w-[2px] rounded-full bg-transparent" style={{ boxShadow: big }} />
+      <div className="absolute left-0 top-0 h-[1px] w-[1px] rounded-full bg-transparent" style={{ boxShadow: small }} />
+    </div>
   )
 }
 
@@ -212,14 +255,15 @@ export default function TestEcranPage() {
         <div className="relative left-1/2 mt-6 grid w-screen max-w-none -translate-x-1/2 gap-3">
           {rows.map((row, i) => (
             <div key={row.key} className={cn(
-              'relative h-28 overflow-hidden border-y bg-[#0a0a0c]',
+              'relative h-28 overflow-hidden border-y bg-[#050508]',
               row.hot ? 'border-fmx-red/40' : 'border-white/[0.08]'
             )}
-              style={{
-                backgroundImage:
-                  'repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 120px)',
-              }}
             >
+              <Starfield />
+              {/* Gros fps à gauche, comme UFO test */}
+              <span className="absolute left-6 top-1/2 -translate-y-1/2 text-[26px] font-extrabold tracking-tight text-white/90 [text-shadow:0_0_12px_rgba(0,0,0,0.9)]">
+                {Math.round(row.fps)} <span className="text-[18px] font-bold">fps</span>
+              </span>
               <span className={cn(
                 'absolute left-5 top-2.5 z-10 rounded-full px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.14em]',
                 row.hot ? 'bg-fmx-red text-white' : 'border border-white/10 bg-black/60 text-fmx-gray'
@@ -231,7 +275,7 @@ export default function TestEcranPage() {
               </span>
               <div
                 ref={el => { rowRefs.current[i] = el }}
-                className="absolute top-1/2 -translate-y-1/2 will-change-transform"
+                className="absolute top-1/2 z-[5] -translate-y-1/2 will-change-transform"
               >
                 {skinOk ? (
                   // eslint-disable-next-line @next/next/no-img-element
