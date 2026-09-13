@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Copy, Check, Wallet, Landmark, Zap, ShieldCheck, MessageCircle } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
+import { DISCORD_INVITE, PAYPAL_LINK, PAYPAL_NAME, IBAN_RAW, IBAN_DISPLAY, TITULAIRE } from '@/lib/payment-info'
 import type { PlanId } from './Pricing'
 
 interface PaymentSectionProps {
@@ -11,14 +12,6 @@ interface PaymentSectionProps {
 }
 
 type Tab = 'paypal' | 'rib'
-
-// Config réelle FMX — tout se passe sur Discord
-const DISCORD_INVITE = 'https://discord.gg/fmx'
-const PAYPAL_LINK = 'https://paypal.me/poticatfn'
-const PAYPAL_NAME = 'paypal.me/poticatfn'
-const IBAN_RAW = 'BE15363227221530'
-const IBAN_DISPLAY = 'BE15 3632 2722 1530'
-const TITULAIRE = 'Jordan Silva'
 
 function CopyBtn({ text }: { text: string }) {
   const [done, setDone] = useState(false)
