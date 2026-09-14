@@ -75,16 +75,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       )}
       <aside
         className={cn(
-          'fixed left-0 top-0 h-screen z-50 bg-fmx-black-light/95 backdrop-blur-xl border-r border-white/[0.08] transition-all duration-300 ease-expo',
-          // Mobile : tiroir qui sort/rentre. Desktop : réduit à 80px au lieu de recouvrir.
+          'fixed left-0 top-0 h-screen z-50 overflow-hidden border-r border-white/[0.08] bg-fmx-black-light transition-all duration-300 ease-expo',
+          // Mobile : tiroir qui sort/rentre. Desktop : rail 80px, fond opaque (aucun titre qui transparaît).
           sidebarOpen ? 'w-64 translate-x-0' : 'w-64 -translate-x-full lg:w-20 lg:translate-x-0'
         )}
       >
         <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="flex items-center justify-between h-16 lg:h-20 px-4 border-b border-white/[0.08]">
-            <Link href="/admin" className="flex min-w-0 flex-1 items-center gap-3" aria-label="FMX Admin" onClick={() => { if (window.innerWidth < 1024) setSidebarOpen(false) }}>
-              <span className="shrink-0"><Logo size={40} /></span>
+          {/* Logo — réduit : petit logo centré qui tient dans le rail 80px, sinon il débordait sur le titre */}
+          <div className={cn(
+            'border-b border-white/[0.08]',
+            sidebarOpen ? 'flex h-16 lg:h-20 flex-row items-center justify-between px-4' : 'flex flex-col items-center justify-center gap-2 px-2 py-3'
+          )}>
+            <Link href="/admin" className={cn('flex items-center gap-3', sidebarOpen ? 'min-w-0 flex-1' : 'flex-none justify-center')} aria-label="FMX Admin" onClick={() => { if (window.innerWidth < 1024) setSidebarOpen(false) }}>
+              <span className="shrink-0 leading-none"><Logo size={sidebarOpen ? 36 : 26} /></span>
               {sidebarOpen && <span className="truncate text-sm font-bold text-white lg:hidden">Admin FMX</span>}
             </Link>
             <button
@@ -118,7 +121,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     if (window.innerWidth < 1024) setSidebarOpen(false)
                   }}
                   className={cn(
-                    'flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 border',
+                    'flex items-center gap-3 rounded-xl transition-all duration-200 border overflow-hidden whitespace-nowrap',
+                    sidebarOpen ? 'px-3 py-3' : 'px-3 py-3 lg:justify-center lg:px-0',
                     isActive
                       ? 'bg-fmx-red/10 border-fmx-red/30 text-fmx-red'
                       : 'border-transparent text-fmx-white-dim hover:text-fmx-white hover:bg-fmx-carbon'
@@ -126,7 +130,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   title={item.label}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
-                  <span className={cn('font-display font-medium text-sm', !sidebarOpen && 'lg:hidden')}>{item.label}</span>
+                  <span className={cn('truncate font-display font-medium text-sm', !sidebarOpen && 'lg:hidden')}>{item.label}</span>
                 </a>
               )
             })}
@@ -136,17 +140,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="p-4 border-t border-white/[0.08] space-y-2">
             <Link
               href="/dashboard"
-              className="flex items-center gap-3 px-3 py-2 rounded-lg text-fmx-white-dim hover:text-fmx-white hover:bg-fmx-carbon transition-colors"
+              className={cn('flex items-center gap-3 px-3 py-2 rounded-lg text-fmx-white-dim hover:text-fmx-white hover:bg-fmx-carbon transition-colors overflow-hidden whitespace-nowrap', !sidebarOpen && 'lg:justify-center lg:px-0')}
+              title="Espace client"
             >
               <LayoutDashboard className="w-5 h-5 shrink-0" />
-              <span className={cn('font-medium', !sidebarOpen && 'lg:hidden')}>Espace client</span>
+              <span className={cn('truncate font-medium', !sidebarOpen && 'lg:hidden')}>Espace client</span>
             </Link>
             <button
               onClick={() => (window.location.href = '/api/auth/logout')}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-fmx-red hover:bg-fmx-red/10 transition-colors"
+              className={cn('w-full flex items-center gap-3 px-3 py-2 rounded-lg text-fmx-red hover:bg-fmx-red/10 transition-colors overflow-hidden whitespace-nowrap', !sidebarOpen && 'lg:justify-center lg:px-0')}
+              title="Déconnexion"
             >
               <LogOut className="w-5 h-5 shrink-0" />
-              <span className={cn('font-medium', !sidebarOpen && 'lg:hidden')}>Déconnexion</span>
+              <span className={cn('truncate font-medium', !sidebarOpen && 'lg:hidden')}>Déconnexion</span>
             </button>
           </div>
         </div>
