@@ -210,9 +210,9 @@ export function OrderDetailView({
         ))}
       </ol>
 
-      <div className="grid items-start gap-4 xl:h-[calc(100dvh-360px)] xl:min-h-[500px] xl:grid-cols-[minmax(0,1fr)_380px] xl:overflow-hidden">
-        {/* Chat — à gauche, remplit la hauteur de l'écran */}
-          <Card variant="glass" padding="lg" className="flex min-w-0 flex-col xl:h-full xl:min-h-0">
+      <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+        {/* Chat — à gauche */}
+          <Card variant="glass" padding="lg" className="flex min-w-0 flex-col">
           <CardHeader className="mb-4 shrink-0">
             <CardTitle className="flex items-center gap-2 text-base">
               <MessageCircle className="h-5 w-5 text-fmx-red" />
@@ -221,12 +221,12 @@ export function OrderDetailView({
             </CardTitle>
           </CardHeader>
           <CardContent className="flex min-h-0 flex-1 flex-col">
-            <OrderChat orderId={order.id} className="h-[420px] max-h-none flex-1 sm:h-[480px] xl:h-full xl:min-h-0" />
+            <OrderChat orderId={order.id} className="h-[420px] max-h-none flex-1 sm:h-[480px] xl:h-[560px]" />
           </CardContent>
         </Card>
 
         {/* Colonne droite : récap + reminder paiement */}
-        <div className="min-w-0 space-y-4 xl:min-h-0 xl:overflow-y-auto xl:pb-1">
+        <div className="min-w-0 space-y-4 xl:sticky xl:top-24">
           {/* Récap pack + tous les add-ons */}
           <Card variant="glass" padding="lg" className="min-w-0 p-5">
             <CardContent>

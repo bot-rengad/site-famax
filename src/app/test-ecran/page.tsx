@@ -258,8 +258,8 @@ export default function TestEcranPage() {
           </div>
         </div>
 
-        {/* 3 lignes comparatives — plein écran pour tracker jusqu'au bout */}
-        <div className="relative grid w-full shrink-0 grid-rows-3 gap-1.5">
+        {/* 3 lignes comparatives — bord à bord comme UFO test */}
+        <div className="relative left-1/2 grid w-screen max-w-none shrink-0 -translate-x-1/2 grid-rows-3 gap-1.5">
           {rows.map((row, i) => (
             <div key={row.key} className={cn(
               'relative h-[clamp(90px,15dvh,160px)] overflow-hidden border-y bg-[#050508]',
