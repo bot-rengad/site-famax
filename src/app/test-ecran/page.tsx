@@ -241,45 +241,43 @@ export default function TestEcranPage() {
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-fmx-black text-fmx-white">
-      <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col gap-2 px-5 py-3 lg:px-10">
-        <Link href="/" className="shrink-0 text-[13px] font-medium text-fmx-gray transition-colors hover:text-white">
-          ← Accueil du site
-        </Link>
-
-        <div className="flex shrink-0 flex-wrap items-end justify-between gap-2">
-          <div>
-            <h1 className="font-display text-[22px] font-semibold text-fmx-white">Test fluidité écran</h1>
-            <p className="mt-0.5 max-w-[640px] text-[12px] leading-snug text-fmx-gray">
-              Comme UFO test : Peely défile à vitesse constante. 1re ligne = Hz natif,
-              autres = ÷2 / ÷4.
+      <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col gap-1.5 px-5 py-2 lg:px-10">
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="text-[12px] font-medium text-fmx-gray transition-colors hover:text-white">
+              ← Accueil
+            </Link>
+            <h1 className="font-display text-[19px] font-semibold text-fmx-white">Test fluidité écran</h1>
+            <p className="hidden text-[11px] text-fmx-gray md:block">
+              Peely à vitesse constante — 1re ligne = Hz natif, autres = ÷2 / ÷4.
             </p>
           </div>
-          <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-[12px] font-bold">
-            <MonitorCheck className="h-4 w-4 text-fmx-red" />
+          <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1 text-[11px] font-bold">
+            <MonitorCheck className="h-3.5 w-3.5 text-fmx-red" />
             {hz ? <span>Écran : {hz} Hz</span> : <span className="text-fmx-gray">Détection Hz…</span>}
           </div>
         </div>
 
         {/* 4 lignes comparatives — plein écran pour tracker jusqu'au bout */}
-        <div className="relative left-1/2 grid min-h-0 w-screen max-w-none flex-1 -translate-x-1/2 grid-rows-3 gap-2">
+        <div className="relative left-1/2 grid min-h-0 w-screen max-w-none flex-1 -translate-x-1/2 grid-rows-3 gap-1.5">
           {rows.map((row, i) => (
             <div key={row.key} className={cn(
-              'relative min-h-[62px] overflow-hidden border-y bg-[#050508]',
+              'relative min-h-[52px] overflow-hidden border-y bg-[#050508]',
               row.hot ? 'border-fmx-red/40' : 'border-white/[0.08]'
             )}
             >
               <Starfield driftRef={el => { driftRefs.current[i] = el }} />
               {/* Gros fps à gauche, comme UFO test */}
-              <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[20px] font-extrabold tracking-tight text-white/90 [text-shadow:0_0_12px_rgba(0,0,0,0.9)]">
-                {Math.round(row.fps)} <span className="text-[14px] font-bold">fps</span>
+              <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[18px] font-extrabold tracking-tight text-white/90 [text-shadow:0_0_12px_rgba(0,0,0,0.9)]">
+                {Math.round(row.fps)} <span className="text-[13px] font-bold">fps</span>
               </span>
               <span className={cn(
-                'absolute left-5 top-2.5 z-10 rounded-full px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.14em]',
+                'absolute left-5 top-2 z-10 rounded-full px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.14em]',
                 row.hot ? 'bg-fmx-red text-white' : 'border border-white/10 bg-black/60 text-fmx-gray'
               )}>
                 {row.label}
               </span>
-              <span className="absolute right-5 top-2.5 z-10 rounded-full border border-white/10 bg-black/60 px-3 py-1 font-mono text-[11px] font-bold text-green-400">
+              <span className="absolute right-5 top-2 z-10 rounded-full border border-white/10 bg-black/60 px-2.5 py-0.5 font-mono text-[10px] font-bold text-green-400">
                 {rates[i] != null ? `${rates[i]} Hz réels` : 'mesure…'}
               </span>
               <div
@@ -291,9 +289,9 @@ export default function TestEcranPage() {
                   <img
                     src={SKIN_URL}
                     alt="Peely Fortnite"
-                    width={60}
-                    height={60}
-                    className="h-[60px] w-[60px] object-contain drop-shadow-[0_0_16px_rgba(255,26,26,0.45)]"
+                    width={48}
+                    height={48}
+                    className="h-[48px] w-[48px] object-contain drop-shadow-[0_0_16px_rgba(255,26,26,0.45)]"
                     onError={() => setSkinOk(false)}
                     draggable={false}
                   />
@@ -306,19 +304,19 @@ export default function TestEcranPage() {
         </div>
 
         {/* Contrôles */}
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
+        <div className="flex shrink-0 flex-wrap items-center gap-1.5">
           <button
             onClick={() => setRunning(r => !r)}
-            className="inline-flex items-center gap-2 rounded-full bg-fmx-red px-4 py-2 text-[12px] font-bold text-white transition-transform hover:-translate-y-px"
+            className="inline-flex items-center gap-1.5 rounded-full bg-fmx-red px-3.5 py-1.5 text-[11px] font-bold text-white transition-transform hover:-translate-y-px"
           >
-            {running ? <><Pause className="h-3.5 w-3.5" /> Pause</> : <><Play className="h-3.5 w-3.5" /> Lecture</>}
+            {running ? <><Pause className="h-3 w-3" /> Pause</> : <><Play className="h-3 w-3" /> Lecture</>}
           </button>
           {SPEEDS.map(v => (
             <button
               key={v}
               onClick={() => setSpeed(v)}
               className={cn(
-                'rounded-full border px-3.5 py-2 text-[12px] font-bold transition-colors',
+                'rounded-full border px-3 py-1.5 text-[11px] font-bold transition-colors',
                 speed === v
                   ? 'border-fmx-red bg-fmx-red/[0.12] text-white'
                   : 'border-white/10 text-fmx-gray hover:text-white'
@@ -329,35 +327,35 @@ export default function TestEcranPage() {
           ))}
           <button
             onClick={reset}
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3.5 py-2 text-[12px] font-bold text-fmx-gray transition-colors hover:text-white"
+            className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-1.5 text-[11px] font-bold text-fmx-gray transition-colors hover:text-white"
           >
-            <RotateCcw className="h-3.5 w-3.5" /> Reset stats
+            <RotateCcw className="h-3 w-3" /> Reset stats
           </button>
         </div>
 
         {/* Stats */}
-        <div className="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="grid shrink-0 grid-cols-2 gap-1.5 sm:grid-cols-4">
           {[
             { label: 'FPS mesurés', value: stats.fps ? `${stats.fps}` : '—', sub: hz ? `objectif ${hz}` : '…' },
             { label: 'Frame moyenne', value: stats.avgMs ? `${stats.avgMs} ms` : '—', sub: hz ? `vsync ${(1000 / hz).toFixed(1)} ms` : '…' },
             { label: 'Pire 1%', value: stats.low1Ms ? `${stats.low1Ms} ms` : '—', sub: 'pics de saccade' },
             { label: 'Frames sautées', value: `${stats.dropped}`, sub: stats.dropped === 0 ? 'aucune' : 'saccades vues' },
           ].map(c => (
-            <div key={c.label} className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-center">
-              <div className="text-[10px] uppercase tracking-wider text-fmx-gray">{c.label}</div>
-              <div className="text-[19px] font-extrabold leading-tight text-white">{c.value}</div>
-              <div className="text-[10px] text-fmx-gray">{c.sub}</div>
+            <div key={c.label} className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-2 py-1.5 text-center">
+              <div className="text-[9px] uppercase tracking-wider text-fmx-gray">{c.label}</div>
+              <div className="text-[17px] font-extrabold leading-tight text-white">{c.value}</div>
+              <div className="text-[9px] text-fmx-gray">{c.sub}</div>
             </div>
           ))}
         </div>
 
         {/* Graphe temps de frame (masqué sur petits écrans pour tout faire tenir) */}
-        <div className="shrink-0 rounded-xl border border-white/[0.08] bg-white/[0.02] p-3 [@media(max-height:880px)]:hidden">
-          <div className="mb-1.5 flex items-center justify-between text-[11px] text-fmx-gray">
+        <div className="shrink-0 rounded-xl border border-white/[0.08] bg-white/[0.02] p-2.5 [@media(max-height:880px)]:hidden">
+          <div className="mb-1 flex items-center justify-between text-[10px] text-fmx-gray">
             <b className="text-white">Temps par frame (120 dernières)</b>
             <span><span className="text-green-400">■</span> OK <span className="text-yellow-400">■</span> limite <span className="text-fmx-red">■</span> sautée</span>
           </div>
-          <canvas ref={graphRef} width={880} height={120} className="h-[80px] w-full" />
+          <canvas ref={graphRef} width={880} height={120} className="h-[70px] w-full" />
         </div>
 
       </div>
