@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { OrderDetailView, type OrderDetailData } from '@/components/orders/OrderDetailView'
 
 const STATUS: Record<string, { label: string; variant: 'green' | 'yellow' | 'red' | 'gray' }> = {
-  COMPLETED: { label: 'Payée', variant: 'green' },
+  COMPLETED: { label: 'Terminée', variant: 'green' },
   PAID: { label: 'Payée', variant: 'green' },
   PENDING: { label: 'En attente de preuve', variant: 'yellow' },
   CANCELLED: { label: 'Annulée', variant: 'red' },
@@ -39,7 +39,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       .then(r => (r.ok ? r.json() : null))
       .then((data: { user?: { discordUsername?: string | null; discordGlobalName?: string | null } }) => {
         const u = data?.user
-        if (u) setPseudo(u.discordUsername || u.discordGlobalName || null)
+        if (u) setPseudo(u.discordGlobalName || u.discordUsername || null)
       })
       .catch(() => {})
   }, [id])

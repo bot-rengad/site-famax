@@ -311,7 +311,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
   // Fortnite uniquement — pas de sélecteur de jeu
   const game = 'Fortnite Performance (illimité)'
   const [resolution, setResolution] = useState('1080p')
-  const [offer, setOffer] = useState<20 | 25 | 50>(20)
+  const [offer, setOffer] = useState<20 | 25 | 50>(25)
   const [scanning, setScanning] = useState(false)
   const [detectedMsg, setDetectedMsg] = useState<string | null>(null)
   const [refreshHz, setRefreshHz] = useState<number | null>(null)
@@ -386,44 +386,43 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
       if (specs.refreshRateHz) setRefreshHz(specs.refreshRateHz)
       const gpuStr = (specs.gpuModel || specs.gpuRenderer || '').toLowerCase()
       if (gpuStr) {
-        const brand = gpuStr.includes('nvidia') ? 'NVIDIA' : 'AMD'
-        setGpuBrand(brand)
-        let found = false
-        for (const range of Object.keys(GPUS[brand])) {
-          for (const gen of Object.keys(GPUS[brand][range])) {
-            GPUS[brand][range][gen].forEach((m, i) => {
-              // Match sur le numéro de modèle (ex: "5060 ti" dans la chaîne WebGL)
-              const num = m.name.match(/\d{3,4}/)?.[0]
-              if (!found && num && gpuStr.includes(num.toLowerCase())) {
-                const ti = m.name.toLowerCase().includes('ti')
-                if (!ti || gpuStr.includes('ti')) {
-                  setGpuRange(range); setGpuGen(gen); setGpuIdx(i); found = true
+        const brand: 'NVIDIA' | 'AMD' | null = gpuStr.includes('nvidia')
+          ? 'NVIDIA'
+          : gpuStr.includes('amd') || gpuStr.includes('radeon')
+            ? 'AMD'
+            : null
+        // Intel / inconnu : on ne force pas AMD, on garde la sélection manuelle
+        if (brand) {
+          setGpuBrand(brand)
+          let found = false
+          for (const range of Object.keys(GPUS[brand])) {
+            for (const gen of Object.keys(GPUS[brand][range])) {
+              GPUS[brand][range][gen].forEach((m, i) => {
+                // Match sur le numéro de modèle (ex: "5060 ti" dans la chaîne WebGL)
+                const num = m.name.match(/\d{3,4}/)?.[0]
+                if (!found && num && gpuStr.includes(num.toLowerCase())) {
+                  const ti = m.name.toLowerCase().includes('ti')
+                  if (!ti || gpuStr.includes('ti')) {
+                    setGpuRange(range); setGpuGen(gen); setGpuIdx(i); found = true
+                  }
                 }
-              }
-            })
+              })
+            }
           }
         }
       }
-      if (specs.cpuCores) {
-        const threads = specs.cpuCores
-        let gen = 'Ryzen 4000/5000', brand: 'Intel' | 'AMD' = 'AMD', idx = 5
-        if (threads >= 20) { brand = 'AMD'; gen = 'Ryzen 9000'; idx = 2 }
-        else if (threads >= 16) { brand = 'AMD'; gen = 'Ryzen 7000'; idx = 3 }
-        else if (threads >= 12) { brand = 'AMD'; gen = 'Ryzen 7000'; idx = 0 }
-        else if (threads >= 8) { brand = 'AMD'; gen = 'Ryzen 4000/5000'; idx = 5 }
-        else { brand = 'Intel'; gen = '12e génération'; idx = 0 }
-        setCpuBrand(brand)
-        setCpuGen(gen)
-        setCpuIdx(idx)
-        // Aligne le type de RAM sur la compatibilité du CPU détecté
-        const compat = DDR_COMPAT[gen] ?? ['DDR4', 'DDR5']
-        if (!compat.includes(ddr)) {
-          setDdr(compat[0])
-          setMhzIdx(compat[0] === 'DDR4' ? 1 : 2)
-        }
-      }
       if (specs.ramGB) setRam(specs.ramGB >= 64 ? 3 : specs.ramGB >= 32 ? 2 : specs.ramGB >= 16 ? 1 : 0)
-      setDetectedMsg('Config détectée et préremplie — vérifie le modèle exact.')
+      if (specs.cpuCores) {
+        // Le navigateur n'expose que le nombre de threads : impossible de distinguer
+        // Intel vs AMD de façon fiable. On ne touche pas à la marque, on guide l'utilisateur.
+        setDetectedMsg(
+          specs.gpuVendor === 'Intel'
+            ? 'GPU intégré Intel détecté — choisis ta vraie carte graphique ci-dessous si tu en as une.'
+            : 'Config détectée et préremplie — vérifie le modèle exact (surtout le CPU).'
+        )
+      } else {
+        setDetectedMsg('Config détectée et préremplie — vérifie le modèle exact.')
+      }
     } catch {
       setDetectedMsg('Détection impossible sur ce navigateur.')
     } finally {
@@ -431,7 +430,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
     }
   }
 
-  const selectClass = 'w-full rounded-xl border border-white/[0.08] bg-[#0f0f12] px-3.5 py-2.5 text-[13px] text-white transition-all duration-150 hover:border-white/25 hover:bg-[#141418] focus:border-fmx-red/50 focus:outline-none'
+  const selectClass = 'w-full rounded-xl border border-white/[0.08] bg-[#0f0f12] px-3.5 py-3 text-[16px] text-white transition-all duration-150 hover:border-white/25 hover:bg-[#141418] focus:border-fmx-red/50 focus:outline-none sm:py-2.5 sm:text-[13px]'
 
   return (
     <section id="config" className="relative mx-auto flex min-h-0 w-full max-w-[1280px] flex-1 flex-col scroll-mt-24 px-5 lg:px-10">
@@ -441,6 +440,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
         </h2>
         <p className="mx-auto mt-1 max-w-[640px] text-[12px] leading-snug text-fmx-gray">
           CPU, GPU, RAM, jeu et résolution — moteur V3 calibré sur benchs réels.
+          Estimations indicatives, sans garantie.
         </p>
       </div>
 
@@ -552,7 +552,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
           </div>
           <div className="mt-2.5">
             <select value={cpuIdx} onChange={e => setCpuIdx(Number(e.target.value))} className={selectClass} aria-label="Modèle CPU">
-              {cpuModels.map((m, i) => <option key={m.name} value={i}>{m.name}{m.score >= 1000 ? ' — X3D' : ''}</option>)}
+              {cpuModels.map((m, i) => <option key={m.name} value={i}>{m.name}{m.score >= 1000 && !m.name.includes('X3D') ? ' — X3D' : ''}</option>)}
             </select>
           </div>
 
@@ -577,9 +577,9 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
               {Object.entries(RESOLUTIONS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
             </select>
           </div>
-          <div className="mt-2.5 flex items-center justify-between gap-2 rounded-xl border border-white/[0.08] bg-[#0f0f12] px-3.5 py-2.5">
+          <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/[0.08] bg-[#0f0f12] px-3.5 py-2.5">
             <span className="text-[13px] font-bold text-white">Fortnite — Performance, illimité</span>
-            <span className="shrink-0 rounded-full bg-fmx-red/15 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-fmx-red">CPU-bound</span>
+            <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider ${result.bottleneck === 'Équilibré' ? 'bg-green-500/15 text-green-400' : 'bg-fmx-red/15 text-fmx-red'}`}>{result.bottleneck === 'Équilibré' ? 'Équilibré' : `Bride ${result.bottleneck}`}</span>
           </div>
           {compatibleDdr.length === 1 && (
             <p className="mt-1.5 text-[11px] text-fmx-gray">
@@ -597,15 +597,15 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
                 <button
                   key={o}
                   onClick={() => setOffer(o)}
-                  className={`flex-1 rounded-full py-2.5 text-xs font-extrabold transition-all duration-150 hover:scale-105 ${
+                  className={`min-h-[44px] flex-1 rounded-full py-2.5 text-xs font-extrabold transition-all duration-150 hover:scale-105 ${
                     offer === o ? 'border border-fmx-red bg-fmx-red text-white hover:shadow-[0_0_18px_rgba(255,26,26,0.45)]' : 'border border-white/[0.08] bg-white/[0.06] text-fmx-gray hover:border-white/25 hover:text-white'
                   }`}
                 >
-                  {o === 20 ? 'Windows 20€' : o === 25 ? 'Complet 25€' : 'Ultime 50€'}
+                  {o === 20 ? 'Basic 20€' : o === 25 ? 'Complet 25€' : 'Ultime 50€'}
                 </button>
               ))}
             </div>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {[
                 { short: 'Système', on: true, extra: '' },
                 { short: 'Pilotes', on: true, extra: '' },
@@ -632,7 +632,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
               <strong className="text-[24px] leading-none text-white">{offer}€</strong>
               <span className="text-[11px] text-fmx-gray">paiement unique</span>
             </div>
-            <button onClick={() => onOrder(offer === 20 ? 'BASIC' : offer === 25 ? 'COMPLET' : 'ULTIME')} className="rounded-full bg-fmx-red px-5 py-2.5 text-sm font-bold text-white transition-all duration-150 hover:scale-[1.03] hover:shadow-[0_0_24px_rgba(255,26,26,0.5)]">
+            <button onClick={() => onOrder(offer === 20 ? 'BASIC' : offer === 25 ? 'COMPLET' : 'ULTIME')} className="min-h-[44px] rounded-full bg-fmx-red px-5 py-2.5 text-sm font-bold text-white transition-all duration-150 hover:scale-[1.03] hover:shadow-[0_0_24px_rgba(255,26,26,0.5)]">
               Commander →
             </button>
           </div>

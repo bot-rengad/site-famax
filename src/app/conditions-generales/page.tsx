@@ -32,12 +32,14 @@ export default function ConditionsGenerales() {
             envoyée sur le Discord.
           </p>
         </section>
-        <section className="fmx-window rounded-2xl p-6">
+        <section className="fmx-window rounded-2xl p-5 sm:p-6">
           <h2 className="mb-2 font-bold text-white">3. Remboursement & support</h2>
           <p>
-            Aucun remboursement une fois le travail commencé, sauf si aucune différence
-            constatée après l’optimisation. Suivi garanti 30 jours. Fin du support en cas
-            de réinitialisation du PC sans prévenir.
+            Aucun remboursement une fois le travail commencé. Si aucune différence
+            mesurable n’est constatée après l’optimisation, le staff réévalue au cas par cas.
+            Suivi 30 jours inclus (à vie pour le Pack Ultime ou l’option suivi à vie).
+            Le support peut s’arrêter en cas de réinitialisation du PC sans prévenir
+            (sauf Pack Ultime / suivi à vie).
           </p>
         </section>
         <section className="fmx-window rounded-2xl p-6">

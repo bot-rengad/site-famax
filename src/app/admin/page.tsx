@@ -99,13 +99,30 @@ function TabSkeleton({ rows = 4 }: { rows?: number }) {
   )
 }
 
-const statusBadge = (status: string) => {  switch (status) {
-    case 'COMPLETED': case 'ACTIVE': case 'CLOSED': return <Badge variant="green" dot>{status}</Badge>
-    case 'PENDING': case 'OPEN': return <Badge variant="yellow" dot>{status}</Badge>
-    case 'REVOKED': case 'CANCELLED': case 'REFUNDED': return <Badge variant="red" dot>{status}</Badge>
-    default: return <Badge variant="blue" dot>{status}</Badge>
+const STATUS_FR: Record<string, string> = {
+  COMPLETED: 'Terminée',
+  PAID: 'Payée',
+  PENDING: 'En attente',
+  OPEN: 'Ouverte',
+  ACTIVE: 'Active',
+  CLOSED: 'Clôturée',
+  CANCELLED: 'Annulée',
+  REFUNDED: 'Remboursée',
+  REVOKED: 'Révoquée',
+}
+
+const statusBadge = (status: string) => {
+  const label = STATUS_FR[status] || status
+  switch (status) {
+    case 'COMPLETED': case 'PAID': case 'ACTIVE': case 'CLOSED': return <Badge variant="green" dot>{label}</Badge>
+    case 'PENDING': case 'OPEN': return <Badge variant="yellow" dot>{label}</Badge>
+    case 'REVOKED': case 'CANCELLED': return <Badge variant="red" dot>{label}</Badge>
+    case 'REFUNDED': return <Badge variant="gray" dot>{label}</Badge>
+    default: return <Badge variant="blue" dot>{label}</Badge>
   }
 }
+
+const paymentLabel = (m: string | null) => m === 'PAYPAL' ? 'PayPal' : m === 'BANK_TRANSFER' ? 'Virement' : '—'
 
 // Parse les add-ons stockés en JSON sans jamais crasher l'admin
 function safeAddonList(raw: string | null | undefined): string {
@@ -523,7 +540,7 @@ export default function AdminPage() {
                     .map(o => (
                     <Fragment key={o.id}>
                     <tr className="border-b border-fmx-border/30 last:border-0">
-                      <td className="py-3 pr-4 font-mono text-xs text-fmx-white-dim">{o.orderNumber}</td>
+                      <td className="py-3 pr-4 font-mono text-xs text-fmx-white-dim"><a href={`/admin/orders/${o.id}`} className="hover:text-white hover:underline">{o.orderNumber}</a></td>
                       <td className="py-3 pr-4 text-fmx-white-dim">
                         {o.user.discordUsername ? `@${o.user.discordUsername}` : o.user.email}
                         <span className="block text-[11px] text-fmx-gray">{o.user.email}</span>
@@ -534,7 +551,7 @@ export default function AdminPage() {
                           <span className="mt-1 block text-[11px] text-fmx-gray">+ {safeAddonList(o.addons)}</span>
                         )}
                       </td>
-                      <td className="py-3 pr-4 text-fmx-gray">{o.paymentMethod || '—'}</td>
+                      <td className="py-3 pr-4 text-fmx-gray">{paymentLabel(o.paymentMethod)}</td>
                       <td className="py-3 pr-4 text-fmx-white">{o.amount.toFixed(2)} €</td>
                       <td className="py-3 pr-4 font-mono text-xs text-fmx-red">{o.license?.key || '—'}</td>
                       <td className="py-3 pr-4">{statusBadge(o.status)}</td>

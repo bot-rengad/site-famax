@@ -7,9 +7,9 @@ import { cn } from '@/lib/utils/helpers'
 import { Logo } from '@/components/ui/Logo'
 
 const navLinks = [
-  { href: '/#plans', label: 'Plans', section: 'plans' },
-  { href: '/estimateur', label: 'Estimateur FPS', section: 'estimateur' },
-  { href: '/#deroulement', label: 'Déroulé', section: 'deroulement' },
+  { href: '/#plans', label: 'Plans', section: 'plans', spy: true },
+  { href: '/estimateur', label: 'Estimateur FPS', section: '', spy: false },
+  { href: '/#deroulement', label: 'Déroulé', section: 'deroulement', spy: true },
 ]
 
 export function Header() {
@@ -28,7 +28,7 @@ export function Header() {
 
   // Section active (scrollspy) — uniquement sur la page d'accueil
   useEffect(() => {
-    const ids = navLinks.map(l => l.section)
+    const ids = navLinks.filter(l => l.spy && l.section).map(l => l.section)
     const observer = new IntersectionObserver(
       entries => {
         for (const e of entries) {
@@ -62,7 +62,7 @@ export function Header() {
         const u = data?.user
         if (u) {
           setMe({
-            pseudo: u.discordGlobalName || u.discordUsername || u.name || u.email.split('@')[0],
+            pseudo: u.discordGlobalName || u.discordUsername || u.name || (u.email ? u.email.split('@')[0] : 'Client'),
             avatar: u.discordAvatar || null,
             role: u.role || 'USER',
           })
@@ -96,13 +96,13 @@ export function Header() {
         {/* Liens desktop — survol souris : soulignement animé + halo */}
         <div className="hidden items-center gap-8 text-[13px] font-medium text-fmx-gray lg:flex">
           {navLinks.map(link => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
-              aria-current={active === link.section ? 'true' : undefined}
+              aria-current={link.section && active === link.section ? 'true' : undefined}
               className={cn(
                 'group relative py-1.5 transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_10px_rgba(255,26,26,0.45)]',
-                active === link.section && 'font-bold text-white'
+                link.section && active === link.section && 'font-bold text-white'
               )}
             >
               {link.label}
@@ -110,16 +110,16 @@ export function Header() {
                 aria-hidden="true"
                 className={cn(
                   'absolute -bottom-0.5 left-0 h-[2px] w-full origin-left rounded-full bg-fmx-red shadow-[0_0_12px_rgba(255,26,26,0.8)] transition-transform duration-200',
-                  active === link.section ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                  link.section && active === link.section ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
                 )}
               />
-            </a>
+            </Link>
           ))}
           {me && (
-            <a href={latestOrderId ? `/dashboard/orders/${latestOrderId}` : '/dashboard/order'} className="group relative py-1.5 font-bold text-fmx-red transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_10px_rgba(255,26,26,0.6)]">
+            <Link href={latestOrderId ? `/dashboard/orders/${latestOrderId}` : '/dashboard/order'} className="group relative py-1.5 font-bold text-fmx-red transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_10px_rgba(255,26,26,0.6)]">
               Ma commande
               <span aria-hidden="true" className="absolute -bottom-0.5 left-0 h-[2px] w-full origin-left scale-x-0 rounded-full bg-white transition-transform duration-200 group-hover:scale-x-100" />
-            </a>
+            </Link>
           )}
           <Link
             href="/test-ecran"
@@ -169,15 +169,15 @@ export function Header() {
               </a>
             </>
           )}
-          <a
+          <Link
             href="/dashboard/order"
-            className="rounded-full bg-fmx-red px-4 py-2.5 text-[13px] font-bold text-white shadow-[0_8px_24px_rgba(255,26,26,0.35)] transition-transform duration-200 hover:-translate-y-px sm:px-5"
+            className="min-h-[44px] place-content-center rounded-full bg-fmx-red px-4 py-2.5 text-[13px] font-bold text-white shadow-[0_8px_24px_rgba(255,26,26,0.35)] transition-transform duration-200 hover:-translate-y-px sm:px-5"
           >
             Commander →
-          </a>
+          </Link>
           <button
             onClick={() => setMobileOpen(o => !o)}
-            className="rounded-lg border border-white/10 p-2 text-white lg:hidden"
+            className="min-h-[44px] min-w-[44px] place-content-center rounded-lg border border-white/10 p-3 text-white lg:hidden"
             aria-label={mobileOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
             aria-expanded={mobileOpen}
           >
@@ -188,17 +188,17 @@ export function Header() {
 
       {/* Menu mobile */}
       {mobileOpen && (
-        <div className="absolute left-0 right-0 top-full max-h-[calc(100vh-4rem)] overflow-y-auto border-b border-white/[0.08] bg-[#060608]/95 backdrop-blur-xl lg:hidden">
+        <div className="absolute left-0 right-0 top-full max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-white/[0.08] bg-[#060608]/95 backdrop-blur-xl lg:hidden">
           <div className="flex flex-col gap-1 px-5 py-4">
             {navLinks.map(link => (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
                 className="rounded-lg px-3 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-fmx-gray transition-all duration-150 hover:translate-x-1 hover:bg-white/5 hover:text-white hover:shadow-[0_0_16px_rgba(255,26,26,0.15)]"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
             <Link
               href="/test-ecran"
@@ -218,21 +218,21 @@ export function Header() {
               </Link>
             )}
             {me ? (
-              <a
+              <Link
                 href={latestOrderId ? `/dashboard/orders/${latestOrderId}` : '/dashboard/order'}
                 onClick={() => setMobileOpen(false)}
                 className="rounded-lg bg-fmx-red/10 px-3 py-3 text-sm font-bold text-fmx-red hover:bg-fmx-red/20"
               >
                 Ma commande →
-              </a>
+              </Link>
             ) : (
-              <a
+              <Link
                 href="/auth/login"
                 onClick={() => setMobileOpen(false)}
                 className="rounded-lg px-3 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-fmx-gray hover:bg-white/5 hover:text-white"
               >
                 Espace client
-              </a>
+              </Link>
             )}
             {!me && (
               <a

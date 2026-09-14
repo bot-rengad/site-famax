@@ -17,11 +17,11 @@ export function Footer() {
         </p>
 
         <nav aria-label="Navigation pied de page" className="mt-6 flex flex-wrap items-center justify-center gap-x-7 gap-y-2 text-[13px] text-fmx-gray">
-          <a href="/#plans" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">Plans</a>
+          <Link href="/#plans" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">Plans</Link>
           <Link href="/estimateur" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">Estimateur FPS</Link>
-          <a href="/#deroulement" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">Déroulé</a>
-          <a href="/#avis" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">Avis clients</a>
-          <a href="/#faq" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">FAQ</a>
+          <Link href="/#deroulement" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">Déroulé</Link>
+          <Link href="/#avis" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">Avis clients</Link>
+          <Link href="/#faq" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">FAQ</Link>
           <Link href="/dashboard/order" className="font-bold text-fmx-red transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.6)]">Commander →</Link>
         </nav>
 

@@ -65,6 +65,22 @@
 
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 84px;
+    overflow-x: clip;
+  }
+
+  body {
+    overflow-x: clip;
+  }
+
+  /* Évite le zoom auto iOS sur les champs (<16px) : 16px sur mobile, taille d'origine dès sm */
+  input, select, textarea {
+    font-size: 16px;
+  }
+  @media (min-width: 640px) {
+    input, select, textarea {
+      font-size: inherit;
+    }
   }
 
   /* Scrollbar styling */
@@ -221,9 +237,12 @@
   .tooltip::after {
     content: attr(data-tooltip);
     @apply absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-fmx-white;
-    @apply bg-fmx-carbon border border-fmx-border rounded-lg shadow-glass whitespace-nowrap;
+    @apply bg-fmx-carbon border border-fmx-border rounded-lg shadow-glass;
     @apply opacity-0 invisible transition-all duration-200;
     @apply pointer-events-none z-50;
+    white-space: normal;
+    max-width: min(220px, 70vw);
+    text-align: center;
   }
 
   .tooltip::before {

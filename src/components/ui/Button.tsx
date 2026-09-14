@@ -30,8 +30,8 @@ const buttonClasses = (
       danger: 'bg-red-600/20 text-red-400 border border-red-500/30 hover:bg-red-600/30 hover:border-red-500/50',
     }[variant],
     {
-      sm: 'px-4 py-2 text-xs rounded-full gap-1.5',
-      md: 'px-5 py-2.5 text-sm rounded-full gap-2',
+      sm: 'min-h-[36px] px-4 py-2 text-xs rounded-full gap-1.5',
+      md: 'min-h-[44px] px-5 py-2.5 text-sm rounded-full gap-2',
       lg: 'px-6 py-3 text-base rounded-full gap-2.5',
       xl: 'px-8 py-4 text-lg rounded-full gap-3',
     }[size],
@@ -76,8 +76,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     // Arrondis unifiés en pilule (cohérent avec buttonClasses ci-dessus)
     const sizes = {
-      sm: 'px-4 py-2 text-xs rounded-full gap-1.5',
-      md: 'px-5 py-2.5 text-sm rounded-full gap-2',
+      sm: 'min-h-[36px] px-4 py-2 text-xs rounded-full gap-1.5',
+      md: 'min-h-[44px] px-5 py-2.5 text-sm rounded-full gap-2',
       lg: 'px-6 py-3 text-base rounded-full gap-2.5',
       xl: 'px-8 py-4 text-lg rounded-full gap-3',
     }

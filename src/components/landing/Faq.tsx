@@ -16,15 +16,15 @@ const faqs = [
   },
   {
     q: 'Comment je paie ?',
-    a: 'PayPal (Amis & Proches) ou virement SEPA instantané, avec ton pseudo Discord en note, puis capture envoyée sur le Discord. Les coordonnées exactes s’affichent après ta commande, à l’étape paiement.',
+    a: 'PayPal (Amis & Proches) ou virement SEPA instantané, avec ton pseudo Discord en note, puis capture envoyée dans ton ticket Discord. Les coordonnées exactes s’affichent après ta commande, à l’étape paiement.',
   },
   {
     q: 'Et si ça ne change rien sur mon PC ?',
-    a: "L'avis honnête AVANT le paiement évite ça : si ton PC n'y gagnera rien, on te le dit. Après l'intervention, suivi garanti 30 jours. Aucun remboursement une fois le travail commencé, sauf si aucune différence constatée.",
+    a: "L'avis honnête AVANT le paiement évite ça : si ton PC n'y gagnera rien, on te le dit. Après l'intervention, suivi 30 jours inclus (à vie pour le Pack Ultime). Aucun remboursement une fois le travail commencé, sauf réévaluation du staff si aucune différence mesurable n'est constatée.",
   },
   {
     q: 'C’est sans risque pour mon PC ?',
-    a: "L'intervention commence toujours par une sauvegarde, suit un protocole strict dans un ordre précis, et tu suis tout en direct. Le support s'arrête seulement si tu réinitialises ton PC sans prévenir.",
+    a: "L'intervention commence toujours par une sauvegarde, suit un protocole strict dans un ordre précis, et tu suis tout en direct. Le support peut s'arrêter seulement si tu réinitialises ton PC sans prévenir (sauf Pack Ultime / suivi à vie).",
   },
 ]
 

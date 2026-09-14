@@ -22,10 +22,10 @@ function CopyBtn({ text }: { text: string }) {
         setDone(true)
         setTimeout(() => setDone(false), 1500)
       }}
-      className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-[11px] font-bold text-white transition-colors hover:bg-white/[0.12]"
+      className="inline-flex min-h-[36px] shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-[12px] font-bold text-white transition-colors hover:bg-white/[0.12]"
     >
       {done ? <Check className="h-3.5 w-3.5 text-green-400" /> : <Copy className="h-3.5 w-3.5" />}
-      {done ? 'Copié !' : 'Copy'}
+      {done ? 'Copié !' : 'Copier'}
     </button>
   )
 }
@@ -48,7 +48,7 @@ export function PaymentSection({ selectedPlan, onOrder }: PaymentSectionProps) {
         </h2>
         <p className="mt-3 text-[14px] leading-relaxed text-fmx-gray">
           PayPal ou virement — paie avec ton pseudo Discord en note, envoie ta preuve
-          et reçois ta clé.
+          dans ton ticket et reçois ton suivi.
         </p>
       </div>
 
@@ -61,12 +61,12 @@ export function PaymentSection({ selectedPlan, onOrder }: PaymentSectionProps) {
           <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#8b9bff]">Étape 1 — Vérification obligatoire</div>
           <div className="mt-1 text-[15px] font-bold text-white">Vérifie ton Discord avant de payer</div>
           <p className="mt-1 text-[13px] text-fmx-gray">
-            Ta clé sera liée à ce compte, et la note du paiement doit contenir ton{' '}
+            Ton suivi sera lié à ce compte, et la note du paiement doit contenir ton{' '}
             <b className="text-white">utilisateur Discord</b>.
           </p>
         </div>
         <a
-          href="/api/auth/discord?redirect=/dashboard/order"
+          href={selectedPlan ? `/api/auth/discord?redirect=${encodeURIComponent(`/dashboard/order?pack=${selectedPlan}`)}` : '/api/auth/discord?redirect=/dashboard/order'}
           className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[#5865F2] px-6 py-3 text-sm font-bold text-white transition-transform hover:-translate-y-px hover:bg-[#4752C4]"
         >
           Vérifier avec Discord →
@@ -101,10 +101,10 @@ export function PaymentSection({ selectedPlan, onOrder }: PaymentSectionProps) {
               <div className="mx-auto mt-4 max-w-[420px] rounded-xl bg-[#003087]/20 p-4">
                 <div className="text-[11px] uppercase tracking-wider text-blue-300">Envoyer UNIQUEMENT en</div>
                 <div className="text-[16px] font-extrabold text-white">AMIS & PROCHES</div>
-                <div className="text-[11px] text-fmx-gray">Friends & Family — sinon remboursement automatique</div>
+                <div className="text-[11px] text-fmx-gray">Friends & Family — bien vérifier le mode d’envoi</div>
               </div>
-              <code className="mx-auto mt-4 flex max-w-[420px] items-center justify-between gap-3 rounded-lg bg-black/60 px-4 py-3 font-mono text-[13px] text-white">
-                {PAYPAL_NAME}
+              <code className="mx-auto mt-4 flex max-w-[420px] flex-wrap items-center justify-between gap-3 rounded-lg bg-black/60 px-4 py-3 font-mono text-[13px] text-white">
+                <span className="min-w-0 flex-1 break-all">{PAYPAL_NAME}</span>
                 <CopyBtn text={PAYPAL_LINK} />
               </code>
               <a
@@ -128,7 +128,7 @@ export function PaymentSection({ selectedPlan, onOrder }: PaymentSectionProps) {
                 <li>Montant exact ({amount}) + note = ton <b className="text-white">utilisateur Discord</b></li>
                 <li>Ouvre ton ticket sur <a href={DISCORD_INVITE} target="_blank" rel="noreferrer" className="text-fmx-red hover:underline">Discord FMX</a> → envoie la capture du paiement</li>
               </ol>
-              <p className="mt-2 text-green-400">⚡ Clé envoyée sur Discord après vérification de la preuve.</p>
+              <p className="mt-2 text-green-400">⚡ Suivi ouvert sur Discord après vérification de la preuve.</p>
             </div>
           </div>
         )}
@@ -165,7 +165,7 @@ export function PaymentSection({ selectedPlan, onOrder }: PaymentSectionProps) {
                 <li>Motif = <b className="text-white">ton utilisateur Discord</b></li>
                 <li>Envoie la capture dans ton ticket sur <a href={DISCORD_INVITE} target="_blank" rel="noreferrer" className="text-fmx-red hover:underline">Discord FMX</a></li>
               </ol>
-              <p className="mt-2 text-green-400">Virement instantané = clé envoyée en quelques minutes après vérification.</p>
+              <p className="mt-2 text-green-400">Virement instantané = suivi ouvert en quelques minutes après vérification.</p>
             </div>
           </div>
         )}
@@ -177,7 +177,7 @@ export function PaymentSection({ selectedPlan, onOrder }: PaymentSectionProps) {
             <b className="text-white">Étape finale : envoie ta preuve sur Discord.</b>
             <br />
             Capture du paiement (PayPal ou virement) avec ton utilisateur Discord visible.
-            Un membre du staff vérifie puis t&apos;envoie ta clé d&apos;activation.
+            Un membre du staff vérifie puis ouvre ton suivi.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <a

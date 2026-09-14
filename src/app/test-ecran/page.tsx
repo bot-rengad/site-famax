@@ -6,8 +6,8 @@ import { Play, Pause, RotateCcw, MonitorCheck } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
 import { detectHardware } from '@/lib/utils/hardware-detect'
 
-// Test fluidité façon UFO test : 4 lignes comparent le Hz natif de l'écran
-// à 120 / 60 / 30 Hz simulés (mouvement quantifié comme Blur Busters).
+// Test fluidité façon UFO test : 3 lignes comparent le Hz natif de l'écran
+// à /2 / /4 simulés (mouvement quantifié comme Blur Busters).
 // Vitesse constante en px/s, sync vsync native (rAF + dt).
 const SPEEDS = [480, 960, 1920]
 const SKIN_URL = 'https://fortnite-api.com/images/cosmetics/br/cid_349_athena_commando_m_banana/smallicon.png'
@@ -133,7 +133,7 @@ export default function TestEcranPage() {
   }
 
   // Lignes : Hz natif + divisions (÷2 / ÷4) comme UFO test
-  const base = hz ?? 165
+  const base = hz ?? 60
   const rows = [
     { key: 'native', fps: base, label: hz ? `Ton écran • ${hz} Hz` : 'Ton écran', hot: true },
     { key: 'd2', fps: base / 2, label: `${Math.round(base / 2)} Hz (÷2)`, hot: false },
@@ -184,7 +184,7 @@ export default function TestEcranPage() {
       // Le -50% vertical est inclus ici (le transform inline écrase la classe).
       const trackW = rowRefs.current[0]?.parentElement?.clientWidth ?? 800
       const span = trackW + 160
-      const b = s.hz ?? 165
+      const b = s.hz ?? 60
       const list = [b, b / 2, b / 4]
       list.forEach((fps, i) => {
         const el = rowRefs.current[i]
@@ -240,8 +240,8 @@ export default function TestEcranPage() {
   }, [])
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-fmx-black text-fmx-white">
-      <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col justify-center gap-1.5 px-5 py-2 lg:px-10">
+    <div className="flex min-h-dvh flex-col overflow-x-clip bg-fmx-black text-fmx-white">
+      <div className="mx-auto flex w-full max-w-[1100px] flex-col justify-center gap-1.5 px-5 py-2 lg:px-10">
         <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-3">
             <Link href="/" className="text-[12px] font-medium text-fmx-gray transition-colors hover:text-white">
@@ -258,8 +258,8 @@ export default function TestEcranPage() {
           </div>
         </div>
 
-        {/* 4 lignes comparatives — plein écran pour tracker jusqu'au bout */}
-        <div className="relative left-1/2 grid w-screen max-w-none shrink-0 -translate-x-1/2 grid-rows-3 gap-1.5">
+        {/* 3 lignes comparatives — plein écran pour tracker jusqu'au bout */}
+        <div className="relative grid w-full shrink-0 grid-rows-3 gap-1.5">
           {rows.map((row, i) => (
             <div key={row.key} className={cn(
               'relative h-[clamp(90px,15dvh,160px)] overflow-hidden border-y bg-[#050508]',

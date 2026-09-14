@@ -18,7 +18,7 @@ interface AdminOrderDetail extends OrderDetailData {
 }
 
 const STATUS: Record<string, { label: string; variant: 'green' | 'yellow' | 'red' | 'gray' }> = {
-  COMPLETED: { label: 'Payée', variant: 'green' },
+  COMPLETED: { label: 'Terminée', variant: 'green' },
   PAID: { label: 'Payée', variant: 'green' },
   PENDING: { label: 'En attente de preuve', variant: 'yellow' },
   CANCELLED: { label: 'Annulée', variant: 'red' },
@@ -107,8 +107,8 @@ export default function AdminOrderDetailPage({ params }: { params: Promise<{ id:
   }
 
   const st = STATUS[order.status] || { label: order.status, variant: 'gray' as const }
-  const pseudo = order.user.discordUsername || order.user.discordGlobalName || null
-  const clientLabel = `${pseudo ? `@${pseudo}` : order.user.email} • ${order.user.email}`
+  const pseudo = order.user.discordGlobalName || order.user.discordUsername || null
+  const clientLabel = pseudo ? `@${pseudo} • ${order.user.email}` : order.user.email
 
   return (
     <OrderDetailView

@@ -15,7 +15,7 @@ const steps = [
     icon: SearchCheck,
     step: 'Étape 2',
     title: 'Analyse & avis honnête',
-    desc: "L'équipe analyse ton rapport et te dit franchement ce qui bride ton PC, les gains attendus et si une opti vaut le coup pour ta config. Jamais de chiffres garantis.",
+    desc: "L'équipe analyse ton rapport et te dit franchement ce qui bride ton PC, les gains attendus et si une opti vaut le coup pour ta config. L'estimateur donne des projections indicatives, jamais une garantie de chiffres.",
   },
   {
     icon: CreditCard,

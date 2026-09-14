@@ -94,8 +94,8 @@ export function OrderChat({ orderId, compact = false, className }: { orderId: st
       <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
         {messages.length === 0 && !failed && (
           <p className="mx-auto max-w-[420px] py-6 text-center text-[13px] leading-relaxed text-fmx-gray">
-            Pour démarrer : <b className="text-white">envoie ici ta capture de paiement</b> (ou dans
-            ton ticket Discord) avec ton pseudo en note, puis pose tes questions —
+            Pour démarrer : <b className="text-white">décris ton paiement ici</b> (montant + pseudo
+            en note) et <b className="text-white">envoie ta capture dans ton ticket Discord</b> —
             le staff te répond sur cette commande.
           </p>
         )}
@@ -134,7 +134,7 @@ export function OrderChat({ orderId, compact = false, className }: { orderId: st
             }}
             placeholder="Écris ton message…"
             maxLength={2000}
-            className="max-h-[180px] min-h-[76px] flex-1 resize-none overflow-y-auto rounded-2xl border border-white/[0.08] bg-[#0f0f12] px-4 py-3 text-[14px] leading-relaxed text-white placeholder:text-fmx-gray focus:border-fmx-red/50 focus:outline-none"
+            className="max-h-[180px] min-h-[76px] flex-1 resize-none overflow-y-auto rounded-2xl border border-white/[0.08] bg-[#0f0f12] px-4 py-3 text-[16px] leading-relaxed text-white placeholder:text-fmx-gray focus:border-fmx-red/50 focus:outline-none sm:text-[14px]"
           />
           <button
             onClick={send}

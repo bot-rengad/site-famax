@@ -149,16 +149,27 @@ export function PcViewer3D({
       canvas.removeEventListener('pointerdown', onDown)
       window.removeEventListener('pointerup', onUp)
       window.removeEventListener('pointermove', onMove)
+      // Nettoyage GPU complet : géométries + matériaux + texture logo
+      pcGroup.traverse(obj => {
+        const mesh = obj as THREE.Mesh
+        if (mesh.geometry) mesh.geometry.dispose()
+        const mat = (mesh as THREE.Mesh).material as THREE.Material | THREE.Material[] | undefined
+        if (Array.isArray(mat)) mat.forEach(m => m.dispose())
+        else if (mat) mat.dispose()
+      })
+      logoTex.dispose()
+      grid.geometry.dispose()
+      ;(grid.material as THREE.Material).dispose()
       renderer.dispose()
       scene.clear()
     }
   }, [])
 
-  const fpsColor = fps > 260 ? '#22c55e' : fps > 150 ? '#ffffff' : '#fbbf24'
+  const fpsColor = fps >= 240 ? '#22c55e' : fps >= 120 ? '#ffffff' : '#fbbf24'
 
   return (
     <div ref={containerRef} className="relative flex h-full min-h-[240px] items-center justify-center overflow-hidden rounded-[20px] border border-white/[0.08] bg-[#0a0a0c]">
-      <canvas ref={canvasRef} className="block h-full w-full" />
+      <canvas ref={canvasRef} className="block h-full w-full touch-pan-y" style={{ touchAction: 'pan-y' }} />
       <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-[18px]">
         <div className="flex items-start justify-between">
           <div className="max-w-[55%] rounded-full border border-fmx-red/30 bg-fmx-red/15 px-2.5 py-1.5 text-[11px] font-bold tracking-[0.08em] text-fmx-red">
@@ -177,11 +188,11 @@ export function PcViewer3D({
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-2.5 text-[11px] uppercase tracking-[0.12em] text-fmx-gray">
-          <span className="inline-block h-2 w-2 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e]" />
+        <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.12em] text-fmx-gray">
+          <span className="inline-block h-2 w-2 shrink-0 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e]" />
           La tour accélère avec ton gain
           <span className="ml-auto rounded-full border border-white/[0.08] bg-white/[0.08] px-2.5 py-1.5">
-            Drag pour tourner →
+            Glisse pour tourner
           </span>
         </div>
       </div>

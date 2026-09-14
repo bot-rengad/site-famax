@@ -84,7 +84,7 @@ export function Pricing({ selectedPlan, onSelect, onOrder }: PricingProps) {
         </p>
       </div>
 
-      <div className="mx-auto mt-10 grid max-w-[1080px] gap-5 md:grid-cols-3">
+      <div className="mx-auto mt-10 grid max-w-[1080px] gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {plans.map(plan => {
           const isSelected = selectedPlan === plan.id
           return (
@@ -92,12 +92,13 @@ export function Pricing({ selectedPlan, onSelect, onOrder }: PricingProps) {
               key={plan.id}
               onClick={() => onSelect(plan.id)}
               className={cn(
-                'fmx-window fmx-window-hover relative flex cursor-pointer flex-col rounded-2xl p-7',
-                isSelected && 'border-fmx-red shadow-[0_0_40px_rgba(255,26,26,0.15)]'
+                'fmx-window fmx-window-hover relative flex cursor-pointer flex-col rounded-2xl p-5 sm:p-7',
+                isSelected && 'border-fmx-red shadow-[0_0_40px_rgba(255,26,26,0.15)]',
+                plan.id === 'ULTIME' && 'sm:col-span-2 lg:col-span-1'
               )}
             >
               {plan.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-fmx-red px-3.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.14em] text-white shadow-[0_8px_24px_rgba(255,26,26,0.4)]">
+                <div className="absolute -top-3 left-1/2 max-w-[calc(100%-2rem)] -translate-x-1/2 rounded-full bg-fmx-red px-3.5 py-1 text-center text-[10px] font-extrabold uppercase leading-tight tracking-[0.14em] text-white shadow-[0_8px_24px_rgba(255,26,26,0.4)]">
                   ★ Le plus choisi
                 </div>
               )}
@@ -171,24 +172,19 @@ export function Pricing({ selectedPlan, onSelect, onOrder }: PricingProps) {
         <div className="mt-4 flex flex-wrap justify-center gap-3">
           <button
             onClick={() => onOrder(selectedPlan ?? 'COMPLET')}
-            className="rounded-full bg-fmx-red px-6 py-3 text-sm font-bold text-white shadow-[0_10px_28px_rgba(255,26,26,0.35)] transition-all duration-150 hover:-translate-y-px hover:shadow-[0_0_28px_rgba(255,26,26,0.55)]"
+            className="min-h-[44px] rounded-full bg-fmx-red px-6 py-3 text-sm font-bold text-white shadow-[0_10px_28px_rgba(255,26,26,0.35)] transition-all duration-150 hover:-translate-y-px hover:shadow-[0_0_28px_rgba(255,26,26,0.55)]"
           >
             Commander{selectedPlan ? ` — ${PLAN_LABEL[selectedPlan]}` : ' — Pack Complet'} →
-          </button>
-          <button
-            onClick={() => onOrder(selectedPlan ?? 'COMPLET')}
-            className="rounded-full border border-white/15 bg-white/[0.06] px-6 py-3 text-sm font-semibold text-white transition-all duration-150 hover:-translate-y-px hover:border-fmx-red/40 hover:bg-white/[0.12]"
-          >
-            Passer au paiement →
           </button>
         </div>
         <p className="mx-auto mt-4 max-w-[720px] text-[12px] leading-relaxed text-fmx-gray">
           <b className="text-white">PayPal • Virement SEPA</b> — les coordonnées exactes s’affichent
           après ta commande, à l’étape paiement.
           <br />
-          Aucun remboursement une fois le travail commencé
-          (sauf si aucune différence constatée). Suivi garanti 30 jours. Fin du support
-          en cas de réinitialisation du PC sans nous prévenir.
+          Aucun remboursement une fois le travail commencé. Si aucune différence mesurable
+          n’est constatée après l’intervention, le staff réévalue au cas par cas.
+          Suivi 30 jours inclus (à vie pour le Pack Ultime ou l’option suivi à vie). Le support
+          peut s’arrêter si tu réinitialises ton PC sans prévenir.
         </p>
       </div>
     </section>

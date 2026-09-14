@@ -34,7 +34,7 @@ export function CookieBanner() {
       role="dialog"
       aria-live="polite"
       aria-label="Consentement aux cookies"
-      className="fixed inset-x-4 bottom-24 z-[70] mx-auto max-w-[560px] rounded-2xl border border-white/[0.1] bg-[#101012] p-5 shadow-[0_18px_48px_rgba(0,0,0,0.6)] md:bottom-6 md:left-auto md:right-6 md:mx-0"
+      className="fixed inset-x-4 bottom-36 z-[70] mx-auto max-w-[560px] rounded-2xl border border-white/[0.1] bg-[#101012] p-5 shadow-[0_18px_48px_rgba(0,0,0,0.6)] sm:bottom-28 md:bottom-6 md:left-auto md:right-6 md:mx-0"
     >
       <p className="text-[13px] font-bold text-white">Cookies & confidentialité</p>
       <p className="mt-1.5 text-[12px] leading-relaxed text-fmx-gray">

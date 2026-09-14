@@ -14,7 +14,7 @@ type PackId = 'BASIC' | 'COMPLET' | 'ULTIME'
 
 const VALID_PACKS: PackId[] = ['BASIC', 'COMPLET', 'ULTIME']
 
-const STEPS = ['Pack & options', 'Paiement', 'Suivi & chat']
+const STEPS = ['Pack & options', 'Paiement']
 
 function CopyBtn({ text, label = 'Copier' }: { text: string; label?: string }) {
   const [done, setDone] = useState(false)
@@ -25,7 +25,7 @@ function CopyBtn({ text, label = 'Copier' }: { text: string; label?: string }) {
         setDone(true)
         setTimeout(() => setDone(false), 1500)
       }}
-      className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-[11px] font-bold text-white transition-colors hover:bg-white/[0.12]"
+      className="inline-flex min-h-[36px] shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-[12px] font-bold text-white transition-colors hover:bg-white/[0.12]"
     >
       {done ? <Check className="h-3.5 w-3.5 text-green-400" /> : <Copy className="h-3.5 w-3.5" />}
       {done ? 'Copié !' : label}
@@ -66,7 +66,7 @@ function OrderContent() {
       .then((data: any) => {
         const u = data?.user
         if (u) {
-          setPseudo(u.discordUsername || u.discordGlobalName || null)
+          setPseudo(u.discordGlobalName || u.discordUsername || null)
           setDiscordLinked(!!u.discordVerifiedAt)
         }
       })
@@ -75,7 +75,7 @@ function OrderContent() {
       .then(r => (r.ok ? r.json() : {}))
       .then((data: any) => {
         const first = data?.orders?.[0]
-        if (first && first.status === 'PENDING') {
+        if (first && (first.status === 'PENDING' || first.status === 'PAID')) {
           setPendingOrder({ id: first.id, orderNumber: first.orderNumber, amount: first.amount })
         }
       })
@@ -117,10 +117,10 @@ function OrderContent() {
         {step === 1 && <p className="mt-1 text-[13px] text-fmx-white-dim">3 étapes, 2 minutes : tu choisis, tu paies, tu discutes avec le staff.</p>}
       </div>
 
-      {/* Indicateur d'étapes */}
-      <ol className="grid shrink-0 grid-cols-3 gap-2">
+      {/* Indicateur d'étapes — le suivi + chat arrive après redirection */}
+      <ol className="grid shrink-0 grid-cols-2 gap-2">
         {STEPS.map((label, i) => {
-          const n = (i + 1) as 1 | 2 | 3
+          const n = (i + 1) as 1 | 2
           const done = n < step
           const current = n === step
           return (
@@ -292,11 +292,11 @@ function OrderContent() {
               <CardHeader className="mb-3 flex flex-row flex-wrap items-center justify-between gap-2">
                 <CardTitle className="text-[17px]">3. Paie {total}€, puis confirme</CardTitle>
                 {/* Choix du moyen */}
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => setMethod('PAYPAL')}
                     className={cn(
-                      'inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-[13px] font-bold transition-all',
+                      'inline-flex min-h-[44px] items-center gap-1.5 rounded-full border px-4 py-2.5 text-[13px] font-bold transition-all',
                       method === 'PAYPAL' ? 'border-fmx-red bg-fmx-red/[0.12] text-white' : 'border-white/[0.1] text-fmx-gray hover:text-white'
                     )}
                   >
@@ -305,7 +305,7 @@ function OrderContent() {
                   <button
                     onClick={() => setMethod('BANK_TRANSFER')}
                     className={cn(
-                      'inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-[13px] font-bold transition-all',
+                      'inline-flex min-h-[44px] items-center gap-1.5 rounded-full border px-4 py-2.5 text-[13px] font-bold transition-all',
                       method === 'BANK_TRANSFER' ? 'border-fmx-red bg-fmx-red/[0.12] text-white' : 'border-white/[0.1] text-fmx-gray hover:text-white'
                     )}
                   >
@@ -342,11 +342,11 @@ function OrderContent() {
                       <span className="rounded-full bg-[#003087]/40 px-2.5 py-1 text-[12px] font-extrabold uppercase tracking-wide text-blue-200">Amis & Proches</span>{' '}
                       à :
                     </p>
-                    <div className="mx-auto mt-3 flex w-full max-w-[480px] items-center justify-between gap-3 rounded-lg bg-black/60 px-4 py-3 font-mono text-[14px] text-white">
-                      <span className="truncate">{PAYPAL_NAME}</span>
+                    <div className="mx-auto mt-3 flex w-full max-w-[480px] flex-wrap items-center justify-between gap-3 rounded-lg bg-black/60 px-4 py-3 font-mono text-[14px] text-white">
+                      <span className="min-w-0 flex-1 truncate">{PAYPAL_NAME}</span>
                       <span className="flex shrink-0 items-center gap-2">
                         <CopyBtn text={PAYPAL_LINK} />
-                        <a href={PAYPAL_LINK} target="_blank" rel="noreferrer" className="rounded-full bg-[#0070BA] px-4 py-2 font-sans text-[12px] font-bold text-white hover:brightness-110">
+                        <a href={PAYPAL_LINK} target="_blank" rel="noreferrer" className="inline-flex min-h-[40px] items-center rounded-full bg-[#0070BA] px-4 py-2 font-sans text-[12px] font-bold text-white hover:brightness-110">
                           Ouvrir →
                         </a>
                       </span>
@@ -359,10 +359,10 @@ function OrderContent() {
                   <div className="mt-3 flex flex-col rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 lg:p-5">
                     <b className="text-[14px] text-white">🇧🇪 SEPA Instantané — {total}€</b>
                     <div className="mt-3 grid gap-2 text-[13px]">
-                      <div className="flex flex-wrap items-center gap-x-2 border-b border-white/[0.06] pb-2">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-2 border-b border-white/[0.06] pb-2">
                         <span className="text-fmx-gray">IBAN</span>
-                        <code className="break-all font-mono text-white">{IBAN_DISPLAY}</code>
-                        <button onClick={() => navigator.clipboard.writeText(IBAN_RAW).catch(() => {})} className="text-[12px] font-bold text-fmx-gray underline hover:text-white">copier IBAN</button>
+                        <code className="min-w-0 flex-1 break-all font-mono text-white">{IBAN_DISPLAY}</code>
+                        <button onClick={() => navigator.clipboard.writeText(IBAN_RAW).catch(() => {})} className="inline-flex min-h-[36px] items-center px-2 text-[13px] font-bold text-fmx-gray underline hover:text-white">Copier l’IBAN</button>
                       </div>
                       <div className="flex justify-between border-b border-white/[0.06] pb-2"><span className="text-fmx-gray">Titulaire</span><span className="text-white">{TITULAIRE}</span></div>
                       <div className="flex justify-between"><span className="text-fmx-gray">Motif / Référence</span><span className="font-bold text-white">{pseudo ? `@${pseudo}` : 'ton pseudo Discord'}</span></div>
@@ -375,7 +375,7 @@ function OrderContent() {
                 {/* Rappel 3 étapes — 1 ligne */}
                 <p className="mt-3 text-center text-[12px] leading-relaxed text-fmx-gray">
                   1. Paie <b className="text-white">{total}€</b> avec <b className="text-white">{pseudo ? `@${pseudo}` : 'ton pseudo'}</b> en note
-                  {' '}→ 2. Coche « J&apos;ai payé » à droite
+                  {' '}→ 2. Coche « J&apos;ai payé » ci-dessous
                   {' '}→ 3. Envoie la capture dans ton ticket
                 </p>
               </CardContent>

@@ -31,7 +31,7 @@ const syne = Syne({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://famaxopti.vercel.app'),
   title: {
     default: 'FMX Optimisation — Optimisation PC Gaming Premium',
     template: '%s | FMX Optimisation',
@@ -94,7 +94,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
       </head>
-      <body className="min-h-screen bg-fmx-black text-fmx-white antialiased">
+      <body className="min-h-screen overflow-x-clip bg-fmx-black text-fmx-white antialiased">
         {children}
       </body>
     </html>

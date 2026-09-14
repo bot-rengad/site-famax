@@ -29,7 +29,7 @@ export default function DashboardLayout({
         const u = data?.user
         if (u) {
           setMe({
-            pseudo: u.discordGlobalName || u.discordUsername || u.name || u.email.split('@')[0],
+            pseudo: u.discordGlobalName || u.discordUsername || u.name || (u.email ? u.email.split('@')[0] : 'Client'),
             avatar: u.discordAvatar || null,
             role: u.role || 'USER',
           })
@@ -99,7 +99,7 @@ export default function DashboardLayout({
             )}
             <button
               onClick={() => { window.location.href = '/api/auth/logout' }}
-              className="rounded-full border border-white/10 p-2.5 text-fmx-gray transition-colors hover:bg-white/[0.06] hover:text-white"
+              className="inline-flex min-h-[44px] min-w-[44px] place-content-center items-center rounded-full border border-white/10 p-2.5 text-fmx-gray transition-colors hover:bg-white/[0.06] hover:text-white"
               title="Déconnexion"
               aria-label="Déconnexion"
             >

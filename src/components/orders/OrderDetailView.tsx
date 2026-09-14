@@ -50,7 +50,7 @@ function CopyBtn({ text, label = 'Copier' }: { text: string; label?: string }) {
         setDone(true)
         setTimeout(() => setDone(false), 1500)
       }}
-      className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-[11px] font-bold text-white transition-all duration-150 hover:scale-105 hover:bg-white/[0.12] hover:shadow-[0_0_14px_rgba(255,26,26,0.25)]"
+      className="inline-flex min-h-[36px] shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-[12px] font-bold text-white transition-all duration-150 hover:scale-105 hover:bg-white/[0.12] hover:shadow-[0_0_14px_rgba(255,26,26,0.25)]"
     >
       {done ? <Check className="h-3.5 w-3.5 text-green-400" /> : <Copy className="h-3.5 w-3.5" />}
       {done ? 'Copié !' : label}
@@ -82,9 +82,11 @@ export function OrderDetailView({
     .map(aid => ADDONS.find(a => a.id === aid))
     .filter((a): a is (typeof ADDONS)[number] => !!a)
   const isPaypal = order.paymentMethod === 'PAYPAL'
+  const isTransfer = order.paymentMethod === 'BANK_TRANSFER'
   const packName = pack?.name || order.packageType
-  const methodLabel = isPaypal ? 'PayPal' : 'Virement'
+  const methodLabel = isPaypal ? 'PayPal' : isTransfer ? 'Virement' : 'Paiement'
   const pseudoNote = pseudo ? `@${pseudo}` : 'ton pseudo Discord'
+  const pseudoCopy = pseudo ? `@${pseudo}` : ''
 
   const steps = [
     {
@@ -160,7 +162,7 @@ export function OrderDetailView({
         <Link href={backHref} className="text-[13px] text-fmx-gray transition-all duration-150 hover:text-white">{backLabel}</Link>
         <div className="mt-2 flex flex-wrap items-center gap-3">
           <h1 className="font-display text-display-sm text-fmx-white">
-            Commande <code className="break-all font-mono">{order.orderNumber}</code>
+            Commande <code className="break-words font-mono">{order.orderNumber}</code>
           </h1>
           <Badge variant={statusVariant} dot>{statusLabel}</Badge>
           {!isAdmin && order.status === 'PENDING' && (
@@ -210,7 +212,7 @@ export function OrderDetailView({
 
       <div className="grid items-start gap-4 xl:h-[calc(100dvh-360px)] xl:min-h-[500px] xl:grid-cols-[minmax(0,1fr)_380px] xl:overflow-hidden">
         {/* Chat — à gauche, remplit la hauteur de l'écran */}
-        <Card variant="glass" padding="lg" className="flex min-w-0 flex-col xl:h-full xl:min-h-0">
+          <Card variant="glass" padding="lg" className="flex min-w-0 flex-col xl:h-full xl:min-h-0">
           <CardHeader className="mb-4 shrink-0">
             <CardTitle className="flex items-center gap-2 text-base">
               <MessageCircle className="h-5 w-5 text-fmx-red" />
@@ -219,7 +221,7 @@ export function OrderDetailView({
             </CardTitle>
           </CardHeader>
           <CardContent className="flex min-h-0 flex-1 flex-col">
-            <OrderChat orderId={order.id} className="h-[540px] max-h-none flex-1 xl:h-full xl:min-h-0" />
+            <OrderChat orderId={order.id} className="h-[420px] max-h-none flex-1 sm:h-[480px] xl:h-full xl:min-h-0" />
           </CardContent>
         </Card>
 
@@ -251,12 +253,12 @@ export function OrderDetailView({
                 {addonItems.length === 0 && (
                   <p className="text-[12px] text-fmx-gray">Sans option.</p>
                 )}
-                {isAdmin && paid && licenseKey && (
+                {paid && licenseKey && (
                   <div className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-green-500/25 bg-green-500/[0.06] px-3 py-2">
                     <span className="text-fmx-gray">Licence</span>
-                    <span className="flex items-center gap-2">
+                    <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
                       <code className="break-all font-mono text-[11px] text-green-300">{licenseKey}</code>
-                      <CopyBtn text={licenseKey} label="Copy" />
+                      <CopyBtn text={licenseKey} label="Copier" />
                     </span>
                   </div>
                 )}
@@ -280,20 +282,20 @@ export function OrderDetailView({
                       <div className="text-[11px] uppercase tracking-wider text-blue-300">Envoyer uniquement en</div>
                       <div className="text-[15px] font-extrabold text-white">AMIS & PROCHES</div>
                     </div>
-                    <code className="flex items-center justify-between gap-2 rounded-lg bg-black/60 px-4 py-2.5 font-mono text-[13px] text-white">
-                      <span className="truncate">{PAYPAL_NAME}</span>
-                      <CopyBtn text={PAYPAL_LINK} label="Copy" />
+                    <code className="flex min-w-0 items-center justify-between gap-2 rounded-lg bg-black/60 px-4 py-2.5 font-mono text-[13px] text-white">
+                      <span className="min-w-0 flex-1 truncate">{PAYPAL_NAME}</span>
+                      <CopyBtn text={PAYPAL_LINK} label="Copier" />
                     </code>
                     <div className="flex flex-wrap justify-center gap-2">
                       <a
                         href={PAYPAL_LINK}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-full bg-[#0070BA] px-5 py-2.5 text-[13px] font-bold text-white transition-all duration-150 hover:scale-105 hover:shadow-[0_0_18px_rgba(0,112,186,0.6)]"
+                        className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-[#0070BA] px-5 py-2.5 text-[13px] font-bold text-white transition-all duration-150 hover:scale-105 hover:shadow-[0_0_18px_rgba(0,112,186,0.6)]"
                       >
                         Ouvrir PayPal <ExternalLink className="h-3.5 w-3.5" />
                       </a>
-                      <CopyBtn text={pseudo ?? ''} label={pseudo ? `Copier @${pseudo}` : 'Pseudo Discord'} />
+                      <CopyBtn text={pseudoCopy} label={pseudo ? `Copier @${pseudo}` : 'Pseudo Discord'} />
                     </div>
                     <p className="rounded-lg border border-fmx-red/25 bg-fmx-red/[0.07] p-2.5 text-[12px] leading-relaxed text-white">
                       Note du paiement = <b className="text-fmx-red">{pseudoNote}</b>
@@ -304,9 +306,9 @@ export function OrderDetailView({
                   <div className="grid gap-1.5 text-[13px]">
                     <div className="flex items-center justify-between gap-2 border-b border-white/[0.06] pb-1.5">
                       <span className="text-fmx-gray">IBAN</span>
-                      <span className="flex items-center gap-2">
+                      <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
                         <code className="break-all font-mono text-[12px] text-white">{IBAN_DISPLAY}</code>
-                        <CopyBtn text={IBAN_RAW} label="Copy" />
+                        <CopyBtn text={IBAN_RAW} label="Copier" />
                       </span>
                     </div>
                     <div className="flex justify-between border-b border-white/[0.06] pb-1.5"><span className="text-fmx-gray">Titulaire</span><span className="text-white">{TITULAIRE}</span></div>
@@ -315,7 +317,7 @@ export function OrderDetailView({
                       <span className="text-fmx-gray">Motif</span>
                       <span className="flex items-center gap-2">
                         <b className="text-white">{pseudoNote}</b>
-                        {pseudo && <CopyBtn text={pseudo} label="Copier" />}
+                        {pseudo && <CopyBtn text={pseudoCopy} label="Copier" />}
                       </span>
                     </div>
                     <p className="rounded-lg border border-fmx-red/25 bg-fmx-red/[0.07] p-2.5 text-center text-[12px] font-bold text-white">

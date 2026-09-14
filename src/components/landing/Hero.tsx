@@ -5,7 +5,7 @@ import { ShieldCheck, Timer, Headset, Wallet, CreditCard, Zap, Cpu } from 'lucid
 // Hero style FMX — badge / gros titre / sous-titre / 2 CTA / 3 infos / trusted row
 export function Hero({ onOrder }: { onOrder?: () => void }) {
   return (
-    <header className="relative mx-auto max-w-[1280px] px-5 pb-14 pt-32 text-center lg:px-10 lg:pt-40">
+    <header className="relative mx-auto max-w-[1280px] px-5 pb-14 pt-24 text-center lg:px-10 lg:pt-40">
       <div className="relative z-10 mx-auto max-w-[820px]">
         {/* Badge top */}
         <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-fmx-gray">
@@ -21,16 +21,16 @@ export function Hero({ onOrder }: { onOrder?: () => void }) {
           Ton PC, <span className="text-fmx-red">débloqué.</span>
         </h1>
 
-        <p className="mx-auto mt-5 max-w-[620px] text-[15px] leading-relaxed text-fmx-gray">
+        <p className="mx-auto mt-5 max-w-[620px] text-balance text-[15px] leading-relaxed text-fmx-gray">
           Portail d&apos;optimisation premium — analyse de ton UserDiag et avis du staff avant de payer,
-          intervention à distance en 15 min. <b className="text-white">Aucun chiffre garanti</b>,
+          intervention à distance (~15 min selon pack). <b className="text-white">Aucun chiffre garanti</b>,
           aucun abonnement, zéro attente.
         </p>
 
         {/* 2 CTA */}
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <a
-            href="#plans"
+            href="/#plans"
             className="inline-flex items-center gap-2 rounded-full bg-fmx-red px-7 py-3.5 text-sm font-bold text-white shadow-[0_12px_32px_rgba(255,26,26,0.35)] transition-transform hover:-translate-y-0.5"
           >
             Voir les plans →
@@ -47,8 +47,8 @@ export function Hero({ onOrder }: { onOrder?: () => void }) {
         {/* 3 infos */}
         <div className="mx-auto mt-10 grid max-w-[680px] grid-cols-1 gap-3 sm:grid-cols-3">
           {[
-            { icon: Timer, label: 'Intervention', value: '15 min à distance' },
-            { icon: Headset, label: 'Support', value: 'Discord 24/7' },
+            { icon: Timer, label: 'Intervention', value: 'À distance ~15 min' },
+            { icon: Headset, label: 'Support', value: 'Discord réactif' },
             { icon: Wallet, label: 'Paiement', value: 'PayPal • Virement' },
           ].map(item => (
             <div

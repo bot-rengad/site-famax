@@ -15,10 +15,10 @@ export default function MentionsLegales() {
         Mentions Légales
       </h1>
       <div className="mt-8 grid gap-6 text-[14px] leading-relaxed text-fmx-gray">
-        <section className="fmx-window rounded-2xl p-6">
+        <section className="fmx-window rounded-2xl p-5 sm:p-6">
           <h2 className="mb-2 font-bold text-white">Éditeur du site</h2>
           <p>
-            FMX Optimisation — service d’optimisation PC en ligne.
+            FMX Optimisation — service d’optimisation PC en ligne, exploité par un particulier.
             <br />
             Contact : serveur Discord <a href="https://discord.gg/fmx" target="_blank" rel="noreferrer" className="text-fmx-red hover:underline">discord.gg/fmx</a> (réponse du staff).
           </p>

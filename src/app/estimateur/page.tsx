@@ -15,8 +15,8 @@ export default function EstimateurPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-fmx-black text-fmx-white [@media(min-height:820px)]:h-dvh [@media(min-height:820px)]:overflow-hidden">
-      <div className="mx-auto w-full max-w-[1280px] shrink-0 px-5 pt-3 lg:px-10">
+    <div className="flex min-h-screen flex-col bg-fmx-black text-fmx-white">
+      <div className="mx-auto w-full max-w-[1280px] shrink-0 px-5 pb-24 pt-3 sm:pb-6 lg:px-10">
         <Link href="/" className="text-[13px] font-medium text-fmx-gray transition-colors hover:text-white">
           ← Accueil du site
         </Link>

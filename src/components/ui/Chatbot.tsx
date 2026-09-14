@@ -59,7 +59,7 @@ export function Chatbot() {
     setLoading(true)
 
     try {
-      // Contexte optionnel : specs détectées par le scan de la page d'accueil
+      // Contexte optionnel : specs détectées par l'estimateur (/estimateur)
       const context = (window as unknown as { __fmxSpecs?: Record<string, unknown> }).__fmxSpecs
 
       const res = await fetch('/api/chat', {
@@ -67,6 +67,7 @@ export function Chatbot() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: trimmed, context }),
       })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
 
       // Petit délai pour un rendu naturel
@@ -75,10 +76,9 @@ export function Chatbot() {
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         role: 'bot',
-        content: data.reply,
+        content: data.reply || 'Je n’ai pas compris, reformule ou demande sur Discord.',
         quickReplies: data.quickReplies || [],
       }])
-      if (!open) setUnread(true)
     } catch {
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
@@ -131,11 +131,11 @@ export function Chatbot() {
             exit={{ opacity: 0, y: 24, scale: 0.96 }}
             transition={{ duration: 0.2 }}
             className={cn(
-              'fixed bottom-40 right-4 sm:bottom-24 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-96',
+              'fixed bottom-24 right-4 sm:bottom-24 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-96',
               'rounded-2xl overflow-hidden border border-fmx-border/60 shadow-glass flex flex-col',
               'bg-fmx-black-light/95 backdrop-blur-xl'
             )}
-            style={{ maxHeight: 'min(560px, calc(100vh - 8rem))' }}
+            style={{ maxHeight: 'min(560px, calc(100dvh - 7rem))' }}
             role="dialog"
             aria-label="Chat assistant FMX"
           >
@@ -183,7 +183,7 @@ export function Chatbot() {
                           onClick={() => handleQuickReply(qr)}
                           disabled={loading}
                           className={cn(
-                            'px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150',
+                            'px-3.5 py-2 rounded-full text-xs font-medium border transition-all duration-150 min-h-[36px]',
                             'border-fmx-red/40 text-fmx-red hover:bg-fmx-red/10 disabled:opacity-40'
                           )}
                         >
@@ -225,7 +225,7 @@ export function Chatbot() {
                 placeholder="Écris ta question..."
                 maxLength={500}
                 className={cn(
-                  'flex-1 px-4 py-2.5 rounded-xl bg-fmx-carbon/70 border border-fmx-border/50 text-sm text-fmx-white',
+                  'flex-1 px-4 py-2.5 rounded-xl bg-fmx-carbon/70 border border-fmx-border/50 text-[16px] text-fmx-white sm:text-sm',
                   'placeholder:text-fmx-gray focus:outline-none focus:border-fmx-red/50'
                 )}
                 aria-label="Votre message"

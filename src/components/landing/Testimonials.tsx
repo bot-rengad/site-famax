@@ -76,7 +76,7 @@ export function Testimonials() {
                   <div className="min-w-0">
                     <p className="truncate text-[13px] font-bold text-white">{r.author}</p>
                     <p className="truncate text-[11px] text-fmx-gray">
-                      {r.config ? `${r.config} • ` : ''}via Discord • {new Date(r.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      {r.config ? `${r.config} • ` : ''}via Discord • {(() => { const d = new Date(r.date); return isNaN(d.getTime()) ? 'récemment' : d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) })()}
                     </p>
                   </div>
                 </div>
@@ -96,7 +96,7 @@ export function Testimonials() {
           </div>
         </>
       ) : (
-        <div className="fmx-window mx-auto mt-8 grid max-w-[860px] items-center gap-6 p-8 text-center md:grid-cols-[auto_1fr_auto] md:text-left">
+        <div className="fmx-window mx-auto mt-8 grid max-w-[860px] items-center gap-6 p-5 text-center sm:p-8 md:grid-cols-[auto_1fr_auto] md:text-left">
           <div>
             <div className="flex justify-center gap-1 md:justify-start">
               {[...Array(5)].map((_, i) => (
