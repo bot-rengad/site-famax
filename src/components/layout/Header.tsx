@@ -44,7 +44,7 @@ export function Header() {
     return () => observer.disconnect()
   }, [])
 
-  // Ferme le menu mobile au redimensionnement vers desktop
+  // Ferme le menu mobile au redimensionnement vers desktop + verrouille le scroll quand ouvert
   useEffect(() => {
     const onResize = () => {
       if (window.innerWidth >= 1024) setMobileOpen(false)
@@ -52,6 +52,18 @@ export function Header() {
     window.addEventListener('resize', onResize)
     return () => window.removeEventListener('resize', onResize)
   }, [])
+
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : ''
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = ''
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [mobileOpen])
 
   // Utilisateur connecté : pseudo + avatar Discord en haut à droite
   // + lien direct vers sa dernière commande en cours
@@ -88,8 +100,8 @@ export function Header() {
       )}
       aria-label="Navigation principale"
     >
-      <div className="mx-auto flex max-w-[1280px] items-center justify-between px-5 py-3.5 lg:px-10">
-        <Link href="/" aria-label="FMx — Accueil">
+      <div className="mx-auto flex max-w-[1280px] items-center justify-between gap-2 px-4 py-3 sm:px-5 sm:py-3.5 lg:px-10">
+        <Link href="/" aria-label="FMx — Accueil" className="shrink-0">
           <Logo size={30} />
         </Link>
 
@@ -130,7 +142,7 @@ export function Header() {
           </Link>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           {me?.role === 'ADMIN' && (
             <Link
               href="/admin"
@@ -143,18 +155,18 @@ export function Header() {
           {me ? (
             <Link
               href="/dashboard"
-              className="flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.06] py-1.5 pl-1.5 pr-4 transition-colors hover:bg-white/[0.12]"
+              className="flex min-w-0 items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] py-1.5 pl-1.5 pr-3 transition-colors hover:bg-white/[0.12] sm:pr-4"
               aria-label="Mon espace"
             >
               {me.avatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={me.avatar} alt="" width={28} height={28} className="h-7 w-7 rounded-full object-cover" />
+                <img src={me.avatar} alt="" width={28} height={28} className="h-7 w-7 shrink-0 rounded-full object-cover" />
               ) : (
-                <span className="grid h-7 w-7 place-items-center rounded-full bg-fmx-red text-[12px] font-extrabold text-white">
+                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-fmx-red text-[12px] font-extrabold text-white">
                   {me.pseudo.charAt(0).toUpperCase()}
                 </span>
               )}
-              <span className="max-w-[120px] truncate text-[13px] font-bold text-white">{me.pseudo}</span>
+              <span className="max-w-[72px] truncate text-[13px] font-bold text-white min-[400px]:max-w-[120px]">{me.pseudo}</span>
             </Link>
           ) : (
             <>
@@ -167,11 +179,20 @@ export function Header() {
                 </svg>
                 Login Discord
               </a>
+              <a
+                href="/api/auth/discord"
+                aria-label="Login Discord"
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-white/10 bg-[#5865F2] text-white transition-colors hover:bg-[#4752C4] min-[480px]:hidden"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M19.73 4.87a18.2 18.2 0 0 0-4.5-1.42c-.22.4-.42.83-.6 1.27a16.13 16.13 0 0 0-4.56 0c-.18-.44-.38-.87-.6-1.27a18.18 18.18 0 0 0-4.5 1.42C2.53 9.1 1.67 13.2 1.89 17.27a18.43 18.43 0 0 0 5.52 2.78c.44-.6.83-1.23 1.14-1.9a12.4 12.4 0 0 1-1.8-.86c.15-.11.3-.22.44-.35a12.9 12.9 0 0 0 6.6 0c.14.13.29.24.44.35a12.4 12.4 0 0 1-1.8.86c.31.67.7 1.3 1.14 1.9a18.43 18.43 0 0 0 5.52-2.78c.37-4.74-1.02-8.84-1.35-10.4ZM9.39 14.55c-1.02 0-1.86-.94-1.86-2.09 0-1.15.82-2.09 1.86-2.09 1.03 0 1.87.94 1.87 2.09 0 1.15-.84 2.09-1.87 2.09Zm5.16 0c-1.02 0-1.86-.94-1.86-2.09 0-1.15.82-2.09 1.86-2.09 1.03 0 1.87.94 1.87 2.09 0 1.15-.84 2.09-1.87 2.09Z" />
+                </svg>
+              </a>
             </>
           )}
           <Link
             href="/dashboard/order"
-            className="min-h-[44px] place-content-center rounded-full bg-fmx-red px-4 py-2.5 text-[13px] font-bold text-white shadow-[0_8px_24px_rgba(255,26,26,0.35)] transition-transform duration-200 hover:-translate-y-px sm:px-5"
+            className="hidden min-h-[44px] place-content-center rounded-full bg-fmx-red px-4 py-2.5 text-[13px] font-bold text-white shadow-[0_8px_24px_rgba(255,26,26,0.35)] transition-transform duration-200 hover:-translate-y-px min-[400px]:block sm:px-5"
           >
             Commander →
           </Link>
@@ -188,14 +209,15 @@ export function Header() {
 
       {/* Menu mobile */}
       {mobileOpen && (
-        <div className="absolute left-0 right-0 top-full max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-white/[0.08] bg-[#060608]/95 backdrop-blur-xl lg:hidden">
-          <div className="flex flex-col gap-1 px-5 py-4">
+        <div className="absolute left-0 right-0 top-full max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-white/[0.08] bg-[#060608] shadow-[0_24px_48px_rgba(0,0,0,0.6)] lg:hidden">
+          <div className="flex flex-col gap-1 px-4 py-4 sm:px-5">
+            <p className="px-3 pb-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-zinc-500">Naviguer</p>
             {navLinks.map(link => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className="rounded-lg px-3 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-fmx-gray transition-all duration-150 hover:translate-x-1 hover:bg-white/5 hover:text-white hover:shadow-[0_0_16px_rgba(255,26,26,0.15)]"
+                className="rounded-xl px-3 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-fmx-gray transition-all duration-150 hover:translate-x-1 hover:bg-white/5 hover:text-white hover:shadow-[0_0_16px_rgba(255,26,26,0.15)]"
               >
                 {link.label}
               </Link>
@@ -203,45 +225,77 @@ export function Header() {
             <Link
               href="/test-ecran"
               onClick={() => setMobileOpen(false)}
-              className="rounded-lg px-3 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-fmx-gray transition-all duration-150 hover:translate-x-1 hover:bg-white/5 hover:text-white"
+              className="rounded-xl px-3 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-fmx-gray transition-all duration-150 hover:translate-x-1 hover:bg-white/5 hover:text-white"
             >
               Test écran
+            </Link>
+            <Link
+              href="/#avis"
+              onClick={() => setMobileOpen(false)}
+              className="rounded-xl px-3 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-fmx-gray transition-all duration-150 hover:translate-x-1 hover:bg-white/5 hover:text-white"
+            >
+              Avis clients
+            </Link>
+            <Link
+              href="/#faq"
+              onClick={() => setMobileOpen(false)}
+              className="rounded-xl px-3 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-fmx-gray transition-all duration-150 hover:translate-x-1 hover:bg-white/5 hover:text-white"
+            >
+              FAQ
+            </Link>
+            <div className="my-2 border-t border-white/[0.08]" />
+            <p className="px-3 pb-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-zinc-500">Commander</p>
+            <Link
+              href="/dashboard/order"
+              onClick={() => setMobileOpen(false)}
+              className="rounded-xl bg-fmx-red px-3 py-3.5 text-center text-sm font-bold text-white shadow-[0_10px_28px_rgba(255,26,26,0.4)]"
+            >
+              Commander une opti — dès 20€ →
             </Link>
             {me?.role === 'ADMIN' && (
               <Link
                 href="/admin"
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center justify-center gap-2 rounded-lg bg-fmx-red/10 px-3 py-3 text-sm font-bold text-fmx-red hover:bg-fmx-red/20"
+                className="mt-1 flex items-center justify-center gap-2 rounded-xl bg-fmx-red/10 px-3 py-3.5 text-sm font-bold text-fmx-red hover:bg-fmx-red/20"
               >
                 <ShieldCheck className="h-4 w-4" />
                 Panel Admin
               </Link>
             )}
             {me ? (
-              <Link
-                href={latestOrderId ? `/dashboard/orders/${latestOrderId}` : '/dashboard/order'}
-                onClick={() => setMobileOpen(false)}
-                className="rounded-lg bg-fmx-red/10 px-3 py-3 text-sm font-bold text-fmx-red hover:bg-fmx-red/20"
-              >
-                Ma commande →
-              </Link>
+              <>
+                <Link
+                  href={latestOrderId ? `/dashboard/orders/${latestOrderId}` : '/dashboard/order'}
+                  onClick={() => setMobileOpen(false)}
+                  className="rounded-xl bg-fmx-red/10 px-3 py-3.5 text-sm font-bold text-fmx-red hover:bg-fmx-red/20"
+                >
+                  Ma commande →
+                </Link>
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMobileOpen(false)}
+                  className="rounded-xl px-3 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-fmx-gray hover:bg-white/5 hover:text-white"
+                >
+                  Mon espace
+                </Link>
+              </>
             ) : (
-              <Link
-                href="/auth/login"
-                onClick={() => setMobileOpen(false)}
-                className="rounded-lg px-3 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-fmx-gray hover:bg-white/5 hover:text-white"
-              >
-                Espace client
-              </Link>
-            )}
-            {!me && (
-              <a
-                href="/api/auth/discord"
-                onClick={() => setMobileOpen(false)}
-                className="rounded-lg bg-[#5865F2] px-3 py-3 text-center text-sm font-bold text-white min-[480px]:hidden"
-              >
-                Login Discord
-              </a>
+              <>
+                <Link
+                  href="/auth/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="rounded-xl px-3 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-fmx-gray hover:bg-white/5 hover:text-white"
+                >
+                  Espace client
+                </Link>
+                <a
+                  href="/api/auth/discord"
+                  onClick={() => setMobileOpen(false)}
+                  className="rounded-xl bg-[#5865F2] px-3 py-3.5 text-center text-sm font-bold text-white"
+                >
+                  Login Discord
+                </a>
+              </>
             )}
           </div>
         </div>

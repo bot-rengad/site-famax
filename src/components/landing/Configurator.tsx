@@ -285,6 +285,36 @@ export function estimateFpsDetailed(
   return { avg, avgStock, low1, gain, bottleneck, bottleneckPct, stutterRisk }
 }
 
+export interface LatencyResult {
+  before: number
+  after: number
+  saved: number
+  pct: number
+}
+
+// Latence système estimée (clic → image) : temps de frame + file de rendu + surcharge Windows.
+// Modèle indicatif, pas une mesure : l'opti réduit surtout la file d'attente et la surcharge
+// (timer, priorités, réseau), d'où un gain visible même quand les FPS sont déjà hauts.
+//   réf 7800X3D 1080p Complet : ~15.0ms → ~8.9ms (-6.1ms, -41%)
+export function estimateLatency(
+  avgStock: number,
+  avg: number,
+  offer: 20 | 25 | 50,
+  stutterRisk: boolean,
+  resolution: string
+): LatencyResult {
+  const frameBefore = 1000 / Math.max(40, avgStock)
+  const frameAfter = 1000 / Math.max(40, avg)
+  const LATENCY_CUT: Record<20 | 25 | 50, number> = { 20: 4, 25: 6, 50: 8.5 }
+  const overhead = 14 + (stutterRisk ? 4 : 0) + (resolution === '1440p' ? 1.5 : 0)
+  const before = frameBefore + overhead
+  const after = Math.max(3.5, frameAfter + overhead - LATENCY_CUT[offer])
+  const saved = Math.max(0, before - after)
+  const pct = before > 0 ? Math.round((saved / before) * 100) : 0
+  const round1 = (n: number) => Math.round(n * 10) / 10
+  return { before: round1(before), after: round1(after), saved: round1(saved), pct }
+}
+
 
 // ============================================================
 // Configurateur — sélection en cascade marque → gamme → génération → modèle
@@ -331,6 +361,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
   const mhzAdd = mhzOptions[mhzIdx]?.add ?? 0
   const result = estimateFpsDetailed(cpuScore, gpuScore, ram, mhzAdd, game, resolution, offer)
   const fps = result.avg
+  const latency = estimateLatency(result.avgStock, result.avg, offer, result.stutterRisk, resolution)
 
   // Changement de génération CPU : ajuste automatiquement le type de RAM compatible
   const changeCpuGen = (gen: string) => {
@@ -436,7 +467,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
     <section id="config" className="relative mx-auto flex min-h-0 w-full max-w-[1280px] flex-1 flex-col scroll-mt-24 px-5 lg:px-10">
       <div className="mb-3 shrink-0 text-center">
         <h2 className="font-display text-[clamp(22px,3vw,30px)] font-extrabold tracking-tight text-white">
-          Estimateur FPS
+          Estimateur FPS & latence
         </h2>
         <p className="mx-auto mt-1 max-w-[640px] text-[12px] leading-snug text-fmx-gray">
           CPU, GPU, RAM, jeu et résolution — moteur V3 calibré sur benchs réels.
@@ -477,6 +508,31 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
               ⚠ 8 Go de RAM détectés — risque élevé de stutters. 16 Go minimum recommandé pour le compétitif.
             </p>
           )}
+          {/* Latence système estimée — avant / après opti */}
+          <div className="mt-2.5 shrink-0 rounded-xl border border-blue-500/20 bg-blue-500/[0.05] p-3">
+            <div className="flex flex-wrap items-baseline justify-between gap-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-blue-300">Latence système estimée</span>
+              <span className="text-[10px] text-fmx-gray">clic → image • indicatif</span>
+            </div>
+            <div className="mt-2 grid grid-cols-3 gap-2 text-center">
+              <div className="rounded-lg border border-white/[0.08] bg-black/40 p-2">
+                <div className="text-[10px] uppercase tracking-wider text-fmx-gray">Avant</div>
+                <div className="text-[19px] font-extrabold leading-tight text-fmx-gray">{latency.before}<span className="text-[12px] font-bold"> ms</span></div>
+              </div>
+              <div className="rounded-lg border border-green-500/30 bg-green-500/[0.07] p-2">
+                <div className="text-[10px] uppercase tracking-wider text-green-400">Après</div>
+                <div className="text-[19px] font-extrabold leading-tight text-white">{latency.after}<span className="text-[12px] font-bold"> ms</span></div>
+              </div>
+              <div className="rounded-lg border border-fmx-red/30 bg-fmx-red/[0.07] p-2">
+                <div className="text-[10px] uppercase tracking-wider text-fmx-red">Gagnée</div>
+                <div className="text-[19px] font-extrabold leading-tight text-green-400">−{latency.saved}<span className="text-[12px] font-bold"> ms</span></div>
+                <div className="text-[10px] font-bold text-green-400">−{latency.pct}%</div>
+              </div>
+            </div>
+            <p className="mt-1.5 text-center text-[10px] leading-snug text-fmx-gray">
+              Moins de file d’attente + système allégé : tes actions partent plus vite à l’écran.
+            </p>
+          </div>
         </div>
 
         <div className="rounded-[20px] border border-white/[0.08] bg-fmx-carbon p-5">

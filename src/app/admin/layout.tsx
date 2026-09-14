@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import {
   LayoutDashboard, Users, ShoppingCart,
-  LogOut, Loader2, ChevronLeft, ChevronRight, UserCheck,
+  LogOut, Loader2, ChevronLeft, ChevronRight, UserCheck, Menu,
 } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
 import { Logo } from '@/components/ui/Logo'
@@ -36,6 +36,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   // Garde de sécurité : seul un compte ADMIN accède au panel
   useEffect(() => {
+    // Sur mobile on démarre avec le menu fermé (sinon il recouvre tout l'écran)
+    if (window.innerWidth < 1024) setSidebarOpen(false)
     const syncHash = () => setHash(window.location.hash.replace('#', ''))
     syncHash()
     window.addEventListener('hashchange', syncHash)
@@ -63,21 +65,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen bg-fmx-black">
+      {/* Fond assombri mobile quand le menu est ouvert */}
+      {sidebarOpen && (
+        <button
+          aria-label="Fermer le menu admin"
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 z-40 bg-black/60 lg:hidden"
+        />
+      )}
       <aside
         className={cn(
-          'fixed left-0 top-0 h-screen z-50 bg-fmx-black-light/90 backdrop-blur-xl border-r border-white/[0.08] transition-all duration-300 ease-expo',
-          sidebarOpen ? 'w-64' : 'w-20'
+          'fixed left-0 top-0 h-screen z-50 bg-fmx-black-light/95 backdrop-blur-xl border-r border-white/[0.08] transition-all duration-300 ease-expo',
+          // Mobile : tiroir qui sort/rentre. Desktop : réduit à 80px au lieu de recouvrir.
+          sidebarOpen ? 'w-64 translate-x-0' : 'w-64 -translate-x-full lg:w-20 lg:translate-x-0'
         )}
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center justify-between h-16 lg:h-20 px-4 border-b border-white/[0.08]">
-            <Link href="/admin" className="flex items-center gap-3" aria-label="FMX Admin">
-              <Logo size={40} />
+            <Link href="/admin" className="flex min-w-0 flex-1 items-center gap-3" aria-label="FMX Admin" onClick={() => { if (window.innerWidth < 1024) setSidebarOpen(false) }}>
+              <span className="shrink-0"><Logo size={40} /></span>
+              {sidebarOpen && <span className="truncate text-sm font-bold text-white lg:hidden">Admin FMX</span>}
             </Link>
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="hidden lg:block p-1 rounded-lg hover:bg-fmx-carbon transition-colors"
+              className="shrink-0 rounded-lg p-2 hover:bg-fmx-carbon transition-colors min-h-[40px] min-w-[40px] place-content-center"
               aria-label={sidebarOpen ? 'Réduire' : 'Étendre'}
             >
               {sidebarOpen ? <ChevronLeft className="w-5 h-5 text-fmx-white" /> : <ChevronRight className="w-5 h-5 text-fmx-white" />}
@@ -103,6 +115,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     } else {
                       window.location.hash = item.id
                     }
+                    if (window.innerWidth < 1024) setSidebarOpen(false)
                   }}
                   className={cn(
                     'flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 border',
@@ -113,7 +126,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   title={item.label}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
-                  {sidebarOpen && <span className="font-display font-medium text-sm">{item.label}</span>}
+                  <span className={cn('font-display font-medium text-sm', !sidebarOpen && 'lg:hidden')}>{item.label}</span>
                 </a>
               )
             })}
@@ -125,15 +138,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               href="/dashboard"
               className="flex items-center gap-3 px-3 py-2 rounded-lg text-fmx-white-dim hover:text-fmx-white hover:bg-fmx-carbon transition-colors"
             >
-              <LayoutDashboard className="w-5 h-5" />
-              {sidebarOpen && <span className="font-medium">Espace client</span>}
+              <LayoutDashboard className="w-5 h-5 shrink-0" />
+              <span className={cn('font-medium', !sidebarOpen && 'lg:hidden')}>Espace client</span>
             </Link>
             <button
               onClick={() => (window.location.href = '/api/auth/logout')}
               className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-fmx-red hover:bg-fmx-red/10 transition-colors"
             >
-              <LogOut className="w-5 h-5" />
-              {sidebarOpen && <span className="font-medium">Déconnexion</span>}
+              <LogOut className="w-5 h-5 shrink-0" />
+              <span className={cn('font-medium', !sidebarOpen && 'lg:hidden')}>Déconnexion</span>
             </button>
           </div>
         </div>
@@ -142,10 +155,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <main
         className={cn('min-h-screen transition-all duration-300 ease-expo', sidebarOpen ? 'lg:ml-64' : 'lg:ml-20')}
       >
-        <header className="sticky top-0 z-30 bg-fmx-black border-b border-white/[0.08] h-16 flex items-center px-6 lg:px-8">
-          <h1 className="font-display text-heading-lg text-fmx-white">{TAB_TITLES[hash] || 'Administration'}</h1>
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-white/[0.08] bg-fmx-black px-4 sm:px-6 lg:px-8">
+          <button
+            onClick={() => setSidebarOpen(o => !o)}
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/10 text-white transition-colors hover:bg-white/[0.06] lg:hidden"
+            aria-label={sidebarOpen ? 'Fermer le menu admin' : 'Ouvrir le menu admin'}
+            aria-expanded={sidebarOpen}
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+          <h1 className="min-w-0 flex-1 truncate font-display text-heading-lg text-fmx-white">{TAB_TITLES[hash] || 'Administration'}</h1>
         </header>
-        <div className="p-6 lg:p-8">{children}</div>
+        <div className="p-4 sm:p-6 lg:p-8">{children}</div>
       </main>
     </div>
   )
