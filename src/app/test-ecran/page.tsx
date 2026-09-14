@@ -50,7 +50,7 @@ function Starfield({ driftRef }: { driftRef: (el: HTMLDivElement | null) => void
     // (-1280 / 0 / +1280 / +2560) pour une boucle parfaite, quel que soit
     // le décalage — aucun côté ne se vide jamais.
     const P = 1280
-    const H = 112
+    const H = 160
     const mk = (n: number) => {
       const parts: string[] = []
       for (let k = 0; k < n; k++) {
@@ -241,7 +241,7 @@ export default function TestEcranPage() {
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-fmx-black text-fmx-white">
-      <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col gap-1.5 px-5 py-2 lg:px-10">
+      <div className="mx-auto flex h-full min-h-0 w-full max-w-[1100px] flex-col justify-center gap-1.5 px-5 py-2 lg:px-10">
         <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-3">
             <Link href="/" className="text-[12px] font-medium text-fmx-gray transition-colors hover:text-white">
@@ -259,25 +259,25 @@ export default function TestEcranPage() {
         </div>
 
         {/* 4 lignes comparatives — plein écran pour tracker jusqu'au bout */}
-        <div className="relative left-1/2 grid min-h-0 w-screen max-w-none flex-1 -translate-x-1/2 grid-rows-3 gap-1.5">
+        <div className="relative left-1/2 grid w-screen max-w-none shrink-0 -translate-x-1/2 grid-rows-3 gap-1.5">
           {rows.map((row, i) => (
             <div key={row.key} className={cn(
-              'relative min-h-[52px] overflow-hidden border-y bg-[#050508]',
+              'relative h-[clamp(90px,15dvh,160px)] overflow-hidden border-y bg-[#050508]',
               row.hot ? 'border-fmx-red/40' : 'border-white/[0.08]'
             )}
             >
               <Starfield driftRef={el => { driftRefs.current[i] = el }} />
               {/* Gros fps à gauche, comme UFO test */}
-              <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[18px] font-extrabold tracking-tight text-white/90 [text-shadow:0_0_12px_rgba(0,0,0,0.9)]">
-                {Math.round(row.fps)} <span className="text-[13px] font-bold">fps</span>
+              <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[20px] font-extrabold tracking-tight text-white/90 [text-shadow:0_0_12px_rgba(0,0,0,0.9)]">
+                {Math.round(row.fps)} <span className="text-[14px] font-bold">fps</span>
               </span>
               <span className={cn(
-                'absolute left-5 top-2 z-10 rounded-full px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.14em]',
+                'absolute left-5 top-2.5 z-10 rounded-full px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.14em]',
                 row.hot ? 'bg-fmx-red text-white' : 'border border-white/10 bg-black/60 text-fmx-gray'
               )}>
                 {row.label}
               </span>
-              <span className="absolute right-5 top-2 z-10 rounded-full border border-white/10 bg-black/60 px-2.5 py-0.5 font-mono text-[10px] font-bold text-green-400">
+              <span className="absolute right-5 top-2.5 z-10 rounded-full border border-white/10 bg-black/60 px-3 py-1 font-mono text-[11px] font-bold text-green-400">
                 {rates[i] != null ? `${rates[i]} Hz réels` : 'mesure…'}
               </span>
               <div
@@ -289,9 +289,9 @@ export default function TestEcranPage() {
                   <img
                     src={SKIN_URL}
                     alt="Peely Fortnite"
-                    width={48}
-                    height={48}
-                    className="h-[48px] w-[48px] object-contain drop-shadow-[0_0_16px_rgba(255,26,26,0.45)]"
+                    width={56}
+                    height={56}
+                    className="h-[56px] w-[56px] object-contain drop-shadow-[0_0_16px_rgba(255,26,26,0.45)]"
                     onError={() => setSkinOk(false)}
                     draggable={false}
                   />
