@@ -69,9 +69,11 @@ export function Header() {
   // + lien direct vers sa dernière commande en cours (PENDING/PAID uniquement,
   // comme /dashboard/order — pas une vieille CANCELLED/COMPLETED).
   useEffect(() => {
-    // Pas de cookie de session = visiteur anonyme : inutile de taper l'API
+    // Pas de marqueur de session = visiteur anonyme : inutile de taper l'API
     // (évite 2 fetch 401 à chaque visite landing).
-    if (!document.cookie.includes('fmx_session')) return
+    // NOTE : on teste fmx_logged_in (lisible en JS), PAS fmx_session qui est
+    // httpOnly donc invisible pour document.cookie.
+    if (!document.cookie.includes('fmx_logged_in=1')) return
     const ctrl = new AbortController()
     fetch('/api/users/me', { signal: ctrl.signal })
       .then(r => (r.ok ? r.json() : null))
