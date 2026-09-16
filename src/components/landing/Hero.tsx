@@ -22,9 +22,9 @@ export function Hero({ onOrder }: { onOrder?: () => void }) {
         </h1>
 
         <p className="mx-auto mt-5 max-w-[620px] text-balance text-[15px] leading-relaxed text-fmx-gray">
-          Portail d&apos;optimisation premium — analyse de ton UserDiag et avis du staff avant de payer,
-          intervention à distance (~15 min selon pack). <b className="text-white">Aucun chiffre garanti</b>,
-          aucun abonnement, zéro attente.
+          Diagnostic gratuit de ton PC avant de payer : si ton setup n&apos;a rien à gagner, on te le dit
+          et <b className="text-white">tu ne paies rien</b>. Intervention à distance,
+          paiement unique, suivi inclus.
         </p>
 
         {/* 2 CTA */}
