@@ -22,8 +22,8 @@ export function Hero({ onOrder }: { onOrder?: () => void }) {
         </h1>
 
         <p className="mx-auto mt-5 max-w-[620px] text-balance text-[15px] leading-relaxed text-fmx-gray">
-          Diagnostic gratuit de ton PC avant de payer : si ton setup n&apos;a rien à gagner, on te le dit
-          et <b className="text-white">tu ne paies rien</b>. Intervention à distance,
+          Un vrai technicien optimise ton setup <b className="text-white">en direct</b>, avec des réglages
+          pensés pour tes composants — pas un script automatique. Sans risque,
           paiement unique, suivi inclus.
         </p>
 
