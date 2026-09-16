@@ -40,8 +40,16 @@ interface SignedState {
 }
 
 // Signe le paramètre state avec le JWT_SECRET (protection CSRF)
+function getStateSecret(): string {
+  const s = process.env.JWT_SECRET
+  if (!s || s.length < 32) {
+    throw new Error('JWT_SECRET manquant ou trop court pour signer le state OAuth (32+ caractères requis)')
+  }
+  return s
+}
+
 function signState(data: string): string {
-  return createHmac('sha256', process.env.JWT_SECRET || 'fmx-super-secret-key-change-in-production-min-32-chars')
+  return createHmac('sha256', getStateSecret())
     .update(data)
     .digest('base64url')
 }

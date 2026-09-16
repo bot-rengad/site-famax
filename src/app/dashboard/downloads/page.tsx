@@ -29,13 +29,13 @@ interface Script {
 const categoryConfig: Record<string, { icon: any; color: string; label: string; requiredPack: string }> = {
   'SYSTEM_CLEANUP': { icon: Shield, color: 'text-blue-400', label: 'Nettoyage Système', requiredPack: 'BASIC' },
   'TIMER_RESOLUTION': { icon: Zap, color: 'text-yellow-400', label: 'Timer Resolution', requiredPack: 'BASIC' },
-  'POWER_MANAGEMENT': { icon: Cpu, color: 'text-orange-400', label: 'Gestion Alimentation', requiredPack: 'PRO' },
-  'REGISTRY_TWEAKS': { icon: Settings, color: 'text-purple-400', label: 'Registre', requiredPack: 'PRO' },
-  'GPU_OPTIMIZATION': { icon: Cpu, color: 'text-green-400', label: 'GPU / NVIDIA', requiredPack: 'PRO' },
-  'NETWORK_OPTIMIZATION': { icon: Globe, color: 'text-cyan-400', label: 'Réseau', requiredPack: 'PRO' },
-  'GAME_SPECIFIC': { icon: Gamepad2, color: 'text-pink-400', label: 'Jeux Spécifiques', requiredPack: 'PRO' },
+  'POWER_MANAGEMENT': { icon: Cpu, color: 'text-orange-400', label: 'Gestion Alimentation', requiredPack: 'COMPLET' },
+  'REGISTRY_TWEAKS': { icon: Settings, color: 'text-purple-400', label: 'Registre', requiredPack: 'COMPLET' },
+  'GPU_OPTIMIZATION': { icon: Cpu, color: 'text-green-400', label: 'GPU / NVIDIA', requiredPack: 'COMPLET' },
+  'NETWORK_OPTIMIZATION': { icon: Globe, color: 'text-cyan-400', label: 'Réseau', requiredPack: 'COMPLET' },
+  'GAME_SPECIFIC': { icon: Gamepad2, color: 'text-pink-400', label: 'Jeux Spécifiques', requiredPack: 'COMPLET' },
   'DEBLOAT': { icon: Shield, color: 'text-red-400', label: 'Debloat / Privacy', requiredPack: 'BASIC' },
-  'FULL_AUTOMATION': { icon: Zap, color: 'text-fmx-red', label: 'Automatisation Complète', requiredPack: 'ULTIMATE' },
+  'FULL_AUTOMATION': { icon: Zap, color: 'text-fmx-red', label: 'Automatisation Complète', requiredPack: 'ULTIME' },
 }
 
 const categoryOrder = [
@@ -48,7 +48,9 @@ export default function DownloadsPage() {
   const [loading, setLoading] = useState(true)
   const [activeCategory, setActiveCategory] = useState<string>('ALL')
   const [search, setSearch] = useState('')
-  const [userPack, setUserPack] = useState<'BASIC' | 'PRO' | 'ULTIMATE'>('PRO')
+  // Vrais packs FMX : BASIC / COMPLET / ULTIME (jamais PRO/ULTIMATE).
+  // Défaut BASIC = moindre privilège (pas d'accès offert par erreur).
+  const [userPack, setUserPack] = useState<'BASIC' | 'COMPLET' | 'ULTIME'>('BASIC')
   const [modalScript, setModalScript] = useState<Script | null>(null)
   const [downloading, setDownloading] = useState<string | null>(null)
 
@@ -58,6 +60,18 @@ export default function DownloadsPage() {
       .then(data => {
         setScripts(data.scripts || {})
         setLoading(false)
+        // Lien profond depuis l'assistant : /dashboard/downloads?script=<id>
+        try {
+          const q = new URLSearchParams(window.location.search).get('script')
+          if (q) {
+            const all = Object.values((data.scripts || {}) as Record<string, Script[]>).flat()
+            const found = all.find(s => s.id === q)
+            if (found) {
+              setModalScript(found)
+              setActiveCategory(found.category)
+            }
+          }
+        } catch {}
       })
       .catch(() => setLoading(false))
 
@@ -66,7 +80,11 @@ export default function DownloadsPage() {
       .then(res => res.json())
       .then(data => {
         const activeLicense = data.licenses?.find((l: any) => l.status === 'ACTIVE')
-        if (activeLicense) setUserPack(activeLicense.packageType as any)
+        const pkg = (activeLicense?.packageType || 'BASIC') as string
+        if (pkg === 'BASIC' || pkg === 'COMPLET' || pkg === 'ULTIME') setUserPack(pkg)
+        // Compat ascendante si une vieille licence dit encore PRO/ULTIMATE
+        else if (pkg === 'PRO') setUserPack('COMPLET')
+        else if (pkg === 'ULTIMATE') setUserPack('ULTIME')
       })
       .catch(() => {})
   }, [])
@@ -81,8 +99,9 @@ export default function DownloadsPage() {
   })
 
   const getPackLevel = (pack: string) => {
-    const levels = { BASIC: 1, PRO: 2, ULTIMATE: 3 }
-    return levels[pack as keyof typeof levels] || 1
+    // Packs réels : BASIC 1 < COMPLET 2 < ULTIME 3 (+ alias historiques PRO/ULTIMATE).
+    const levels: Record<string, number> = { BASIC: 1, PRO: 2, COMPLET: 2, ULTIMATE: 3, ULTIME: 3 }
+    return levels[pack] || 1
   }
 
   const canAccess = (requiredPack: string) => getPackLevel(userPack) >= getPackLevel(requiredPack)
@@ -137,13 +156,13 @@ export default function DownloadsPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Badge variant={userPack === 'BASIC' ? 'gray' : userPack === 'PRO' ? 'red' : 'yellow'} icon={<Shield className="w-3 h-3" />}>
+          <Badge variant={userPack === 'BASIC' ? 'gray' : userPack === 'COMPLET' ? 'red' : 'yellow'} icon={<Shield className="w-3 h-3" />}>
             Pack {userPack}
           </Badge>
           <span className="text-fmx-white-dim text-sm">
             {userPack === 'BASIC' && 'Mettez à niveau pour accéder aux scripts avancés'}
-            {userPack === 'PRO' && 'Accès complet aux scripts Pro'}
-            {userPack === 'ULTIMATE' && 'Accès illimité + scripts Ultimate'}
+            {userPack === 'COMPLET' && 'Accès complet aux scripts Complet'}
+            {userPack === 'ULTIME' && 'Accès illimité + scripts Ultime'}
           </span>
         </div>
       </motion.div>
@@ -221,7 +240,7 @@ export default function DownloadsPage() {
                       <h2 className="font-display text-heading-lg text-fmx-white">{config.label}</h2>
                       <p className="text-fmx-white-dim text-sm">{catScripts.length} script(s) disponible(s)</p>
                     </div>
-                    <Badge variant={userPack === 'ULTIMATE' || (userPack === 'PRO' && config.requiredPack !== 'ULTIMATE') || (userPack === 'BASIC' && config.requiredPack === 'BASIC') ? 'green' : 'yellow'} size="sm">
+                    <Badge variant={canAccess(config.requiredPack) ? 'green' : 'yellow'} size="sm">
                       {config.requiredPack} requis
                     </Badge>
                   </div>

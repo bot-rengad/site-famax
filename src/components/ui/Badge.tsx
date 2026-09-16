@@ -71,12 +71,12 @@ interface StatusBadgeProps {
 
 export function StatusBadge({ status, type = 'order' }: StatusBadgeProps) {
   const statusConfig: Record<string, { variant: BadgeProps['variant']; label: string }> = {
-    // Orders
-    PENDING: { variant: 'yellow', label: 'En attente' },
-    PAID: { variant: 'blue', label: 'Payé' },
-    COMPLETED: { variant: 'green', label: 'Terminé' },
-    CANCELLED: { variant: 'gray', label: 'Annulé' },
-    REFUNDED: { variant: 'red', label: 'Remboursé' },
+    // Commandes — libellés alignés avec le tunnel client/admin
+    PENDING: { variant: 'yellow', label: 'En attente de preuve' },
+    PAID: { variant: 'green', label: 'Payée' },
+    COMPLETED: { variant: 'green', label: 'Terminée' },
+    CANCELLED: { variant: 'red', label: 'Annulée' },
+    REFUNDED: { variant: 'gray', label: 'Remboursée' },
     // Licenses
     ACTIVE: { variant: 'green', label: 'Active' },
     EXPIRED: { variant: 'gray', label: 'Expirée' },

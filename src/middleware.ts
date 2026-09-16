@@ -32,10 +32,17 @@ const DASHBOARD_PATHS = [
 // en multi-instances derrière un LB, passer sur Redis/Upstash).
 // Fenêtre glissante : max requêtes par IP et par période.
 const RATE_LIMITS: { prefix: string; limit: number; windowMs: number }[] = [
-  { prefix: '/api/auth', limit: 20, windowMs: 60_000 }, // anti brute-force login/OAuth
+  { prefix: '/api/auth', limit: 15, windowMs: 60_000 }, // anti brute-force login/OAuth
   { prefix: '/api/orders', limit: 20, windowMs: 60_000 }, // anti-spam commandes
   { prefix: '/api/chat', limit: 30, windowMs: 60_000 }, // anti-spam chatbot
   { prefix: '/api/tickets', limit: 30, windowMs: 60_000 },
+  { prefix: '/api/admin', limit: 60, windowMs: 60_000 },
+  { prefix: '/api/users', limit: 60, windowMs: 60_000 },
+  { prefix: '/api/licenses', limit: 30, windowMs: 60_000 },
+  { prefix: '/api/scripts', limit: 30, windowMs: 60_000 },
+  { prefix: '/api/ai-assistant', limit: 30, windowMs: 60_000 },
+  { prefix: '/api/reviews', limit: 30, windowMs: 60_000 },
+  { prefix: '/api/checklist', limit: 60, windowMs: 60_000 },
 ]
 
 const hits = new Map<string, number[]>()
@@ -59,7 +66,11 @@ function isRateLimited(ip: string, pathname: string): { limited: boolean; retryA
 }
 
 function clientIp(request: NextRequest): string {
+  // Sur Vercel, l'IP réelle est dans x-forwarded-for (posée par la plateforme).
+  // On prend la DERNIÈRE entrée fiable côté proxy quand dispo, sinon la première.
+  // Le spoof reste possible en direct, mais le rate-limit n'est qu'une 1re barrière.
   return (
+    request.headers.get('x-vercel-forwarded-for')?.split(',')[0]?.trim() ||
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     request.headers.get('x-real-ip') ||
     'unknown'
@@ -93,8 +104,18 @@ function csrfBlocked(request: NextRequest): boolean {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Fichiers statiques : jamais de rate limit ni d'auth
-  if (pathname.startsWith('/_next') || pathname.startsWith('/images') || pathname.startsWith('/scripts') || pathname.includes('.')) {
+  // Fichiers statiques : jamais de rate limit ni d'auth.
+  // On ne matche PLUS sur `includes('.')` (trop large, ex. /api/users/me.json
+  // court-circuitait l'auth) — uniquement les vrais assets Next/public.
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/images') ||
+    pathname.startsWith('/scripts') ||
+    pathname === '/favicon.ico' ||
+    pathname === '/robots.txt' ||
+    pathname === '/sitemap.xml' ||
+    /\.(ico|png|jpg|jpeg|webp|avif|svg|css|js|woff2?)$/.test(pathname)
+  ) {
     return NextResponse.next()
   }
 
@@ -112,23 +133,27 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Permet les chemins publics : '/' exact, sinon préfixe exact (évite que '/' matche tout)
-  const isPublic = PUBLIC_PATHS.some(p => (p === '/' ? pathname === '/' : pathname.startsWith(p)))
+  // Permet les chemins publics : '/' exact, sinon match sur segment complet
+  // (évite que '/api/auth/discord' matche aussi '/api/auth/discord-evil').
+  const matchesPath = (path: string, prefix: string) =>
+    prefix === '/' ? path === '/' : path === prefix || path.startsWith(prefix + '/')
+  const isPublic = PUBLIC_PATHS.some(p => matchesPath(pathname, p))
   if (isPublic) {
     return NextResponse.next()
   }
 
   // Check authentication for dashboard and API routes
-  const isDashboard = DASHBOARD_PATHS.some(p => pathname.startsWith(p))
+  const isDashboard = DASHBOARD_PATHS.some(p => matchesPath(pathname, p))
 
   if (isDashboard) {
     const token = request.cookies.get('fmx_session')?.value
 
     if (!token) {
-      // Redirect to login for dashboard pages
+      // Redirect to login for dashboard pages — en conservant toute la query
+      // (pack, addons...) pour ne pas vider le panier après login.
       if (pathname.startsWith('/dashboard') || pathname.startsWith('/admin')) {
         const loginUrl = new URL('/auth/login', request.url)
-        loginUrl.searchParams.set('redirect', pathname)
+        loginUrl.searchParams.set('redirect', pathname + request.nextUrl.search)
         return NextResponse.redirect(loginUrl)
       }
       // Return 401 for API routes
@@ -138,6 +163,12 @@ export async function middleware(request: NextRequest) {
     // Verify token
     const payload = await verifyToken(token)
     if (!payload) {
+      // Les appels API attendent du JSON, pas une page HTML de login
+      if (pathname.startsWith('/api/')) {
+        const res = NextResponse.json({ error: 'Session expirée' }, { status: 401 })
+        res.cookies.delete('fmx_session')
+        return res
+      }
       const response = NextResponse.redirect(new URL('/auth/login', request.url))
       response.cookies.delete('fmx_session')
       return response

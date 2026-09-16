@@ -43,14 +43,29 @@ interface OrderDetailViewProps {
 
 function CopyBtn({ text, label = 'Copier' }: { text: string; label?: string }) {
   const [done, setDone] = useState(false)
+  const empty = !text
   return (
     <button
-      onClick={() => {
-        navigator.clipboard.writeText(text).catch(() => {})
+      onClick={async () => {
+        if (empty) return
+        try {
+          await navigator.clipboard.writeText(text)
+        } catch {
+          try {
+            const ta = document.createElement('textarea')
+            ta.value = text
+            document.body.appendChild(ta)
+            ta.select()
+            document.execCommand('copy')
+            ta.remove()
+          } catch {}
+        }
         setDone(true)
         setTimeout(() => setDone(false), 1500)
       }}
-      className="inline-flex min-h-[36px] shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-[12px] font-bold text-white transition-all duration-150 hover:scale-105 hover:bg-white/[0.12] hover:shadow-[0_0_14px_rgba(255,26,26,0.25)]"
+      disabled={empty}
+      aria-live="polite"
+      className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-[12px] font-bold text-white transition-all duration-150 hover:scale-105 hover:bg-white/[0.12] hover:shadow-[0_0_14px_rgba(255,26,26,0.25)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
     >
       {done ? <Check className="h-3.5 w-3.5 text-green-400" /> : <Copy className="h-3.5 w-3.5" />}
       {done ? 'Copié !' : label}
@@ -77,14 +92,16 @@ export function OrderDetailView({
   licenseKey = null,
 }: OrderDetailViewProps) {
   const paid = order.status === 'PAID' || order.status === 'COMPLETED'
+  const completed = order.status === 'COMPLETED'
   const pack = PACKAGES.find(p => p.id === order.packageType)
   const addonItems = order.addons
     .map(aid => ADDONS.find(a => a.id === aid))
     .filter((a): a is (typeof ADDONS)[number] => !!a)
   const isPaypal = order.paymentMethod === 'PAYPAL'
   const isTransfer = order.paymentMethod === 'BANK_TRANSFER'
+  const methodKnown = isPaypal || isTransfer
   const packName = pack?.name || order.packageType
-  const methodLabel = isPaypal ? 'PayPal' : isTransfer ? 'Virement' : 'Paiement'
+  const methodLabel = isPaypal ? 'PayPal' : isTransfer ? 'Virement' : 'Paiement (à préciser)'
   const pseudoNote = pseudo ? `@${pseudo}` : 'ton pseudo Discord'
   const pseudoCopy = pseudo ? `@${pseudo}` : ''
 
@@ -120,11 +137,13 @@ export function OrderDetailView({
     {
       icon: MessageCircle,
       title: '4. Ticket Discord + opti',
-      desc: paid
-        ? 'Ouvre un ticket avec ton rapport UserDiag, on planifie ton opti 15 min.'
-        : 'Débloqué après validation du paiement.',
-      done: false,
-      current: paid,
+      desc: completed
+        ? 'Intervention terminée — profite de ton suivi.'
+        : paid
+          ? 'Ouvre un ticket avec ton rapport UserDiag, on planifie ton opti.'
+          : 'Débloqué après validation du paiement.',
+      done: completed,
+      current: paid && !completed,
       locked: !paid,
     },
   ]
@@ -161,8 +180,9 @@ export function OrderDetailView({
       <div>
         <Link href={backHref} className="text-[13px] text-fmx-gray transition-all duration-150 hover:text-white">{backLabel}</Link>
         <div className="mt-2 flex flex-wrap items-center gap-3">
-          <h1 className="font-display text-display-sm text-fmx-white">
+          <h1 className="font-display text-display-sm flex min-w-0 flex-wrap items-center gap-2 text-fmx-white">
             Commande <code className="break-words font-mono">{order.orderNumber}</code>
+            <CopyBtn text={order.orderNumber} label="Copier le N°" />
           </h1>
           <Badge variant={statusVariant} dot>{statusLabel}</Badge>
           {!isAdmin && order.status === 'PENDING' && (
@@ -276,7 +296,13 @@ export function OrderDetailView({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {isPaypal ? (
+                {!methodKnown && (
+                  <p className="rounded-xl border border-yellow-500/25 bg-yellow-500/[0.06] p-3 text-[13px] text-yellow-200">
+                    Moyen de paiement non précisé sur cette commande (ancienne commande). Paie via PayPal ou virement —
+                    mets bien <b className="text-white">{pseudoNote}</b> en note dans les deux cas.
+                  </p>
+                )}
+                { (isPaypal || !methodKnown) && (
                   <div className="grid gap-2.5 text-center">
                     <div className="rounded-xl bg-[#003087]/20 p-2">
                       <div className="text-[11px] uppercase tracking-wider text-blue-300">Envoyer uniquement en</div>
@@ -302,8 +328,9 @@ export function OrderDetailView({
                       <span className="mt-0.5 block font-normal text-fmx-gray">Sans ça, impossible de retrouver ton paiement.</span>
                     </p>
                   </div>
-                ) : (
-                  <div className="grid gap-1.5 text-[13px]">
+                )}
+                {(isTransfer || !methodKnown) && (
+                  <div className={isPaypal || isTransfer ? 'grid gap-1.5 text-[13px]' : 'mt-3 grid gap-1.5 border-t border-yellow-500/20 pt-3 text-[13px]'}>
                     <div className="flex items-center justify-between gap-2 border-b border-white/[0.06] pb-1.5">
                       <span className="text-fmx-gray">IBAN</span>
                       <span className="flex min-w-0 flex-1 items-center justify-end gap-2">

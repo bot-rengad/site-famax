@@ -10,13 +10,14 @@ export async function getSession(): Promise<TokenPayload | null> {
 
 export async function setSessionCookie(token: string) {
   const cookieStore = await cookies()
-  // Cookie "Secure" uniquement si le site est servi en HTTPS (sinon impossible de tester en local)
-  const isHttps = (process.env.NEXT_PUBLIC_APP_URL || '').startsWith('https')
+  // Secure dès que NODE_ENV=production (jamais basé sur NEXT_PUBLIC_APP_URL,
+  // qui peut rester en http par oubli et exposerait le cookie en clair).
+  const isProd = process.env.NODE_ENV === 'production'
   cookieStore.set('fmx_session', token, {
     httpOnly: true,
-    secure: isHttps,
+    secure: isProd,
     sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 30, // 30 jours : reste connecté même après fermeture du navigateur
+    maxAge: 60 * 60 * 24 * 7, // 7 jours : aligné sur l'expiration JWT (7d) et la session DB (7j)
     path: '/',
   })
 }

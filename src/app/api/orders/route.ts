@@ -36,20 +36,31 @@ export async function POST(request: NextRequest) {
     const amount =
       pkg.price + cleanAddons.reduce((sum, id) => sum + (ADDONS.find(a => a.id === id)?.price ?? 0), 0)
 
-    // Pseudo du client pour un N° de commande lisible (FMX-pseudo-482)
+    // Pseudo du client pour un N° de commande lisible (FMX-pseudo-482).
+    // Ordre username d'abord (identifiant unique stable) puis globalName (affichage),
+    // car c'est le username que le staff retrouve dans les notes de paiement.
     const buyerUpfront = await prisma.user.findUnique({
       where: { id: session.userId },
       select: { email: true, discordUsername: true, discordGlobalName: true, discordId: true },
     })
     const pseudoForNumber =
-      buyerUpfront?.discordUsername || buyerUpfront?.discordGlobalName || buyerUpfront?.email.split('@')[0] || null
+      buyerUpfront?.discordUsername || buyerUpfront?.discordGlobalName || buyerUpfront?.email?.split('@')[0] || null
 
-    // N° unique : on régénère les 3 chiffres en cas de collision (même pseudo)
+    // N° unique : on régénère les 3 chiffres en cas de collision (même pseudo).
+    // Après 10 essais on abandonne proprement au lieu de lever une contrainte unique obscure.
     let orderNumber = generateOrderNumber(pseudoForNumber)
+    let collision = false
     for (let i = 0; i < 10; i++) {
       const exists = await prisma.order.findUnique({ where: { orderNumber }, select: { id: true } })
       if (!exists) break
+      collision = i === 9
       orderNumber = generateOrderNumber(pseudoForNumber)
+    }
+    if (collision) {
+      const exists = await prisma.order.findUnique({ where: { orderNumber }, select: { id: true } })
+      if (exists) {
+        return NextResponse.json({ error: 'Réessaie dans quelques secondes (collision de N° commande)' }, { status: 409 })
+      }
     }
 
     // Create order
@@ -75,7 +86,7 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Notifie le staff sur Discord (webhook salon preuves/logs) — fire & forget
+    // Notifie le staff sur Discord (webhook logs staff) — fire & forget
     const buyer = await prisma.user.findUnique({
       where: { id: session.userId },
       select: { email: true, discordUsername: true, discordId: true },
@@ -115,8 +126,10 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '10')
+    const rawPage = parseInt(searchParams.get('page') || '1')
+    const rawLimit = parseInt(searchParams.get('limit') || '10')
+    const page = Number.isFinite(rawPage) ? Math.min(Math.max(rawPage, 1), 1000) : 1
+    const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(rawLimit, 1), 50) : 10
 
     const [orders, total] = await Promise.all([
       prisma.order.findMany({

@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth/server'
 import { prisma } from '@/lib/db/prisma'
 
-// Détail d'une commande : propriétaire ou ADMIN uniquement.
+// Détail d'une commande : propriétaire ou ADMIN uniquement (rôle relu en DB,
+// jamais depuis le JWT qui peut dater d'avant une rétrogradation).
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getSession()
@@ -17,7 +18,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     if (!order) {
       return NextResponse.json({ error: 'Commande introuvable' }, { status: 404 })
     }
-    if (session.role !== 'ADMIN' && order.userId !== session.userId) {
+    const dbUser = await prisma.user.findUnique({ where: { id: session.userId }, select: { role: true } })
+    const isAdmin = dbUser?.role === 'ADMIN'
+    if (!isAdmin && order.userId !== session.userId) {
       return NextResponse.json({ error: 'Commande introuvable' }, { status: 404 })
     }
     let addons: string[] = []

@@ -4,13 +4,17 @@ import { prisma } from '@/lib/db/prisma'
 
 // Chat lié à une commande : le client (propriétaire) et le staff (ADMIN)
 // peuvent échanger ici au lieu de se perdre entre Discord et tickets.
-async function getOrderFor(userId: string, role: string, orderId: string) {
-  const order = await prisma.order.findUnique({
-    where: { id: orderId },
-    select: { id: true, userId: true, orderNumber: true },
-  })
-  if (!order) return null
-  if (role === 'ADMIN' || order.userId === userId) return order
+// Le rôle admin est relu en DB à chaque appel (pas depuis le JWT).
+async function getOrderFor(userId: string, orderId: string) {
+  const [order, dbUser] = await Promise.all([
+    prisma.order.findUnique({
+      where: { id: orderId },
+      select: { id: true, userId: true, orderNumber: true },
+    }),
+    prisma.user.findUnique({ where: { id: userId }, select: { role: true } }),
+  ])
+  if (!order || !dbUser) return null
+  if (dbUser.role === 'ADMIN' || order.userId === userId) return { order, isAdmin: dbUser.role === 'ADMIN' }
   return null
 }
 
@@ -21,8 +25,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
     }
     const { id } = await params
-    const order = await getOrderFor(session.userId, session.role, id)
-    if (!order) {
+    const access = await getOrderFor(session.userId, id)
+    if (!access) {
       return NextResponse.json({ error: 'Commande introuvable' }, { status: 404 })
     }
 
@@ -46,8 +50,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
     }
     const { id } = await params
-    const order = await getOrderFor(session.userId, session.role, id)
-    if (!order) {
+    const access = await getOrderFor(session.userId, id)
+    if (!access) {
       return NextResponse.json({ error: 'Commande introuvable' }, { status: 404 })
     }
 
@@ -62,7 +66,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         orderId: id,
         userId: session.userId,
         message,
-        isStaff: session.role === 'ADMIN',
+        isStaff: access.isAdmin,
       },
       include: { user: { select: { discordGlobalName: true, discordUsername: true, name: true, role: true } } },
     })

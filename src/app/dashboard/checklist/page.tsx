@@ -93,8 +93,12 @@ export default function ChecklistPage() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<ChecklistCategoryId>('security')
 
-  // Load progress on mount
+  // Load progress on mount + lien profond depuis l'assistant (/dashboard/checklist#<categorie>)
   useEffect(() => {
+    try {
+      const hash = window.location.hash.replace('#', '') as ChecklistCategoryId
+      if (hash && CHECKLIST_CATEGORIES.some(c => c.id === hash)) setActiveTab(hash)
+    } catch {}
     fetch('/api/checklist')
       .then(res => res.json())
       .then(data => {

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
@@ -9,11 +10,14 @@ import { ShinamiBackground } from '@/components/landing/ShinamiBackground'
 import { Hero } from '@/components/landing/Hero'
 import { Services } from '@/components/landing/Services'
 import { Pricing, type PlanId } from '@/components/landing/Pricing'
-import { Faq } from '@/components/landing/Faq'
-import { Testimonials } from '@/components/landing/Testimonials'
 import { StickyCta } from '@/components/landing/StickyCta'
-import { Chatbot } from '@/components/ui/Chatbot'
-import { CookieBanner } from '@/components/ui/CookieBanner'
+
+// Below-fold / flottants chargés en différé : ils ne bloquent pas le premier
+// paint (LCP). Le chat et les avis n'ont pas besoin d'être dans le bundle initial.
+const Faq = dynamic(() => import('@/components/landing/Faq').then(m => m.Faq), { ssr: false })
+const Testimonials = dynamic(() => import('@/components/landing/Testimonials').then(m => m.Testimonials), { ssr: false })
+const Chatbot = dynamic(() => import('@/components/ui/Chatbot').then(m => m.Chatbot), { ssr: false })
+const CookieBanner = dynamic(() => import('@/components/ui/CookieBanner').then(m => m.CookieBanner), { ssr: false })
 
 // Données structurées : service 100% en ligne, aucune adresse inventée.
 const JSON_LD = {

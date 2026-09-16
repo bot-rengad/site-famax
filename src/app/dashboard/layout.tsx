@@ -3,9 +3,21 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { LogOut, MessageCircle, ShieldCheck } from 'lucide-react'
-import { motion } from 'framer-motion'
 import { usePathname } from 'next/navigation'
+import { cn } from '@/lib/utils/helpers'
 import { Logo } from '@/components/ui/Logo'
+
+// Navigation espace client : toutes les sous-pages étaient orphelines
+// (découvrables uniquement via un bouton mort du profil). Onglets visibles = conversion.
+const DASH_TABS = [
+  { href: '/dashboard', label: 'Parcours' },
+  { href: '/dashboard/order', label: 'Commander' },
+  { href: '/dashboard/checklist', label: 'Checklist' },
+  { href: '/dashboard/downloads', label: 'Scripts' },
+  { href: '/dashboard/ai-assistant', label: 'Assistant' },
+  { href: '/dashboard/profile', label: 'Profil' },
+  { href: '/dashboard/settings', label: 'Paramètres' },
+]
 
 // Layout épuré : une seule barre de titre (plus de doublon),
 // pas de sidebar, pas de paramètres superflus. Le parcours fait le reste.
@@ -88,7 +100,7 @@ export default function DashboardLayout({
               >
                 {me.avatar ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={me.avatar} alt="" width={28} height={28} className="h-7 w-7 rounded-full object-cover" />
+                  <img src={me.avatar} alt="" width={28} height={28} loading="lazy" decoding="async" referrerPolicy="no-referrer" className="h-7 w-7 rounded-full object-cover" />
                 ) : (
                   <span className="grid h-7 w-7 place-items-center rounded-full bg-fmx-red text-[12px] font-extrabold text-white">
                     {me.pseudo.charAt(0).toUpperCase()}
@@ -98,7 +110,12 @@ export default function DashboardLayout({
               </Link>
             )}
             <button
-              onClick={() => { window.location.href = '/api/auth/logout' }}
+              onClick={async () => {
+                try {
+                  await fetch('/api/auth/logout', { method: 'POST' })
+                } catch {}
+                window.location.href = '/'
+              }}
               className="inline-flex min-h-[44px] min-w-[44px] place-content-center items-center rounded-full border border-white/10 p-2.5 text-fmx-gray transition-colors hover:bg-white/[0.06] hover:text-white"
               title="Déconnexion"
               aria-label="Déconnexion"
@@ -109,17 +126,37 @@ export default function DashboardLayout({
         </div>
       </header>
 
+      {/* Onglets espace client — sticky sous le header, scroll horizontal sur mobile */}
+      <nav aria-label="Navigation espace client" className="sticky top-16 z-20 border-b border-white/[0.06] bg-fmx-black/85">
+        <div className="mx-auto flex max-w-[1400px] gap-1 overflow-x-auto px-5 py-2 lg:px-10">
+          {DASH_TABS.map(tab => {
+            const isActive =
+              tab.href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(tab.href)
+            return (
+              <Link
+                key={tab.href}
+                href={tab.href}
+                aria-current={isActive ? 'page' : undefined}
+                className={cn(
+                  'shrink-0 rounded-full px-4 py-2 text-[13px] font-semibold transition-colors',
+                  isActive
+                    ? 'bg-fmx-red/15 text-white'
+                    : 'text-fmx-gray hover:bg-white/[0.06] hover:text-white'
+                )}
+              >
+                {tab.label}
+              </Link>
+            )
+          })}
+        </div>
+      </nav>
+
       {/* Contenu */}
       <main className="relative z-10">
         <div className="mx-auto max-w-[1400px] px-5 py-6 lg:px-10">
-          <motion.div
-            key={pathname}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.18, ease: 'easeOut' }}
-          >
+          <div key={pathname} className="animate-fade-in">
             {children}
-          </motion.div>
+          </div>
         </div>
       </main>
     </div>

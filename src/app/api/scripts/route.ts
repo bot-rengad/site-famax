@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireClient } from '@/lib/license'
+import { requireAdmin } from '@/lib/auth/admin'
 import { prisma } from '@/lib/db/prisma'
+import { scriptSchema } from '@/lib/validations/schemas'
 
 export async function GET(request: NextRequest) {
   try {
@@ -78,22 +80,32 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await requireClient()
-    if (!session || session.role !== 'ADMIN') {
+    // Rôle relu en DB (pas depuis le JWT) — un ex-admin ne doit plus créer de scripts.
+    const admin = await requireAdmin()
+    if (!admin) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
     }
 
-    const body = await request.json()
-    const { name, description, category, content, version, requiresAdmin } = body
+    const body = await request.json().catch(() => null)
+    const validation = scriptSchema.safeParse(body)
+
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: 'Données invalides', details: validation.error.flatten().fieldErrors },
+        { status: 400 }
+      )
+    }
+
+    const { name, description, category, content, version, requiresAdmin } = validation.data
 
     const script = await prisma.optimizationScript.create({
       data: {
         name,
         description,
-        category,
+        category: category as any,
         content,
-        version: version || '1.0.0',
-        requiresAdmin: requiresAdmin || false,
+        version,
+        requiresAdmin,
       },
     })
 

@@ -1,9 +1,14 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Configurator } from '@/components/landing/Configurator'
 import type { PlanId } from '@/components/landing/Pricing'
+
+// Même assistant que l'accueil (léger, CSS-only) : il lit window.__fmxSpecs
+// posé par le Configurator → conseils perso + CTA commande.
+const Chatbot = dynamic(() => import('@/components/ui/Chatbot').then(m => m.Chatbot), { ssr: false })
 
 // Estimateur FPS sur sa propre page (comme le test écran) :
 // même moteur, sans alourdir le scroll de l'accueil.
@@ -27,6 +32,7 @@ export default function EstimateurPage() {
           Vérifie aussi la fluidité de ton écran →
         </Link>
       </div>
+      <Chatbot />
     </div>
   )
 }

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { MessageCircle, X, Send, Bot, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
 
@@ -43,11 +42,20 @@ export function Chatbot() {
   const [loading, setLoading] = useState(false)
   const [unread, setUnread] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const abortRef = useRef<AbortController | null>(null)
+  const openRef = useRef(false)
 
-  // Auto-scroll vers le dernier message
+  // Auto-scroll vers le dernier message (sans smooth : évite le layout thrash à chaque message)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    messagesEndRef.current?.scrollIntoView({ behavior: 'auto', block: 'nearest' })
   }, [messages, open])
+
+  useEffect(() => {
+    openRef.current = open
+    if (open) setUnread(false)
+  }, [open])
+
+  useEffect(() => () => abortRef.current?.abort(), [])
 
   // Envoi d'un message au moteur FMX avec la config détectée du visiteur
   const sendMessage = async (text: string) => {
@@ -57,6 +65,9 @@ export function Chatbot() {
     setInput('')
     setMessages(prev => [...prev, { id: Date.now(), role: 'user', content: trimmed }])
     setLoading(true)
+    abortRef.current?.abort()
+    const ctrl = new AbortController()
+    abortRef.current = ctrl
 
     try {
       // Contexte optionnel : specs détectées par l'estimateur (/estimateur)
@@ -66,20 +77,22 @@ export function Chatbot() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: trimmed, context }),
+        signal: ctrl.signal,
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
 
-      // Petit délai pour un rendu naturel
-      await new Promise(r => setTimeout(r, 450))
-
+      // Pas de délai artificiel : la réponse s'affiche dès qu'elle arrive.
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         role: 'bot',
         content: data.reply || 'Je n’ai pas compris, reformule ou demande sur Discord.',
         quickReplies: data.quickReplies || [],
       }])
-    } catch {
+      // Pastille "nouveau message" si la fenêtre est fermée entre-temps
+      if (!openRef.current) setUnread(true)
+    } catch (e) {
+      if (e instanceof DOMException && e.name === 'AbortError') return
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         role: 'bot',
@@ -99,14 +112,11 @@ export function Chatbot() {
 
   return (
     <>
-      {/* Bouton flottant */}
-      <motion.button
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ delay: 1, type: 'spring', stiffness: 200 }}
+      {/* Bouton flottant (CSS only : plus de framer-motion sur la landing) */}
+      <button
         onClick={toggleOpen}
         className={cn(
-          'fixed bottom-24 right-4 sm:bottom-6 sm:right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-neon-red transition-all duration-300',
+          'fixed bottom-24 right-4 sm:bottom-6 sm:right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-neon-red transition-all duration-300 animate-scale-in',
           'bg-gradient-to-br from-fmx-red to-fmx-red-dark hover:scale-110 active:scale-95',
           open && 'rotate-90'
         )}
@@ -120,20 +130,15 @@ export function Chatbot() {
         {!open && unread && (
           <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-yellow-400 border-2 border-fmx-black" />
         )}
-      </motion.button>
+      </button>
 
       {/* Fenêtre de chat */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: 24, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 24, scale: 0.96 }}
-            transition={{ duration: 0.2 }}
+      {open && (
+          <div
             className={cn(
-              'fixed bottom-24 right-4 sm:bottom-24 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-96',
+              'fixed bottom-24 right-4 sm:bottom-24 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-96 animate-scale-in',
               'rounded-2xl overflow-hidden border border-fmx-border/60 shadow-glass flex flex-col',
-              'bg-fmx-black-light/95 backdrop-blur-xl'
+              'bg-fmx-black-light border-fmx-border'
             )}
             style={{ maxHeight: 'min(560px, calc(100dvh - 7rem))' }}
             role="dialog"
@@ -154,12 +159,10 @@ export function Chatbot() {
             {/* Messages */}
             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 min-h-0">
               {messages.map(msg => (
-                <motion.div
+                <div
                   key={msg.id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
                   className={cn(
-                    'max-w-[85%]',
+                    'max-w-[85%] animate-fade-in',
                     msg.role === 'user' ? 'ml-auto' : 'mr-auto'
                   )}
                 >
@@ -192,19 +195,18 @@ export function Chatbot() {
                       ))}
                     </div>
                   )}
-                </motion.div>
+                </div>
               ))}
 
-              {/* Indicateur de saisie */}
+              {/* Indicateur de saisie (CSS pulse, pas de JS anim) */}
               {loading && (
                 <div className="mr-auto max-w-[60%]">
                   <div className="px-3.5 py-3 rounded-2xl rounded-bl-md bg-fmx-carbon border border-fmx-border/50 inline-flex items-center gap-1.5">
                     {[0, 1, 2].map(i => (
-                      <motion.span
+                      <span
                         key={i}
-                        animate={{ opacity: [0.3, 1, 0.3] }}
-                        transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
-                        className="w-1.5 h-1.5 rounded-full bg-fmx-red"
+                        className="w-1.5 h-1.5 rounded-full bg-fmx-red animate-pulse"
+                        style={{ animationDelay: `${i * 0.2}s` }}
                       />
                     ))}
                   </div>
@@ -244,9 +246,8 @@ export function Chatbot() {
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </button>
             </form>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
     </>
   )
 }

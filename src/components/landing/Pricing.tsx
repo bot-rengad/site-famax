@@ -37,7 +37,7 @@ const plans = [
     features: [
       "Tout le Pack Basic",
       'Profil haute vitesse de la RAM',
-      'Débridage liaison carte graphique / processeur',
+      'Débridage de la liaison carte graphique / processeur',
       "Coupure des économies d'énergie",
       'GPU intégré désactivé, cœurs dédiés réseau/affichage',
     ],
@@ -79,7 +79,7 @@ export function Pricing({ selectedPlan, onSelect, onOrder }: PricingProps) {
           Tarifs & prestations
         </h2>
         <p className="mt-3 text-[14px] leading-relaxed text-fmx-gray">
-          Paiement unique, effet permanent. Diagnostic UserDiag et avis du staff avant
+          Paiement unique, effet durable. Diagnostic UserDiag et avis du staff avant
           chaque intervention.
         </p>
       </div>
@@ -90,9 +90,19 @@ export function Pricing({ selectedPlan, onSelect, onOrder }: PricingProps) {
           return (
             <div
               key={plan.id}
+              role="button"
+              tabIndex={0}
+              aria-pressed={isSelected}
+              aria-label={`${plan.name} — ${plan.price}`}
               onClick={() => onSelect(plan.id)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  onSelect(plan.id)
+                }
+              }}
               className={cn(
-                'fmx-window fmx-window-hover relative flex cursor-pointer flex-col rounded-2xl p-5 sm:p-7',
+                'fmx-window fmx-window-hover relative flex cursor-pointer flex-col rounded-2xl p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fmx-red sm:p-7',
                 isSelected && 'border-fmx-red shadow-[0_0_40px_rgba(255,26,26,0.15)]',
                 plan.id === 'ULTIME' && 'sm:col-span-2 lg:col-span-1'
               )}
@@ -181,10 +191,11 @@ export function Pricing({ selectedPlan, onSelect, onOrder }: PricingProps) {
           <b className="text-white">PayPal • Virement SEPA</b> — les coordonnées exactes s’affichent
           après ta commande, à l’étape paiement.
           <br />
-          Aucun remboursement une fois le travail commencé. Si aucune différence mesurable
-          n’est constatée après l’intervention, le staff réévalue au cas par cas.
+          Paiement validé = travail réservé : aucun remboursement une fois l’intervention commencée.
+          Si aucune différence mesurable n’est constatée après l’intervention, le staff réévalue
+          la situation au cas par cas (optimisation complémentaire ou geste commercial).
           Suivi 30 jours inclus (à vie pour le Pack Ultime ou l’option suivi à vie). Le support
-          peut s’arrêter si tu réinitialises ton PC sans prévenir.
+          peut s’arrêter si tu réinitialises ton PC sans prévenir le staff sur Discord.
         </p>
       </div>
     </section>

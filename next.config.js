@@ -8,12 +8,22 @@ const nextConfig = {
   },
   images: {
     formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 31536000,
+    deviceSizes: [640, 1080, 1920],
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'cdn.discordapp.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'fortnite-api.com',
+      },
     ],
+  },
+  compiler: {
+    // Retire les console.* en production (moins de JS, pas de logs verbeux client)
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
   },
   async headers() {
     // CSP pragmatique : bloque les scripts/frames tiers tout en laissant
@@ -78,6 +88,16 @@ const nextConfig = {
           {
             key: 'Content-Disposition',
             value: 'attachment',
+          },
+        ],
+      },
+      {
+        // Assets publics versionnés par nom : cache long côté navigateur/CDN
+        source: '/images/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
           },
         ],
       },

@@ -1,5 +1,3 @@
-'use client'
-
 import Link from 'next/link'
 import { MessageCircle, Wallet, Landmark } from 'lucide-react'
 import { Logo } from '@/components/ui/Logo'

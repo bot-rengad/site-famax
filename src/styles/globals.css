@@ -22,7 +22,7 @@
     --radius: 0.5rem;
 
     /* Fonts (chargées via next/font dans app/layout.tsx) */
-    --font-inter: 'Inter', system-ui, sans-serif;
+    --font-space: 'Space Grotesk', system-ui, sans-serif;
     --font-jetbrains: 'JetBrains Mono', monospace;
   }
 
@@ -52,7 +52,7 @@
 
   body {
     @apply bg-fmx-black text-fmx-white antialiased;
-    font-family: var(--font-inter);
+    font-family: var(--font-space);
     /* Fond noir profond avec lueurs rouges discrètes aux angles, fidèle au logo */
     background-color: #060608;
     background-image:
@@ -64,7 +64,6 @@
   }
 
   html {
-    scroll-behavior: smooth;
     scroll-padding-top: 84px;
     overflow-x: clip;
   }

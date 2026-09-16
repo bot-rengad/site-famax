@@ -39,7 +39,9 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       .then(r => (r.ok ? r.json() : null))
       .then((data: { user?: { discordUsername?: string | null; discordGlobalName?: string | null } }) => {
         const u = data?.user
-        if (u) setPseudo(u.discordGlobalName || u.discordUsername || null)
+        // Username unique d'abord (retrouvable dans les notes PayPal/virement),
+        // globalName ensuite (simple affichage, parfois ambigu).
+        if (u) setPseudo(u.discordUsername || u.discordGlobalName || null)
       })
       .catch(() => {})
   }, [id])

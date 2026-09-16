@@ -356,7 +356,8 @@ export default function ProfilePage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button variant="ghost" fullWidth className="justify-start gap-3 py-3 hover:bg-fmx-red/10">
+              <Button variant="ghost" fullWidth className="justify-start gap-3 py-3 hover:bg-fmx-red/10" asChild>
+                <a href="/dashboard/checklist">
                 <span className="w-10 h-10 rounded-lg bg-fmx-red/10 flex items-center justify-center">
                   <CpuIcon className="w-5 h-5 text-fmx-red" />
                 </span>
@@ -364,6 +365,7 @@ export default function ProfilePage() {
                   <p className="font-medium text-fmx-white">Checklist FMX</p>
                   <p className="text-xs text-fmx-gray">Lancer l'optimisation guidée</p>
                 </div>
+                </a>
               </Button>
               <Button variant="ghost" fullWidth className="justify-start gap-3 py-3 hover:bg-blue-500/10" asChild>
                 <a href="/dashboard/downloads">

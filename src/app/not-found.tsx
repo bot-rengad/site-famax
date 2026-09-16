@@ -18,16 +18,22 @@ export default function NotFound() {
       </p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link
-          href="/"
+          href="/dashboard/order"
           className="rounded-full bg-fmx-red px-7 py-3.5 text-sm font-bold text-white shadow-[0_12px_32px_rgba(255,26,26,0.35)]"
         >
-          Retour à l’accueil →
+          Commander une opti →
         </Link>
         <Link
-          href="/#plans"
+          href="/estimateur"
           className="rounded-full border border-white/15 bg-white/[0.06] px-7 py-3.5 text-sm font-semibold text-white hover:bg-white/[0.12]"
         >
-          Voir les tarifs
+          Estimateur FPS
+        </Link>
+        <Link
+          href="/"
+          className="rounded-full border border-white/15 bg-white/[0.06] px-7 py-3.5 text-sm font-semibold text-white hover:bg-white/[0.12]"
+        >
+          Retour à l’accueil
         </Link>
         <Link
           href="/#faq"

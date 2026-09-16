@@ -46,13 +46,31 @@ export function OrderChat({ orderId, compact = false, className }: { orderId: st
 
   useEffect(() => {
     load()
-    const t = setInterval(load, 5000)
-    return () => clearInterval(t)
+    // 8 s + pause quand l'onglet est caché : évite de saturer le rate-limit
+    // /api/orders (20/min) quand 2 onglets sont ouverts.
+    const t = setInterval(() => {
+      if (!document.hidden) load()
+    }, 8000)
+    const onVis = () => { if (!document.hidden) load() }
+    document.addEventListener('visibilitychange', onVis)
+    return () => {
+      clearInterval(t)
+      document.removeEventListener('visibilitychange', onVis)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderId])
 
+  // Ne fait défiler que si l'utilisateur est déjà près du bas
+  // (sinon le poll ferait sauter la page pendant qu'il lit le récap).
+  const scrollBoxRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    const box = scrollBoxRef.current
+    if (!box) {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      return
+    }
+    const nearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 160
+    if (nearBottom) bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }, [messages.length])
 
   const send = async () => {
@@ -79,7 +97,7 @@ export function OrderChat({ orderId, compact = false, className }: { orderId: st
   }
 
   const sender = (m: ChatMessage) =>
-    m.isStaff ? 'Staff FMX' : m.user?.discordGlobalName || m.user?.discordUsername || m.user?.name || 'Client'
+    m.isStaff ? 'Staff FMX' : m.user?.discordUsername || m.user?.discordGlobalName || m.user?.name || 'Client'
 
   return (
     <div className={cn('flex min-h-0 flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-black/40', compact && 'max-h-[480px]', className)}>
@@ -91,7 +109,7 @@ export function OrderChat({ orderId, compact = false, className }: { orderId: st
           ⚠ Connexion perdue (base en réveil ?) — clique pour réessayer
         </button>
       )}
-      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
+      <div ref={scrollBoxRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
         {messages.length === 0 && !failed && (
           <p className="mx-auto max-w-[420px] py-6 text-center text-[13px] leading-relaxed text-fmx-gray">
             Pour démarrer : <b className="text-white">décris ton paiement ici</b> (montant + pseudo

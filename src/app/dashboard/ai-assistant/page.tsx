@@ -140,7 +140,9 @@ export default function AIAssistantPage() {
         window.location.href = '/dashboard/downloads'
         break
       case 'create_ticket':
-        window.location.href = '/dashboard/tickets'
+        // Pas de page /dashboard/tickets : on envoie vers le suivi commande
+        // (le chat commande fait office de ticket) ou Discord en repli.
+        window.open('https://discord.gg/fmx', '_blank', 'noopener')
         break
     }
   }

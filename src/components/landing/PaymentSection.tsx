@@ -17,12 +17,24 @@ function CopyBtn({ text }: { text: string }) {
   const [done, setDone] = useState(false)
   return (
     <button
-      onClick={() => {
-        navigator.clipboard.writeText(text).catch(() => {})
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(text)
+        } catch {
+          try {
+            const ta = document.createElement('textarea')
+            ta.value = text
+            document.body.appendChild(ta)
+            ta.select()
+            document.execCommand('copy')
+            ta.remove()
+          } catch {}
+        }
         setDone(true)
         setTimeout(() => setDone(false), 1500)
       }}
-      className="inline-flex min-h-[36px] shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-[12px] font-bold text-white transition-colors hover:bg-white/[0.12]"
+      aria-live="polite"
+      className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-[12px] font-bold text-white transition-colors hover:bg-white/[0.12]"
     >
       {done ? <Check className="h-3.5 w-3.5 text-green-400" /> : <Copy className="h-3.5 w-3.5" />}
       {done ? 'Copié !' : 'Copier'}
@@ -74,13 +86,15 @@ export function PaymentSection({ selectedPlan, onOrder }: PaymentSectionProps) {
       </div>
 
       {/* Onglets */}
-      <div className="fmx-window mx-auto mt-6 flex max-w-[420px] gap-2 rounded-full p-1.5">
+      <div className="fmx-window mx-auto mt-6 flex max-w-[420px] gap-2 rounded-full p-1.5" role="tablist" aria-label="Moyen de paiement">
         {tabs.map(t => (
           <button
             key={t.id}
+            role="tab"
+            aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
             className={cn(
-              'flex flex-1 items-center justify-center gap-2 rounded-full py-2.5 text-[13px] font-bold transition-all',
+              'flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-full py-2.5 text-[13px] font-bold transition-all',
               tab === t.id ? 'bg-fmx-red text-white shadow-[0_8px_24px_rgba(255,26,26,0.35)]' : 'text-fmx-gray hover:text-white'
             )}
           >
@@ -94,7 +108,7 @@ export function PaymentSection({ selectedPlan, onOrder }: PaymentSectionProps) {
         {tab === 'paypal' && (
           <div className="grid gap-4">
             <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5 text-center">
-              <div className="text-[14px] font-bold text-white">PayPal — Envoi en Ami & Proche OBLIGATOIRE</div>
+              <div className="text-[14px] font-bold text-white">PayPal — Envoi en Amis & Proches obligatoire</div>
               <div className="mt-1 text-[12px] text-fmx-gray">
                 Plan sélectionné : <b className="text-white">{planLabel ?? '— sélectionne un plan ci-dessus'}</b>
               </div>

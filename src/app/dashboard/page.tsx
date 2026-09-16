@@ -8,10 +8,9 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { cn } from '@/lib/utils/helpers'
 
-const DISCORD_INVITE = 'https://discord.gg/fmx'
+import { DISCORD_INVITE } from '@/lib/payment-info'
 
 const PACK_NAMES: Record<string, string> = {
-  WINDOWS: 'Optimisation Windows — 20€',
   BASIC: 'Pack Basic — 20€',
   COMPLET: 'Pack Complet — 25€',
   ULTIME: 'Pack Ultime — 50€',
@@ -27,7 +26,7 @@ interface Order {
 }
 
 const STATUS_LABEL: Record<string, { label: string; variant: 'green' | 'yellow' | 'red' | 'gray' }> = {
-  COMPLETED: { label: 'Payée', variant: 'green' },
+  COMPLETED: { label: 'Terminée', variant: 'green' },
   PAID: { label: 'Payée', variant: 'green' },
   PENDING: { label: 'En attente de preuve', variant: 'yellow' },
   CANCELLED: { label: 'Annulée', variant: 'red' },
@@ -46,7 +45,9 @@ export default function DashboardPage() {
       fetch('/api/orders?limit=10').then(r => r.json()).catch(() => ({})),
     ]).then(([meData, ordersData]) => {
       if (meData.user) {
-        setUserName(meData.user.discordGlobalName || meData.user.name || meData.user.email.split('@')[0])
+        // Username d'abord : c'est l'identifiant unique à mettre en note de paiement.
+        // Le globalName (affichage) peut être ambigu, l'email n'est qu'un repli.
+        setUserName(meData.user.discordUsername || meData.user.discordGlobalName || meData.user.name || (meData.user.email ? meData.user.email.split('@')[0] : 'Client'))
         setDiscordLinked(!!meData.user.discordVerifiedAt)
       }
       if (ordersData.orders) setOrders(ordersData.orders)

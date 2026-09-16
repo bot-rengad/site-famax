@@ -20,12 +20,25 @@ function CopyBtn({ text, label = 'Copier' }: { text: string; label?: string }) {
   const [done, setDone] = useState(false)
   return (
     <button
-      onClick={() => {
-        navigator.clipboard.writeText(text).catch(() => {})
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(text)
+        } catch {
+          // Repli HTTP/iframe non-secure : sélection manuelle via textarea
+          try {
+            const ta = document.createElement('textarea')
+            ta.value = text
+            document.body.appendChild(ta)
+            ta.select()
+            document.execCommand('copy')
+            ta.remove()
+          } catch {}
+        }
         setDone(true)
         setTimeout(() => setDone(false), 1500)
       }}
-      className="inline-flex min-h-[36px] shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-[12px] font-bold text-white transition-colors hover:bg-white/[0.12]"
+      aria-live="polite"
+      className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-[12px] font-bold text-white transition-colors hover:bg-white/[0.12]"
     >
       {done ? <Check className="h-3.5 w-3.5 text-green-400" /> : <Copy className="h-3.5 w-3.5" />}
       {done ? 'Copié !' : label}
@@ -54,29 +67,50 @@ function OrderContent() {
   const ultime = pack === 'ULTIME'
   const packName = PACKAGES.find(p => p.id === pack)?.name ?? pack
 
-  // Pack transmis depuis la landing (?pack=...) + pseudo Discord + commande en cours
+  // Pack transmis depuis la landing (?pack=...) + brouillon local + pseudo Discord + commande en cours
   useEffect(() => {
     const q = (searchParams.get('pack') || '').toUpperCase()
     if ((VALID_PACKS as string[]).includes(q)) {
       setPack(q as PackId)
       if (q === 'ULTIME') setAddons([])
+      // Addons/méthode éventuellement conservés dans l'URL (retour login)
+      const qAddons = (searchParams.get('addons') || '').split(',').filter(Boolean)
+      if (qAddons.length > 0 && q !== 'ULTIME') setAddons(qAddons)
+      const qMethod = (searchParams.get('method') || '').toUpperCase()
+      if (qMethod === 'PAYPAL' || qMethod === 'BANK_TRANSFER') setMethod(qMethod)
+    } else {
+      // Restaure le brouillon si retour après login (le middleware conserve
+      // déjà ?pack=, le reste — addons, méthode — survit ici).
+      try {
+        const draft = JSON.parse(localStorage.getItem('fmx_order_draft') || '{}')
+        if ((VALID_PACKS as string[]).includes((draft.pack || '').toUpperCase())) {
+          setPack(draft.pack.toUpperCase() as PackId)
+          if (Array.isArray(draft.addons)) setAddons(draft.addons.filter((a: unknown) => typeof a === 'string'))
+          if (draft.method === 'PAYPAL' || draft.method === 'BANK_TRANSFER') setMethod(draft.method)
+        }
+      } catch {}
     }
     fetch('/api/users/me')
       .then(r => (r.ok ? r.json() : {}))
       .then((data: any) => {
         const u = data?.user
         if (u) {
-          setPseudo(u.discordGlobalName || u.discordUsername || null)
+          // Même ordre que l'API (username → globalName) pour que la note
+          // affichée ici matche le N° de commande FMX-pseudo-XXX.
+          setPseudo(u.discordUsername || u.discordGlobalName || null)
           setDiscordLinked(!!u.discordVerifiedAt)
         }
       })
       .catch(() => {})
-    fetch('/api/orders?limit=1')
+    fetch('/api/orders?limit=10')
       .then(r => (r.ok ? r.json() : {}))
       .then((data: any) => {
-        const first = data?.orders?.[0]
-        if (first && (first.status === 'PENDING' || first.status === 'PAID')) {
-          setPendingOrder({ id: first.id, orderNumber: first.orderNumber, amount: first.amount })
+        // Prend la première commande encore active, pas forcément orders[0]
+        // (qui peut être une vieille CANCELLED/REFUNDED/COMPLETED).
+        const list = Array.isArray(data?.orders) ? data.orders : []
+        const active = list.find((o: any) => o.status === 'PENDING' || o.status === 'PAID')
+        if (active) {
+          setPendingOrder({ id: active.id, orderNumber: active.orderNumber, amount: active.amount })
         }
       })
       .catch(() => {})
@@ -85,6 +119,13 @@ function OrderContent() {
 
   const toggleAddon = (id: string) =>
     setAddons(prev => (prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]))
+
+  // Persiste le brouillon à chaque changement (survit au login Discord intercalé)
+  useEffect(() => {
+    try {
+      localStorage.setItem('fmx_order_draft', JSON.stringify({ pack, addons, method }))
+    } catch {}
+  }, [pack, addons, method])
 
   // "J'ai payé" → crée la commande et envoie vers le suivi + chat
   const confirmPaid = async () => {
@@ -97,11 +138,17 @@ function OrderContent() {
         body: JSON.stringify({ packageType: pack, paymentMethod: method, addons: ultime ? [] : addons }),
       })
       if (res.status === 401) {
-        window.location.href = `/auth/login?redirect=${encodeURIComponent(`/dashboard/order?pack=${pack}`)}`
+        const qs = new URLSearchParams({
+          pack,
+          addons: (ultime ? [] : addons).join(','),
+          method,
+        }).toString()
+        window.location.href = `/auth/login?redirect=${encodeURIComponent(`/dashboard/order?${qs}`)}`
         return
       }
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.error || 'Erreur lors de la commande')
+      try { localStorage.removeItem('fmx_order_draft') } catch {}
       window.location.href = `/dashboard/orders/${data.order.id}`
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors de la commande')
@@ -114,7 +161,7 @@ function OrderContent() {
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-3 lg:h-[calc(100dvh-112px)] lg:min-h-[640px]">
       <div className="shrink-0">
         <h1 className="font-display text-display-sm text-fmx-white">Commander une opti</h1>
-        {step === 1 && <p className="mt-1 text-[13px] text-fmx-white-dim">3 étapes, 2 minutes : tu choisis, tu paies, tu discutes avec le staff.</p>}
+        {step === 1 && <p className="mt-1 text-[13px] text-fmx-white-dim">2 étapes, 2 minutes : tu choisis, tu paies — le suivi + chat s&apos;ouvre juste après.</p>}
       </div>
 
       {/* Indicateur d'étapes — le suivi + chat arrive après redirection */}
@@ -273,7 +320,7 @@ function OrderContent() {
                     <p className="text-[12px] text-fmx-gray">{ultime ? 'Tout inclus, sans option.' : 'Sans option.'}</p>
                   )}
                 </div>
-                <Button variant="neon" size="lg" fullWidth className="mt-4" onClick={() => { setStep(2); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>
+                <Button variant="neon" size="lg" fullWidth className="mt-4" onClick={() => { setStep(2); const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' }) }}>
                   Continuer vers le paiement — {total}€
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -326,7 +373,7 @@ function OrderContent() {
                   <div className="flex flex-wrap items-center gap-3 rounded-xl border border-yellow-500/25 bg-yellow-500/[0.06] px-4 py-3 text-[13px] text-yellow-200/90">
                     <span><b>Lie ton Discord</b> pour retrouver ton paiement.</span>
                     <a
-                      href={`/api/auth/discord?redirect=${encodeURIComponent(`/dashboard/order?pack=${pack}`)}`}
+                      href={`/api/auth/discord?redirect=${encodeURIComponent(`/dashboard/order?pack=${pack}&addons=${addons.join(',')}&method=${method}`)}`}
                       className="rounded-full bg-[#5865F2] px-4 py-2 text-[12px] font-bold text-white hover:bg-[#4752C4]"
                     >
                       Vérifier avec Discord →
@@ -362,7 +409,7 @@ function OrderContent() {
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-2 border-b border-white/[0.06] pb-2">
                         <span className="text-fmx-gray">IBAN</span>
                         <code className="min-w-0 flex-1 break-all font-mono text-white">{IBAN_DISPLAY}</code>
-                        <button onClick={() => navigator.clipboard.writeText(IBAN_RAW).catch(() => {})} className="inline-flex min-h-[36px] items-center px-2 text-[13px] font-bold text-fmx-gray underline hover:text-white">Copier l’IBAN</button>
+                        <CopyBtn text={IBAN_RAW} label="Copier l’IBAN" />
                       </div>
                       <div className="flex justify-between border-b border-white/[0.06] pb-2"><span className="text-fmx-gray">Titulaire</span><span className="text-white">{TITULAIRE}</span></div>
                       <div className="flex justify-between"><span className="text-fmx-gray">Motif / Référence</span><span className="font-bold text-white">{pseudo ? `@${pseudo}` : 'ton pseudo Discord'}</span></div>

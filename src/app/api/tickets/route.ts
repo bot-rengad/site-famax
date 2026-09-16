@@ -12,9 +12,13 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const ticketId = searchParams.get('id')
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '10')
-    const status = searchParams.get('status')
+    const clamp = (n: number, min: number, max: number, fallback: number) =>
+      Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : fallback
+    const page = clamp(parseInt(searchParams.get('page') || '1'), 1, 100, 1)
+    const limit = clamp(parseInt(searchParams.get('limit') || '10'), 1, 50, 10)
+    const rawStatus = searchParams.get('status')
+    const ALLOWED_STATUS = ['OPEN', 'IN_PROGRESS', 'WAITING_CLIENT', 'RESOLVED', 'CLOSED'] as const
+    const status = ALLOWED_STATUS.includes(rawStatus as any) ? rawStatus : null
 
     if (ticketId) {
       const ticket = await prisma.ticket.findFirst({

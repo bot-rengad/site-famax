@@ -55,22 +55,40 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (action === 'CANCELLED') {
-      const updated = await prisma.order.update({
-        where: { id: order.id },
-        data: { status: 'CANCELLED' },
-      })
-      return NextResponse.json({ order: updated, message: 'Commande annulée' })
+      // Annuler une commande payée ne doit jamais laisser une licence ACTIVE utilisable.
+      const [, updated] = await prisma.$transaction([
+        prisma.license.updateMany({
+          where: { orderId: order.id, status: 'ACTIVE' },
+          data: { status: 'REVOKED' },
+        }),
+        prisma.order.update({
+          where: { id: order.id },
+          data: { status: 'CANCELLED', licenseKey: null },
+        }),
+      ])
+      return NextResponse.json({ order: updated, message: 'Commande annulée (licence révoquée si existante)' })
     }
 
     if (order.status === 'COMPLETED' || order.status === 'PAID') {
       return NextResponse.json({ order, licenseKey: order.licenseKey, message: 'Déjà validée' })
     }
+    // Reprise idempotente : si une licence existe déjà pour cette commande (retry après crash),
+    // on la réutilise au lieu de lever P2002 sur License(orderId unique).
+    if (order.license) {
+      const updated = await prisma.order.update({
+        where: { id: order.id },
+        data: { status: 'PAID', paidAt: order.paidAt ?? new Date(), licenseKey: order.license.key },
+      })
+      return NextResponse.json({ order: updated, licenseKey: order.license.key, message: 'Déjà validée (licence reprise)' })
+    }
 
     const licenseKey = generateLicenseKey()
+    // PAID = paiement vérifié. completedAt reste null : la prestation (opti + suivi)
+    // n'est pas encore faite. COMPLETED sera posé quand l'intervention est terminée.
     const [updatedOrder] = await prisma.$transaction([
       prisma.order.update({
         where: { id: order.id },
-        data: { status: 'PAID', paidAt: new Date(), completedAt: new Date(), licenseKey },
+        data: { status: 'PAID', paidAt: new Date(), licenseKey },
       }),
       prisma.license.create({
         data: {

@@ -66,20 +66,30 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
-    const sessionId = searchParams.get('id')
+    const sessionId = (searchParams.get('id') || '').trim()
 
-    if (!sessionId) {
+    if (!sessionId || sessionId.length > 64) {
       return NextResponse.json({ error: 'ID de session requis' }, { status: 400 })
     }
 
-    // Don't allow deleting current session via this endpoint
-    if (sessionId === session.sessionId) {
+    // Retrouve la session courante en DB via le token du cookie (colonne `token`),
+    // puis compare les `id` — comparer `?id=` (cuid) au `sessionId` (uuid) ne marche jamais.
+    const current = session.sessionId
+      ? await prisma.session.findUnique({ where: { token: session.sessionId }, select: { id: true } })
+      : null
+    if (current && sessionId === current.id) {
       return NextResponse.json({ error: 'Impossible de révoquer la session actuelle' }, { status: 400 })
     }
 
-    await prisma.session.delete({
+    const target = await prisma.session.findFirst({
       where: { id: sessionId, userId: session.userId },
+      select: { id: true },
     })
+    if (!target) {
+      return NextResponse.json({ error: 'Session introuvable' }, { status: 404 })
+    }
+
+    await prisma.session.delete({ where: { id: target.id } })
 
     await prisma.activityLog.create({
       data: {

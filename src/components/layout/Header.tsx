@@ -66,9 +66,14 @@ export function Header() {
   }, [mobileOpen])
 
   // Utilisateur connecté : pseudo + avatar Discord en haut à droite
-  // + lien direct vers sa dernière commande en cours
+  // + lien direct vers sa dernière commande en cours (PENDING/PAID uniquement,
+  // comme /dashboard/order — pas une vieille CANCELLED/COMPLETED).
   useEffect(() => {
-    fetch('/api/users/me')
+    // Pas de cookie de session = visiteur anonyme : inutile de taper l'API
+    // (évite 2 fetch 401 à chaque visite landing).
+    if (!document.cookie.includes('fmx_session')) return
+    const ctrl = new AbortController()
+    fetch('/api/users/me', { signal: ctrl.signal })
       .then(r => (r.ok ? r.json() : null))
       .then(data => {
         const u = data?.user
@@ -78,16 +83,18 @@ export function Header() {
             avatar: u.discordAvatar || null,
             role: u.role || 'USER',
           })
-          fetch('/api/orders?limit=1')
+          fetch('/api/orders?limit=10', { signal: ctrl.signal })
             .then(r => (r.ok ? r.json() : null))
             .then(d => {
-              const first = d?.orders?.[0]
-              if (first) setLatestOrderId(first.id)
+              const list = Array.isArray(d?.orders) ? d.orders : []
+              const active = list.find((o: any) => o.status === 'PENDING' || o.status === 'PAID')
+              if (active) setLatestOrderId(active.id)
             })
             .catch(() => {})
         }
       })
       .catch(() => {})
+    return () => ctrl.abort()
   }, [])
 
   return (
@@ -160,7 +167,7 @@ export function Header() {
             >
               {me.avatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={me.avatar} alt="" width={28} height={28} className="h-7 w-7 shrink-0 rounded-full object-cover" />
+                <img src={me.avatar} alt="" width={28} height={28} loading="lazy" decoding="async" referrerPolicy="no-referrer" className="h-7 w-7 shrink-0 rounded-full object-cover" />
               ) : (
                 <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-fmx-red text-[12px] font-extrabold text-white">
                   {me.pseudo.charAt(0).toUpperCase()}
@@ -170,15 +177,15 @@ export function Header() {
             </Link>
           ) : (
             <>
-              <a
-                href="/api/auth/discord"
+              <Link
+                href="/auth/login"
                 className="hidden min-[480px]:inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-white/[0.12]"
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                   <path d="M19.73 4.87a18.2 18.2 0 0 0-4.5-1.42c-.22.4-.42.83-.6 1.27a16.13 16.13 0 0 0-4.56 0c-.18-.44-.38-.87-.6-1.27a18.18 18.18 0 0 0-4.5 1.42C2.53 9.1 1.67 13.2 1.89 17.27a18.43 18.43 0 0 0 5.52 2.78c.44-.6.83-1.23 1.14-1.9a12.4 12.4 0 0 1-1.8-.86c.15-.11.3-.22.44-.35a12.9 12.9 0 0 0 6.6 0c.14.13.29.24.44.35a12.4 12.4 0 0 1-1.8.86c.31.67.7 1.3 1.14 1.9a18.43 18.43 0 0 0 5.52-2.78c.37-4.74-1.02-8.84-1.35-10.4ZM9.39 14.55c-1.02 0-1.86-.94-1.86-2.09 0-1.15.82-2.09 1.86-2.09 1.03 0 1.87.94 1.87 2.09 0 1.15-.84 2.09-1.87 2.09Zm5.16 0c-1.02 0-1.86-.94-1.86-2.09 0-1.15.82-2.09 1.86-2.09 1.03 0 1.87.94 1.87 2.09 0 1.15-.84 2.09-1.87 2.09Z" />
                 </svg>
                 Login Discord
-              </a>
+              </Link>
               <a
                 href="/api/auth/discord"
                 aria-label="Login Discord"

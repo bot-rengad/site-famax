@@ -114,6 +114,17 @@ export const aiQuerySchema = z.object({
   }).optional(),
 })
 
+// Scripts (admin) : contenu stocké puis téléchargé par les clients —
+// validation stricte anti stored-XSS / DoS par volume.
+export const scriptSchema = z.object({
+  name: z.string().min(3, 'Nom trop court').max(100),
+  description: z.string().min(3, 'Description trop courte').max(2000),
+  category: z.string().min(2).max(80),
+  content: z.string().min(1, 'Contenu vide').max(200_000, 'Script trop volumineux (200 Ko max)'),
+  version: z.string().regex(/^\d+\.\d+\.\d+$/, 'Version au format X.Y.Z').optional().default('1.0.0'),
+  requiresAdmin: z.boolean().optional().default(false),
+})
+
 // Types
 export type LoginInput = z.infer<typeof loginSchema>
 export type RegisterInput = z.infer<typeof registerSchema>
@@ -125,3 +136,4 @@ export type CreateTicketInput = z.infer<typeof createTicketSchema>
 export type TicketMessageInput = z.infer<typeof ticketMessageSchema>
 export type ChecklistProgressInput = z.infer<typeof checklistProgressSchema>
 export type AIQueryInput = z.infer<typeof aiQuerySchema>
+export type ScriptInput = z.infer<typeof scriptSchema>

@@ -1,26 +1,21 @@
 import type { Metadata, Viewport } from 'next'
-import { Space_Grotesk, JetBrains_Mono, Syne, Inter } from 'next/font/google'
+import { Space_Grotesk, JetBrains_Mono, Syne } from 'next/font/google'
 import '../styles/globals.css'
 
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-inter',
-  weight: ['400', '500', '600', '700'],
-})
-
+// 3 familles suffisent (Inter doublonnait Space Grotesk en sans-serif) :
+// - Space Grotesk : texte courant, - Syne : display, - JetBrains Mono : code.
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-space',
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['400', '600', '700'],
 })
 
 const jetbrains = JetBrains_Mono({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-jetbrains',
-  weight: ['400', '500', '600'],
+  weight: ['400', '600'],
 })
 
 const syne = Syne({
@@ -36,7 +31,7 @@ export const metadata: Metadata = {
     default: 'FMX Optimisation — Optimisation PC Gaming Premium',
     template: '%s | FMX Optimisation',
   },
-  description: "L'optimisation PC haut de gamme pour joueurs compétitifs. Analyse UserDiag et avis du staff, intervention à distance en 15 minutes.",
+  description: "L'optimisation PC haut de gamme pour joueurs compétitifs. Analyse UserDiag et avis du staff, intervention à distance (~15 min selon pack), suivi inclus.",
   keywords: ['optimisation PC', 'gaming', 'FPS', 'latence', 'esport', 'performance', 'overclocking', 'tweak', 'Windows'],
   authors: [{ name: 'FMX Optimisation' }],
   creator: 'FMX Optimisation',
@@ -53,10 +48,10 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
-    url: 'https://famaxopti.vercel.app',
+    url: '/',
     siteName: 'FMX Optimisation',
     title: 'FMX Optimisation — Optimisation PC Gaming Premium',
-    description: "Diagnostic UserDiag et avis du staff, intervention à distance en 15 minutes, suivi 30 jours.",
+    description: "Diagnostic UserDiag et avis du staff, intervention à distance, suivi inclus.",
     images: [
       {
         url: '/images/logo.png',
@@ -69,7 +64,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'FMX Optimisation',
-    description: 'Diagnostic UserDiag et avis du staff, intervention à distance en 15 minutes.',
+    description: 'Diagnostic UserDiag et avis du staff, intervention à distance, suivi inclus.',
     images: ['/images/logo.png'],
   },
 }
@@ -87,14 +82,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="fr" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrains.variable} ${syne.variable} scroll-smooth`}>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-      </head>
-      <body className="min-h-screen overflow-x-clip bg-fmx-black text-fmx-white antialiased">
+    <html lang="fr" className={`${spaceGrotesk.variable} ${jetbrains.variable} ${syne.variable}`}>
+      <body className="min-h-screen overflow-x-clip bg-fmx-black font-sans text-fmx-white antialiased">
         {children}
       </body>
     </html>
