@@ -41,8 +41,15 @@ export async function GET(request: NextRequest) {
     return redirectWith(origin, '/auth/login', { error: 'discord_invalid' })
   }
 
-  // Protection CSRF : le state doit être signé par nous et non expiré
-  const stateData = verifyState(state)
+  // Protection CSRF : le state doit être signé par nous et non expiré.
+  // (verifyState peut lever si le secret serveur est mal configuré → erreur claire, pas de 500)
+  let stateData
+  try {
+    stateData = verifyState(state)
+  } catch (e) {
+    console.error('Discord OAuth verify error:', e)
+    return redirectWith(origin, '/auth/login', { error: 'discord_server' })
+  }
   if (!stateData) {
     return redirectWith(origin, '/auth/login', { error: 'discord_state' })
   }

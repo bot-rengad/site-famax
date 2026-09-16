@@ -17,7 +17,14 @@ export async function GET(request: NextRequest) {
   const redirect = safeRedirect(url.searchParams.get('redirect'))
 
   // Utilisateur connecté = liaison de compte, sinon connexion/inscription directe
-  const state = createState(session ? 'link' : 'login', session?.userId, redirect ?? undefined)
+  let state: string
+  try {
+    state = createState(session ? 'link' : 'login', session?.userId, redirect ?? undefined)
+  } catch (e) {
+    // JWT_SECRET manquant/invalide côté serveur : message clair au lieu d'un crash 500
+    console.error('Discord OAuth state error:', e)
+    return NextResponse.redirect(`${origin}/auth/login?error=discord_server`)
+  }
 
   // Domaine réel de la requête : le redirect_uri est toujours exact
   return NextResponse.redirect(buildAuthorizeUrl(state, origin))
