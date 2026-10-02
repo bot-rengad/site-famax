@@ -226,9 +226,9 @@ export default function AIAssistantPage() {
               <div className="w-20 h-20 rounded-2xl bg-fmx-red/10 flex items-center justify-center mb-6">
                 <Zap className="w-10 h-10 text-fmx-red" />
               </div>
-              <h3 className="font-display text-heading-md text-fmx-white mb-2">Comment puis-je vous aider ?</h3>
+              <h3 className="font-display text-heading-md text-fmx-white mb-2">Comment puis-je t&apos;aider ?</h3>
               <p className="text-fmx-white-dim text-center max-w-md mb-8">
-                Décrivez votre problème (ex: "Micro-freeze en 1v1", "High ping", "Input lag") et je vous donnerai des recommandations précises basées sur la checklist FMX.
+                Décris ton problème (ex: "Micro-freeze en 1v1", "High ping", "Input lag") et je te donnerai des recommandations précises basées sur la checklist FMX.
               </p>
               <div className="flex flex-wrap gap-3 justify-center max-w-2xl">
                 {quickPrompts.map((prompt, i) => (

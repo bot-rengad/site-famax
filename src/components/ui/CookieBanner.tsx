@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 
 // Bandeau cookies RGPD : le site ne pose AUCUN cookie/traceur marketing
 // aujourd'hui (session + consentement uniquement). Le bandeau mémorise le choix
-// et conditionne les futurs scripts d'analyse (voir lib/analytics.ts).
+// en local et conditionnera les futurs scripts d'analyse s'il y en a un jour.
 const KEY = 'fmx-consent'
 
 export function CookieBanner() {
@@ -61,12 +61,4 @@ export function CookieBanner() {
       </div>
     </div>
   )
-}
-
-export function hasConsented(): boolean {
-  try {
-    return localStorage.getItem(KEY) === 'accepted'
-  } catch {
-    return false
-  }
 }

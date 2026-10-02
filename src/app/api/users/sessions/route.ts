@@ -21,6 +21,12 @@ export async function GET() {
       },
     })
 
+    // Session courante retrouvée via le token du cookie (colonne `token`) :
+    // le frontend peut ainsi la marquer et masquer son bouton de révocation.
+    const currentDb = session.sessionId
+      ? await prisma.session.findUnique({ where: { token: session.sessionId }, select: { id: true } }).catch(() => null)
+      : null
+
     // Parse user agent for device info
     const sessionsWithInfo = sessions.map(s => {
       const ua = s.userAgent || ''
@@ -47,7 +53,7 @@ export async function GET() {
         deviceType,
         browser,
         os,
-        current: false, // Frontend will determine current session
+        current: currentDb ? s.id === currentDb.id : false,
       }
     })
 

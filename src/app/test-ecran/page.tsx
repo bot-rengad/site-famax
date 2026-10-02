@@ -252,9 +252,17 @@ export default function TestEcranPage() {
               Peely à vitesse constante — 1re ligne = Hz natif, autres = ÷2 / ÷4.
             </p>
           </div>
-          <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1 text-[11px] font-bold">
-            <MonitorCheck className="h-3.5 w-3.5 text-fmx-red" />
-            {hz ? <span>Écran : {hz} Hz</span> : <span className="text-fmx-gray">Détection Hz…</span>}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1 text-[11px] font-bold">
+              <MonitorCheck className="h-3.5 w-3.5 text-fmx-red" />
+              {hz ? <span>Écran : {hz} Hz</span> : <span className="text-fmx-gray">Détection Hz…</span>}
+            </div>
+            <Link
+              href="/estimateur"
+              className="rounded-full bg-fmx-red px-3.5 py-1 text-[11px] font-extrabold text-white transition-all hover:brightness-110"
+            >
+              Optimiser mon PC →
+            </Link>
           </div>
         </div>
 

@@ -21,7 +21,7 @@ const faqs = [
   },
   {
     q: 'Et si ça ne change rien sur mon PC ?',
-    a: "L'avis honnête AVANT le paiement évite ça : si ton PC n'y gagnera rien, on te le dit. Après l'intervention, suivi 30 jours inclus (à vie pour le Pack Ultime). Aucun remboursement une fois le travail commencé, sauf réévaluation du staff si aucune différence mesurable n'est constatée.",
+    a: "Chaque setup réagit différemment, c'est normal : après l'intervention, suivi 30 jours inclus (à vie pour le Pack Ultime) et le staff réajuste si besoin. Aucun remboursement une fois le travail commencé, sauf si aucune différence n'est constatée (réévaluation au cas par cas).",
   },
   {
     q: 'C’est sans risque pour mon PC ?',

@@ -35,8 +35,8 @@ export default function ConditionsGenerales() {
         <section className="fmx-window rounded-2xl p-5 sm:p-6">
           <h2 className="mb-2 font-bold text-white">3. Remboursement & support</h2>
           <p>
-            Aucun remboursement possible une fois le travail commencé, sauf si on constate
-            aucune différence après l’optimisation (le staff réévalue alors avec vous :
+            Aucun remboursement possible une fois le travail commencé, sauf si aucune
+            différence n’est constatée après l’optimisation (le staff réévalue alors avec vous :
             optimisation complémentaire ou geste commercial).
             Suivi garanti pendant 30 jours pour résoudre vos problèmes (à vie pour le Pack Ultime).
             Fin immédiate du support si vous réinitialisez votre PC sans nous prévenir.

@@ -47,7 +47,12 @@ export default function SettingsPage() {
 
   const handleRevokeSession = async (sessionId: string) => {
     try {
-      await fetch(`/api/users/sessions/${sessionId}`, { method: 'DELETE' })
+      const res = await fetch(`/api/users/sessions?id=${encodeURIComponent(sessionId)}`, { method: 'DELETE' })
+      if (!res.ok) {
+        const data = await res.json().catch(() => null)
+        toast.error(data?.error || 'Impossible de révoquer cette session')
+        return
+      }
       setSessions(prev => prev.filter(s => s.id !== sessionId))
       toast.success('Session révoquée')
     } catch {
@@ -177,7 +182,7 @@ export default function SettingsPage() {
                 <Smartphone className="w-5 h-5 text-fmx-red" />
                 Sessions Actives
               </CardTitle>
-              <CardDescription>Gérez vos connexions actuelles. Révoquez les sessions suspectes.</CardDescription>
+              <CardDescription>Gère tes connexions actuelles. Révoque les sessions suspectes.</CardDescription>
             </CardHeader>
             <CardContent>
               {sessions.length === 0 ? (

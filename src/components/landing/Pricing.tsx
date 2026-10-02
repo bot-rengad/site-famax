@@ -25,7 +25,7 @@ const RULES = [
   {
     icon: XCircle,
     title: 'Aucun remboursement une fois le travail commencé',
-    text: "Paiement validé = travail réservé. Sauf si on constate aucune différence après l'optimisation : dans ce cas le staff réévalue avec toi (optimisation complémentaire ou geste commercial).",
+    text: "Paiement validé = travail réservé. Sauf si aucune différence n'est constatée après l'optimisation : dans ce cas le staff réévalue avec toi (optimisation complémentaire ou geste commercial).",
   },
   {
     icon: ShieldCheck,

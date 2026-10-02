@@ -45,6 +45,10 @@ export default function ProfilePage() {
   const [saved, setSaved] = useState(false)
   const [detecting, setDetecting] = useState(false)
   const [detected, setDetected] = useState<DetectedSpecs | null>(null)
+  // Texte libre quand un Select est sur « Autre... » (sinon le staff reçoit
+  // la chaîne « Autre... », inexploitable).
+  const [custom, setCustom] = useState<Record<string, string>>({})
+  const OTHER_FIELDS = ['cpu', 'gpu', 'ram', 'storage', 'mouseDPI'] as const
 
   // Charge le profil existant au montage de la page
   useEffect(() => {
@@ -54,10 +58,22 @@ export default function ProfilePage() {
         const profile = data.user?.profile
         if (profile) {
           const { id, userId, createdAt, updatedAt, ...rest } = profile
-          setFormData(prev => ({ ...prev, ...rest }))
+          const next = { ...rest }
+          const customInit: Record<string, string> = {}
+          for (const f of OTHER_FIELDS) {
+            const v = (next as Record<string, unknown>)[f]
+            const opts = (hardwareOptions as Record<string, string[]>)[f] || []
+            if (typeof v === 'string' && v && v !== 'Autre...' && !opts.includes(v)) {
+              customInit[f] = v;
+              (next as Record<string, unknown>)[f] = 'Autre...'
+            }
+          }
+          setCustom(customInit)
+          setFormData(prev => ({ ...prev, ...next }))
         }
       })
       .catch(() => {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Détecte automatiquement la configuration du PC du visiteur
@@ -98,10 +114,17 @@ export default function ProfilePage() {
   const handleSave = async () => {
     setSaving(true)
     try {
+      // Remplace « Autre... » par le texte libre saisi (ou vide si rien saisi)
+      const payload: Record<string, unknown> = { ...formData }
+      for (const f of OTHER_FIELDS) {
+        if ((payload[f] as unknown) === 'Autre...') {
+          payload[f] = (custom[f] || '').trim()
+        }
+      }
       const res = await fetch('/api/users/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       })
       if (!res.ok) throw new Error('Erreur sauvegarde')
       setSaved(true)
@@ -124,7 +147,7 @@ export default function ProfilePage() {
         <div>
           <h1 className="font-display text-display-sm text-fmx-white mb-1">Mon Profil Hardware</h1>
           <p className="text-fmx-white-dim">
-            Configurez votre setup pour des recommandations d'optimisation précises et personnalisées.
+            Configure ton setup pour des recommandations d&apos;optimisation précises et personnalisées.
           </p>
         </div>
         <div className="flex gap-3">
@@ -208,6 +231,15 @@ export default function ProfilePage() {
                 options={hardwareOptions.cpu.map(o => ({ value: o, label: o }))}
                 placeholder="Sélectionnez votre CPU"
               />
+              {formData.cpu === 'Autre...' && (
+                <Input
+                  name="custom-cpu"
+                  label="Précisez votre processeur"
+                  placeholder="Ex : Ryzen 5 5600"
+                  value={custom.cpu || ''}
+                  onChange={e => { setCustom(c => ({ ...c, cpu: e.target.value })); setSaved(false) }}
+                />
+              )}
               <Input
                 name="motherboard"
                 label="Carte Mère (Modèle exact)"
@@ -235,6 +267,15 @@ export default function ProfilePage() {
                 options={hardwareOptions.gpu.map(o => ({ value: o, label: o }))}
                 placeholder="Sélectionnez votre GPU"
               />
+              {formData.gpu === 'Autre...' && (
+                <Input
+                  name="custom-gpu"
+                  label="Précisez votre carte graphique"
+                  placeholder="Ex : RTX 4060 8GB"
+                  value={custom.gpu || ''}
+                  onChange={e => { setCustom(c => ({ ...c, gpu: e.target.value })); setSaved(false) }}
+                />
+              )}
             </CardContent>
           </Card>
 
@@ -255,6 +296,15 @@ export default function ProfilePage() {
                 placeholder="Sélectionnez votre RAM"
                 hint="Incluez fréquence et timings (ex: CL30) si possible"
               />
+              {formData.ram === 'Autre...' && (
+                <Input
+                  name="custom-ram"
+                  label="Précisez votre RAM"
+                  placeholder="Ex : 32GB DDR5-6000"
+                  value={custom.ram || ''}
+                  onChange={e => { setCustom(c => ({ ...c, ram: e.target.value })); setSaved(false) }}
+                />
+              )}
               <Select
                 name="storage"
                 label="Stockage Principal (OS/Jeux)"
@@ -263,6 +313,15 @@ export default function ProfilePage() {
                 options={hardwareOptions.storage.map(o => ({ value: o, label: o }))}
                 placeholder="Sélectionnez votre SSD/NVMe"
               />
+              {formData.storage === 'Autre...' && (
+                <Input
+                  name="custom-storage"
+                  label="Précisez votre stockage"
+                  placeholder="Ex : Crucial P3 1TB"
+                  value={custom.storage || ''}
+                  onChange={e => { setCustom(c => ({ ...c, storage: e.target.value })); setSaved(false) }}
+                />
+              )}
             </CardContent>
           </Card>
         </motion.div>
@@ -336,6 +395,15 @@ export default function ProfilePage() {
                 options={hardwareOptions.mouseDPI.map(o => ({ value: o, label: o }))}
                 placeholder="DPI utilisé en jeu"
               />
+              {formData.mouseDPI === 'Autre...' && (
+                <Input
+                  name="custom-mouseDPI"
+                  label="Précisez vos DPI"
+                  placeholder="Ex : 500"
+                  value={custom.mouseDPI || ''}
+                  onChange={e => { setCustom(c => ({ ...c, mouseDPI: e.target.value })); setSaved(false) }}
+                />
+              )}
               <Select
                 name="keyboardPolling"
                 label="Polling Rate Clavier"

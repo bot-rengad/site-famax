@@ -247,7 +247,7 @@ export function OrderDetailView({
 
         {/* Colonne droite : récap + reminder paiement */}
         <div className="min-w-0 space-y-4 xl:sticky xl:top-24">
-          {/* Récap pack + tous les add-ons */}
+          {/* Récap pack (+ anciens add-ons si la commande en a) */}
           <Card variant="glass" padding="lg" className="min-w-0 p-5">
             <CardContent>
               <div className="flex flex-wrap items-start justify-between gap-2">
@@ -270,9 +270,6 @@ export function OrderDetailView({
                     <b className="text-white">+{a.price}€</b>
                   </div>
                 ))}
-                {addonItems.length === 0 && (
-                  <p className="text-[12px] text-fmx-gray">Sans option.</p>
-                )}
                 {paid && licenseKey && (
                   <div className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-green-500/25 bg-green-500/[0.06] px-3 py-2">
                     <span className="text-fmx-gray">Licence</span>

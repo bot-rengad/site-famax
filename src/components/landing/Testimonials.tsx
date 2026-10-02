@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { Star, MessageCircle } from 'lucide-react'
 import { Reveal } from '@/components/ui/Reveal'
 import { truncate } from '@/lib/utils/helpers'
@@ -68,7 +69,7 @@ export function Testimonials() {
                 <div className="mt-3 flex items-center gap-2.5 border-t border-white/[0.06] pt-3">
                   {r.avatar ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={r.avatar} alt="" width={28} height={28} className="h-7 w-7 rounded-full object-cover" />
+                    <img src={r.avatar} alt="" width={28} height={28} loading="lazy" decoding="async" referrerPolicy="no-referrer" className="h-7 w-7 rounded-full object-cover" />
                   ) : (
                     <span className="grid h-7 w-7 place-items-center rounded-full bg-fmx-red text-[12px] font-extrabold text-white">
                       {r.author.charAt(0).toUpperCase()}
@@ -84,7 +85,7 @@ export function Testimonials() {
               </article>
             ))}
           </div>
-          <div className="mt-6 text-center">
+          <div className="mt-6 flex flex-col items-center gap-2.5 text-center">
             <a
               href="https://discord.gg/fmx"
               target="_blank"
@@ -94,6 +95,12 @@ export function Testimonials() {
               <MessageCircle className="h-4 w-4" />
               Lire tous les avis sur Discord
             </a>
+            <Link
+              href="/dashboard/order?pack=COMPLET"
+              className="text-[13px] font-bold text-fmx-red hover:underline"
+            >
+              Convaincu ? Commander le Pack Complet — 25€ →
+            </Link>
           </div>
         </>
       ) : (

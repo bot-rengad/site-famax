@@ -86,7 +86,7 @@ export default function DashboardPage() {
       title: 'Commande',
       desc: latest && !cancelled
         ? `${PACK_NAMES[latest.packageType] || latest.packageType} — ${latest.orderNumber}`
-        : 'Choisis ton opti et tes options, puis paie.',
+        : 'Choisis ton pack (dès 15€), paie, puis envoie ta preuve.',
       done: !!latest && !cancelled,
       locked: false,
       cta: latest && !cancelled

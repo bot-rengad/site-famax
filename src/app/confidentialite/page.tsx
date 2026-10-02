@@ -32,9 +32,9 @@ export default function Confidentialite() {
         <section className="fmx-window rounded-2xl p-5 sm:p-6">
           <h2 className="mb-2 font-bold text-white">3. Vos droits (RGPD)</h2>
           <p>
-            Accès, rectification, suppression et export de vos données sur simple demande
-            via le serveur Discord <a href="https://discord.gg/fmx" target="_blank" rel="noreferrer" className="text-fmx-red hover:underline">discord.gg/fmx</a>.
-            Suppression du compte possible à tout moment sur demande au staff.
+            Accès, rectification, export et suppression de vos données : en autonomie
+            depuis votre espace (Paramètres), ou sur simple demande via le serveur
+            Discord <a href="https://discord.gg/fmx" target="_blank" rel="noreferrer" className="text-fmx-red hover:underline">discord.gg/fmx</a>.
           </p>
         </section>
         <section className="fmx-window rounded-2xl p-5 sm:p-6">
