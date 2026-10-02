@@ -1,6 +1,7 @@
 'use client'
 
 import { ClipboardCheck, SearchCheck, CreditCard, MonitorCog, Gamepad2, Star } from 'lucide-react'
+import { Reveal } from '@/components/ui/Reveal'
 
 // Déroulé réel FaMaxOpti — volontairement sans détail de la méthode
 const steps = [
@@ -46,7 +47,7 @@ const steps = [
 export function Services() {
   return (
     <section id="deroulement" className="relative mx-auto max-w-[1280px] scroll-mt-24 px-5 py-16 lg:px-10">
-      <div className="mx-auto max-w-[720px] text-center">
+      <Reveal className="mx-auto max-w-[720px] text-center">
         <h2 className="font-display text-[clamp(28px,5vw,44px)] font-extrabold tracking-tight text-white">
           Comment ça se passe
         </h2>
@@ -54,11 +55,12 @@ export function Services() {
           100% à distance, en vocal ou par écrit. Chaque étape est validée avec toi —
           rien ne démarre sans ton accord.
         </p>
-      </div>
+      </Reveal>
 
       <div className="mx-auto mt-10 grid max-w-[1080px] gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {steps.map(s => (
-          <div key={s.title} className="fmx-window fmx-window-hover rounded-2xl p-6">
+        {steps.map((s, i) => (
+          <Reveal key={s.title} delay={i * 70} className="h-full">
+          <div className="fmx-window fmx-window-hover h-full rounded-2xl p-6">
             <div className="mb-4 grid h-11 w-11 place-items-center rounded-xl border border-white/[0.08] bg-white/[0.06]">
               <s.icon className="h-5 w-5 text-fmx-red" aria-hidden="true" />
             </div>
@@ -76,6 +78,7 @@ export function Services() {
               </a>
             )}
           </div>
+          </Reveal>
         ))}
       </div>
     </section>

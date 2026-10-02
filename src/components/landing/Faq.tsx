@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
+import { Reveal } from '@/components/ui/Reveal'
 
 // FAQ — réponses courtes, le détail est dans les sections Tarifs / Paiement / Déroulé.
 const faqs = [
@@ -12,7 +13,7 @@ const faqs = [
   },
   {
     q: 'Combien ça coûte ?',
-    a: 'Pack Express 15€, Opti Windows 20€, Pack Undervolt & OC 20€, Pack Complet (Windows + BIOS) 25€, Pack Ultime 50€ — paiement unique. Options et dépannage : voir « Tarifs & prestations ».',
+    a: 'Pack Express 15€, Opti Windows 20€, Pack Undervolt & OC 20€, Pack Complet (Windows + BIOS) 25€, Pack Ultime 50€ — paiement unique, sans option. Dépannage via ticket si besoin : voir « Tarifs & prestations ».',
   },
   {
     q: 'Comment je paie ?',
@@ -33,16 +34,16 @@ export function Faq() {
 
   return (
     <section id="faq" className="relative mx-auto max-w-[1280px] scroll-mt-24 px-5 py-16 lg:px-10">
-      <div className="mx-auto max-w-[720px] text-center">
+      <Reveal className="mx-auto max-w-[720px] text-center">
         <h2 className="font-display text-[clamp(28px,5vw,44px)] font-extrabold tracking-tight text-white">
           Questions fréquentes
         </h2>
         <p className="mt-3 text-[14px] leading-relaxed text-fmx-gray">
           Le reste se demande directement sur Discord.
         </p>
-      </div>
+      </Reveal>
 
-      <div className="mx-auto mt-8 grid max-w-[860px] gap-3">
+      <Reveal className="mx-auto mt-8 grid max-w-[860px] gap-3">
         {faqs.map((f, i) => {
           const isOpen = open === i
           return (
@@ -83,7 +84,7 @@ export function Faq() {
             </div>
           )
         })}
-      </div>
+      </Reveal>
     </section>
   )
 }

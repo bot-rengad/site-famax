@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Star, MessageCircle } from 'lucide-react'
+import { Reveal } from '@/components/ui/Reveal'
 import { truncate } from '@/lib/utils/helpers'
 import type { PublicReview } from '@/app/api/reviews/route'
 
@@ -28,7 +29,7 @@ export function Testimonials() {
 
   return (
     <section id="avis" className="relative mx-auto max-w-[1280px] scroll-mt-24 px-5 py-16 lg:px-10">
-      <div className="mx-auto max-w-[720px] text-center">
+      <Reveal className="mx-auto max-w-[720px] text-center">
         <h2 className="font-display text-[clamp(28px,5vw,44px)] font-extrabold tracking-tight text-white">
           Ils ont testé <em className="not-italic text-fmx-red">FMX</em>
         </h2>
@@ -36,7 +37,7 @@ export function Testimonials() {
           Avis laissés directement sur le Discord, affichés ici en automatique.
           Pas de faux témoignages : tout est vérifiable sur le serveur.
         </p>
-      </div>
+      </Reveal>
 
       {reviews === null ? (
         <div className="mx-auto mt-8 grid max-w-[860px] gap-3 sm:grid-cols-2">

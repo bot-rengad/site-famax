@@ -18,9 +18,8 @@ export default function ConditionsGenerales() {
           <h2 className="mb-2 font-bold text-white">1. Prestations & tarifs</h2>
           <p>
             Pack Express 15€, Opti Windows 20€, Pack Undervolt & Overclocking CPU + GPU 20€,
-            Pack Complet (Windows + BIOS) 25€, Pack Ultime 50€, paiement unique.
-            Options : réinstallation Windows +5€, stream +7€, suivi à vie +5€,
-            périphériques +5€, undervolt & overclocking +20€, dépannage 5 à 15€.
+            Pack Complet (Windows + BIOS) 25€, Pack Ultime 50€, paiement unique, sans option.
+            Dépannage 5 à 15€ via ticket (diagnostic puis tarif exact selon gravité).
             Déroulé : diagnostic UserDiag, analyse et avis honnête (sans chiffres garantis),
             paiement, intervention 15 min à distance, test en jeu par le client.
           </p>

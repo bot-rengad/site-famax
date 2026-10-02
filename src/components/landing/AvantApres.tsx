@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Activity, Gauge, Thermometer } from 'lucide-react'
+import { Reveal } from '@/components/ui/Reveal'
 
 // Comparatif Avant / Après — chiffres illustratifs (chaque setup réagit
 // différemment), barres animées en pur CSS, zéro JS.
@@ -37,7 +38,7 @@ export function AvantApres() {
   return (
     <section id="avant-apres" className="relative mx-auto max-w-[1280px] scroll-mt-24 px-5 py-16 lg:px-10">
       <style>{`@keyframes fmx-bar-grow { from { width: 6%; } to { width: var(--w); } }`}</style>
-      <div className="mx-auto max-w-[720px] text-center">
+      <Reveal className="mx-auto max-w-[720px] text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-fmx-red/30 bg-fmx-red/[0.08] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-fmx-red">
           Résultats mesurés en jeu
         </div>
@@ -48,13 +49,13 @@ export function AvantApres() {
           Ce que change une intervention sur un setup type : plus de FPS, moins de latence,
           des températures maîtrisées.
         </p>
-      </div>
+      </Reveal>
 
       <div className="mx-auto mt-10 grid max-w-[1080px] gap-5 lg:grid-cols-3">
-        {METRICS.map(m => (
+        {METRICS.map((m, i) => (
+          <Reveal key={m.label} delay={i * 90} className="h-full">
           <div
-            key={m.label}
-            className="group rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 transition-all duration-200 hover:-translate-y-1 hover:border-fmx-red/40 hover:shadow-[0_20px_50px_rgba(255,26,26,0.15)] sm:p-6"
+            className="group h-full rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 transition-all duration-200 hover:-translate-y-1 hover:border-fmx-red/40 hover:shadow-[0_20px_50px_rgba(255,26,26,0.15)] sm:p-6"
           >
             <div className="flex items-center gap-2.5">
               <m.icon className="h-5 w-5 shrink-0 text-fmx-red" />
@@ -90,6 +91,7 @@ export function AvantApres() {
 
             <p className="mt-4 text-[11px] uppercase tracking-[0.14em] text-zinc-600">{m.note}</p>
           </div>
+          </Reveal>
         ))}
       </div>
 
@@ -98,14 +100,14 @@ export function AvantApres() {
         Le staff te dit honnêtement ce que ton PC peut gagner avant que tu paies.
       </p>
 
-      <div className="mt-6 text-center">
+      <Reveal className="mt-6 text-center">
         <Link
           href="/dashboard/order?pack=COMPLET"
           className="inline-flex min-h-[52px] items-center rounded-full bg-fmx-red px-8 py-3.5 text-[15px] font-extrabold text-white shadow-[0_12px_36px_rgba(255,26,26,0.4)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_40px_rgba(255,26,26,0.6)] hover:brightness-110 active:scale-[0.99]"
         >
           Optimiser mon setup — 25€ →
         </Link>
-      </div>
+      </Reveal>
     </section>
   )
 }

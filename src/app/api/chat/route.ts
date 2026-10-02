@@ -39,7 +39,7 @@ const INTENTS: Intent[] = [
     id: 'price',
     keywords: ['prix', 'coute', 'cout', 'tarif', 'c est combien', 'euro', 'eur', 'payement', 'paiement', 'cher', 'abonnement', 'gratuit', 'essai'],
     answer: () =>
-      "Nos tarifs : **Express 15€, Opti Windows 20€, Undervolt & OC 20€, Complet 25€, Ultime 50€ — paiement unique**, pas d'abonnement. Options possibles (stream +7€, périphs +5€, suivi à vie +5€...). Tu paies par **PayPal** ou **virement** (pseudo Discord en note), puis tu envoies ta preuve sur Discord.",
+      "Nos tarifs : **Express 15€, Opti Windows 20€, Undervolt & OC 20€, Complet 25€, Ultime 50€ — paiement unique**, pas d'abonnement ni d'option : le prix affiché est le prix final. Tu paies par **PayPal** ou **virement** (pseudo Discord en note), puis tu envoies ta preuve sur Discord.",
     quickReplies: ['Quels moyens de paiement ?', 'Il y a un remboursement ?', 'Je commande où ?'],
   },
   {

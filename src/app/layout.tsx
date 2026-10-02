@@ -84,6 +84,9 @@ export default function RootLayout({
   return (
     <html lang="fr" className={`${spaceGrotesk.variable} ${jetbrains.variable} ${syne.variable}`}>
       <body className="min-h-screen overflow-x-clip bg-fmx-black font-sans text-fmx-white antialiased">
+        <noscript>
+          <style>{`.reveal{opacity:1!important;transform:none!important}`}</style>
+        </noscript>
         {children}
       </body>
     </html>

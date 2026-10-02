@@ -4,7 +4,8 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Check, ChevronDown, Landmark, ShieldCheck, Timer, Wallet, XCircle } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
-import { ADDONS, PACKAGES, type PackId } from '@/types'
+import { PACKAGES, type PackId } from '@/types'
+import { Reveal } from '@/components/ui/Reveal'
 
 export type PlanId = PackId
 
@@ -13,10 +14,6 @@ interface PricingProps {
   onSelect: (plan: PackId) => void
   onOrder: (plan?: PackId | null) => void
 }
-
-const extras = ADDONS.map(a => ({ name: a.name, price: `+${a.price}€`, desc: a.desc })).concat([
-  { name: 'Dépannage', price: '5–15€', desc: 'Diagnostic complet puis tarif exact selon gravité (via ticket).' },
-])
 
 // Règlement & Conditions — rassure et cadre la prestation, juste sous les tarifs.
 const RULES = [
@@ -96,7 +93,7 @@ function Reglement() {
 export function Pricing({ selectedPlan, onSelect, onOrder }: PricingProps) {
   return (
     <section id="plans" className="relative mx-auto max-w-[1280px] scroll-mt-24 px-5 py-16 lg:px-10">
-      <div className="mx-auto max-w-[720px] text-center">
+      <Reveal className="mx-auto max-w-[720px] text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-fmx-red/30 bg-fmx-red/[0.08] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-fmx-red">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-fmx-red" />
           Paiement unique • Sans abonnement
@@ -108,16 +105,16 @@ export function Pricing({ selectedPlan, onSelect, onOrder }: PricingProps) {
           Choisis ton pack, paie, et on s&apos;occupe du reste. Diagnostic UserDiag et avis
           du staff avant chaque intervention.
         </p>
-      </div>
+      </Reveal>
 
       {/* 5 cartes : 1 col mobile, 2 tablette, 3 desktop (3 + 2) */}
       <div className="mx-auto mt-10 grid max-w-[1080px] gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {PACKAGES.map(plan => {
+        {PACKAGES.map((plan, i) => {
           const isSelected = selectedPlan === (plan.id as PackId)
           const isPopular = !!plan.popular
           return (
+            <Reveal key={plan.id} delay={i * 80} className="h-full">
             <div
-              key={plan.id}
               role="button"
               tabIndex={0}
               aria-pressed={isSelected}
@@ -130,7 +127,7 @@ export function Pricing({ selectedPlan, onSelect, onOrder }: PricingProps) {
                 }
               }}
               className={cn(
-                'group relative flex cursor-pointer flex-col rounded-2xl p-5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fmx-red sm:p-6',
+                'group relative flex h-full cursor-pointer flex-col rounded-2xl p-5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fmx-red sm:p-6',
                 'border bg-white/[0.02]',
                 'hover:-translate-y-1.5 hover:border-fmx-red/50 hover:bg-white/[0.04] hover:shadow-[0_20px_50px_rgba(255,26,26,0.18)]',
                 isPopular
@@ -179,12 +176,13 @@ export function Pricing({ selectedPlan, onSelect, onOrder }: PricingProps) {
                 {isSelected ? 'Sélectionné ✓ — Commander →' : `Commander — ${plan.price}€ →`}
               </button>
             </div>
+            </Reveal>
           )
         })}
       </div>
 
       {/* Bandeau commande rapide */}
-      <div className="mx-auto mt-8 max-w-[1080px]">
+      <Reveal className="mx-auto mt-8 max-w-[1080px]">
         <button
           onClick={() => onOrder(selectedPlan ?? 'COMPLET')}
           className="flex min-h-[56px] w-full flex-wrap items-center justify-center gap-2 rounded-2xl bg-fmx-red px-6 py-4 text-center text-[15px] font-extrabold text-white shadow-[0_12px_36px_rgba(255,26,26,0.4)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_40px_rgba(255,26,26,0.6)] hover:brightness-110 active:scale-[0.99]"
@@ -197,27 +195,11 @@ export function Pricing({ selectedPlan, onSelect, onOrder }: PricingProps) {
         <p className="mt-2.5 text-center text-[12px] text-fmx-gray">
           <b className="text-white">PayPal • Virement SEPA</b> — les coordonnées exactes s&apos;affichent à l&apos;étape paiement.
         </p>
-      </div>
+      </Reveal>
 
-      {/* Extras */}
-      <div className="mx-auto mt-10 max-w-[1080px]">
-        <h3 className="text-center text-[15px] font-bold uppercase tracking-[0.16em] text-fmx-gray">
-          Options & add-ons
-        </h3>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {extras.map(x => (
-            <div key={x.name} className="fmx-window rounded-2xl p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-fmx-red/30">
-              <div className="flex items-center justify-between gap-2">
-                <b className="text-[13px] text-white">{x.name}</b>
-                <span className="rounded-full bg-fmx-red/15 px-2.5 py-1 text-[11px] font-extrabold text-fmx-red">{x.price}</span>
-              </div>
-              <p className="mt-1.5 text-[12px] leading-relaxed text-fmx-gray">{x.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
+      <Reveal>
       <Reglement />
+      </Reveal>
     </section>
   )
 }

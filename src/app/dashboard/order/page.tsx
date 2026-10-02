@@ -3,16 +3,16 @@
 import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { Check, Lock, Copy, Wallet, Landmark, ArrowLeft, ArrowRight, MessageCircle, PartyPopper } from 'lucide-react'
+import { Check, Copy, Wallet, Landmark, ArrowLeft, ArrowRight, MessageCircle, PartyPopper } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
 import { Button } from '@/components/ui/Button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
-import { PACKAGES, ADDONS, type PackId } from '@/types'
+import { PACKAGES, type PackId } from '@/types'
 import { DISCORD_INVITE, PAYPAL_LINK, PAYPAL_NAME, IBAN_RAW, IBAN_DISPLAY, TITULAIRE } from '@/lib/payment-info'
 
 const VALID_PACKS: PackId[] = ['EXPRESS', 'WINDOWS', 'UVOC', 'COMPLET', 'ULTIME']
 
-const STEPS = ['Pack & options', 'Paiement']
+const STEPS = ['Pack', 'Paiement']
 
 function CopyBtn({ text, label = 'Copier' }: { text: string; label?: string }) {
   const [done, setDone] = useState(false)
@@ -44,13 +44,12 @@ function CopyBtn({ text, label = 'Copier' }: { text: string; label?: string }) {
   )
 }
 
-// Parcours d'achat en 3 étapes ultra-guidées :
-// 1. pack + options → 2. payer (PayPal/RIB affichés) → 3. "J'ai payé" → commande + chat.
+// Parcours d'achat en 2 étapes ultra-guidées :
+// 1. pack (prix final, sans option) → 2. payer (PayPal/RIB affichés) → "J'ai payé" → commande + chat.
 function OrderContent() {
   const searchParams = useSearchParams()
   const [step, setStep] = useState<1 | 2>(1)
   const [pack, setPack] = useState<PackId>('COMPLET')
-  const [addons, setAddons] = useState<string[]>([])
   const [method, setMethod] = useState<'PAYPAL' | 'BANK_TRANSFER'>('PAYPAL')
   const [paidChecked, setPaidChecked] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -60,9 +59,7 @@ function OrderContent() {
   const [pendingOrder, setPendingOrder] = useState<{ id: string; orderNumber: string; amount: number } | null>(null)
 
   const packPrice = PACKAGES.find(p => p.id === pack)?.price ?? 0
-  const addonsTotal = addons.reduce((s, id) => s + (ADDONS.find(a => a.id === id)?.price ?? 0), 0)
-  const total = packPrice + addonsTotal
-  const ultime = pack === 'ULTIME'
+  const total = packPrice
   const packName = PACKAGES.find(p => p.id === pack)?.name ?? pack
 
   // Pack transmis depuis la landing (?pack=...) + brouillon local + pseudo Discord + commande en cours
@@ -70,20 +67,16 @@ function OrderContent() {
     const q = (searchParams.get('pack') || '').toUpperCase()
     if ((VALID_PACKS as string[]).includes(q)) {
       setPack(q as PackId)
-      if (q === 'ULTIME') setAddons([])
-      // Addons/méthode éventuellement conservés dans l'URL (retour login)
-      const qAddons = (searchParams.get('addons') || '').split(',').filter(Boolean)
-      if (qAddons.length > 0 && q !== 'ULTIME') setAddons(qAddons)
+      // Méthode éventuellement conservée dans l'URL (retour login)
       const qMethod = (searchParams.get('method') || '').toUpperCase()
       if (qMethod === 'PAYPAL' || qMethod === 'BANK_TRANSFER') setMethod(qMethod)
     } else {
       // Restaure le brouillon si retour après login (le middleware conserve
-      // déjà ?pack=, le reste — addons, méthode — survit ici).
+      // déjà ?pack=, la méthode survit ici).
       try {
         const draft = JSON.parse(localStorage.getItem('fmx_order_draft') || '{}')
         if ((VALID_PACKS as string[]).includes((draft.pack || '').toUpperCase())) {
           setPack(draft.pack.toUpperCase() as PackId)
-          if (Array.isArray(draft.addons)) setAddons(draft.addons.filter((a: unknown) => typeof a === 'string'))
           if (draft.method === 'PAYPAL' || draft.method === 'BANK_TRANSFER') setMethod(draft.method)
         }
       } catch {}
@@ -115,15 +108,12 @@ function OrderContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const toggleAddon = (id: string) =>
-    setAddons(prev => (prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]))
-
   // Persiste le brouillon à chaque changement (survit au login Discord intercalé)
   useEffect(() => {
     try {
-      localStorage.setItem('fmx_order_draft', JSON.stringify({ pack, addons, method }))
+      localStorage.setItem('fmx_order_draft', JSON.stringify({ pack, method }))
     } catch {}
-  }, [pack, addons, method])
+  }, [pack, method])
 
   // "J'ai payé" → crée la commande et envoie vers le suivi + chat
   const confirmPaid = async () => {
@@ -133,14 +123,10 @@ function OrderContent() {
       const res = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ packageType: pack, paymentMethod: method, addons: ultime ? [] : addons }),
+        body: JSON.stringify({ packageType: pack, paymentMethod: method, addons: [] }),
       })
       if (res.status === 401) {
-        const qs = new URLSearchParams({
-          pack,
-          addons: (ultime ? [] : addons).join(','),
-          method,
-        }).toString()
+        const qs = new URLSearchParams({ pack, method }).toString()
         window.location.href = `/auth/login?redirect=${encodeURIComponent(`/dashboard/order?${qs}`)}`
         return
       }
@@ -211,7 +197,7 @@ function OrderContent() {
 
       {step === 1 && (
         <div className="grid min-h-0 items-start gap-4 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_360px] lg:overflow-hidden">
-          {/* Gauche : choix pack + options (scroll interne sur desktop) */}
+          {/* Gauche : choix pack (scroll interne sur desktop) */}
           <div className="grid min-w-0 gap-4 lg:h-full lg:min-h-0 lg:overflow-y-auto lg:pb-1 lg:pr-1">
           {/* Étape 1 — Pack */}
           <Card variant="glass" padding="lg">
@@ -225,7 +211,7 @@ function OrderContent() {
                   return (
                     <button
                       key={p.id}
-                      onClick={() => { setPack(p.id as PackId); if (p.id === 'ULTIME') setAddons([]) }}
+                      onClick={() => setPack(p.id as PackId)}
                       className={cn(
                         'fmx-window rounded-2xl p-4 text-left transition-all duration-150 hover:-translate-y-px hover:border-fmx-red/40 hover:shadow-[0_0_28px_rgba(255,26,26,0.15)]',
                         selected && 'border-fmx-red shadow-[0_0_32px_rgba(255,26,26,0.18)]'
@@ -241,46 +227,6 @@ function OrderContent() {
                   )
                 })}
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Étape 1 — Options */}
-          <Card variant="glass" padding="lg">
-            <CardHeader className="mb-3">
-              <CardTitle>2. Les options <span className="font-normal text-fmx-gray">(facultatif)</span></CardTitle>
-            </CardHeader>
-            <CardContent>
-              {ultime ? (
-                <p className="flex items-center gap-2 rounded-xl border border-green-500/25 bg-green-500/[0.06] p-4 text-[13px] text-green-300">
-                  <Lock className="h-4 w-4 shrink-0" />
-                  Pack Ultime : tout est déjà inclus, aucune option à ajouter.
-                </p>
-              ) : (
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {ADDONS.map(a => {
-                    const on = addons.includes(a.id)
-                    return (
-                      <button
-                        key={a.id}
-                        onClick={() => toggleAddon(a.id)}
-                        className={cn(
-                          'flex items-center gap-3 rounded-xl border p-3.5 text-left transition-all duration-150 hover:-translate-y-px hover:border-fmx-red/40 hover:shadow-[0_0_20px_rgba(255,26,26,0.12)]',
-                          on ? 'border-fmx-red bg-fmx-red/[0.08]' : 'border-white/[0.08] bg-white/[0.02] hover:border-white/20'
-                        )}
-                      >
-                        <span className={cn('grid h-6 w-6 shrink-0 place-items-center rounded-full border', on ? 'border-fmx-red bg-fmx-red text-white' : 'border-white/20 text-transparent')}>
-                          <Check className="h-3.5 w-3.5" />
-                        </span>
-                        <span className="flex-1">
-                          <b className="block text-[13px] text-white">{a.name}</b>
-                          <span className="block text-[12px] text-fmx-gray">{a.desc}</span>
-                        </span>
-                        <b className="text-[13px] text-fmx-red">+{a.price}€</b>
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
             </CardContent>
           </Card>
           </div>
@@ -304,19 +250,7 @@ function OrderContent() {
                     <span className="text-fmx-gray">{packName}</span>
                     <b className="text-white">{packPrice}€</b>
                   </div>
-                  {!ultime && addons.map(id => {
-                    const a = ADDONS.find(x => x.id === id)
-                    if (!a) return null
-                    return (
-                      <div key={id} className="flex items-center justify-between gap-2">
-                        <span className="text-fmx-gray">+ {a.name}</span>
-                        <b className="text-white">+{a.price}€</b>
-                      </div>
-                    )
-                  })}
-                  {(ultime || addons.length === 0) && (
-                    <p className="text-[12px] text-fmx-gray">{ultime ? 'Tout inclus, sans option.' : 'Sans option.'}</p>
-                  )}
+                  <p className="text-[12px] text-fmx-gray">Prix final, sans option.</p>
                 </div>
                 <Button variant="neon" size="lg" fullWidth className="mt-4" onClick={() => { setStep(2); const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' }) }}>
                   Continuer vers le paiement — {total}€
@@ -335,7 +269,7 @@ function OrderContent() {
           <div className="min-w-0 lg:h-full lg:min-h-0">
             <Card variant="glass" padding="lg" className="flex h-full flex-col p-5 lg:p-6">
               <CardHeader className="mb-3 flex flex-row flex-wrap items-center justify-between gap-2">
-                <CardTitle className="text-[17px]">3. Paie {total}€, puis confirme</CardTitle>
+                <CardTitle className="text-[17px]">2. Paie {total}€, puis confirme</CardTitle>
                 {/* Choix du moyen */}
                 <div className="flex flex-wrap gap-2">
                   <button
@@ -371,7 +305,7 @@ function OrderContent() {
                   <div className="flex flex-wrap items-center gap-3 rounded-xl border border-yellow-500/25 bg-yellow-500/[0.06] px-4 py-3 text-[13px] text-yellow-200/90">
                     <span><b>Lie ton Discord</b> pour retrouver ton paiement.</span>
                     <a
-                      href={`/api/auth/discord?redirect=${encodeURIComponent(`/dashboard/order?pack=${pack}&addons=${addons.join(',')}&method=${method}`)}`}
+                      href={`/api/auth/discord?redirect=${encodeURIComponent(`/dashboard/order?pack=${pack}&method=${method}`)}`}
                       className="rounded-full bg-[#5865F2] px-4 py-2 text-[12px] font-bold text-white hover:bg-[#4752C4]"
                     >
                       Vérifier avec Discord →
@@ -440,7 +374,7 @@ function OrderContent() {
                 >
                   <span className="truncate text-[13px] text-fmx-gray">
                     <b className="text-white">{packName}</b>
-                    {addons.length > 0 && ` + ${addons.length} opt.`} • <b className="text-white">{total}€</b>
+                    {' '}• <b className="text-white">{total}€</b>
                   </span>
                   <span className="inline-flex shrink-0 items-center gap-1 text-[12px] font-bold text-fmx-red">
                     <ArrowLeft className="h-3.5 w-3.5" /> Modifier
@@ -452,16 +386,6 @@ function OrderContent() {
                     <span className="text-fmx-gray">{packName}</span>
                     <b className="text-white">{packPrice}€</b>
                   </div>
-                  {!ultime && addons.map(id => {
-                    const a = ADDONS.find(x => x.id === id)
-                    if (!a) return null
-                    return (
-                      <div key={id} className="flex items-center justify-between gap-2">
-                        <span className="truncate text-fmx-gray">+ {a.name}</span>
-                        <b className="shrink-0 text-white">+{a.price}€</b>
-                      </div>
-                    )
-                  })}
                   <div className="mt-1 flex items-center justify-between border-t border-white/[0.06] pt-2">
                     <span className="font-bold text-white">Total</span>
                     <b className="text-[20px] text-white">{total}€</b>
