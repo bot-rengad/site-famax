@@ -7,6 +7,7 @@ import {
   Zap, Lock, ExternalLink, Filter, ChevronDown, X
 } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
+import { PACK_LEVELS, type PackId } from '@/types'
 import { Button } from '@/components/ui/Button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
@@ -48,9 +49,9 @@ export default function DownloadsPage() {
   const [loading, setLoading] = useState(true)
   const [activeCategory, setActiveCategory] = useState<string>('ALL')
   const [search, setSearch] = useState('')
-  // Vrais packs FMX : BASIC / COMPLET / ULTIME (jamais PRO/ULTIMATE).
-  // Défaut BASIC = moindre privilège (pas d'accès offert par erreur).
-  const [userPack, setUserPack] = useState<'BASIC' | 'COMPLET' | 'ULTIME'>('BASIC')
+  // Packs FMX : EXPRESS / WINDOWS / UVOC / COMPLET / ULTIME (+ anciens BASIC/PRO/ULTIMATE).
+  // Défaut EXPRESS (niveau 1) = moindre privilège.
+  const [userPack, setUserPack] = useState<PackId | 'BASIC' | 'PRO' | 'ULTIMATE'>('EXPRESS')
   const [modalScript, setModalScript] = useState<Script | null>(null)
   const [downloading, setDownloading] = useState<string | null>(null)
 
@@ -80,9 +81,8 @@ export default function DownloadsPage() {
       .then(res => res.json())
       .then(data => {
         const activeLicense = data.licenses?.find((l: any) => l.status === 'ACTIVE')
-        const pkg = (activeLicense?.packageType || 'BASIC') as string
-        if (pkg === 'BASIC' || pkg === 'COMPLET' || pkg === 'ULTIME') setUserPack(pkg)
-        // Compat ascendante si une vieille licence dit encore PRO/ULTIMATE
+        const pkg = (activeLicense?.packageType || 'EXPRESS') as string
+        if (pkg in PACK_LEVELS) setUserPack(pkg as any)
         else if (pkg === 'PRO') setUserPack('COMPLET')
         else if (pkg === 'ULTIMATE') setUserPack('ULTIME')
       })
@@ -98,11 +98,7 @@ export default function DownloadsPage() {
     return matchesSearch && matchesCategory
   })
 
-  const getPackLevel = (pack: string) => {
-    // Packs réels : BASIC 1 < COMPLET 2 < ULTIME 3 (+ alias historiques PRO/ULTIMATE).
-    const levels: Record<string, number> = { BASIC: 1, PRO: 2, COMPLET: 2, ULTIMATE: 3, ULTIME: 3 }
-    return levels[pack] || 1
-  }
+  const getPackLevel = (pack: string) => PACK_LEVELS[pack] ?? 1
 
   const canAccess = (requiredPack: string) => getPackLevel(userPack) >= getPackLevel(requiredPack)
 
@@ -156,13 +152,13 @@ export default function DownloadsPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Badge variant={userPack === 'BASIC' ? 'gray' : userPack === 'COMPLET' ? 'red' : 'yellow'} icon={<Shield className="w-3 h-3" />}>
+          <Badge variant={getPackLevel(userPack) >= 3 ? 'yellow' : getPackLevel(userPack) >= 2 ? 'red' : 'gray'} icon={<Shield className="w-3 h-3" />}>
             Pack {userPack}
           </Badge>
           <span className="text-fmx-white-dim text-sm">
-            {userPack === 'BASIC' && 'Mettez à niveau pour accéder aux scripts avancés'}
-            {userPack === 'COMPLET' && 'Accès complet aux scripts Complet'}
-            {userPack === 'ULTIME' && 'Accès illimité + scripts Ultime'}
+            {getPackLevel(userPack) >= 3 && 'Accès illimité + scripts Ultime'}
+            {getPackLevel(userPack) === 2 && 'Accès complet aux scripts avancés'}
+            {getPackLevel(userPack) < 2 && 'Mettez à niveau pour accéder aux scripts avancés'}
           </span>
         </div>
       </motion.div>

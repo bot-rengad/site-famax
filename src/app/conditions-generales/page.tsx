@@ -17,8 +17,9 @@ export default function ConditionsGenerales() {
         <section className="fmx-window rounded-2xl p-6">
           <h2 className="mb-2 font-bold text-white">1. Prestations & tarifs</h2>
           <p>
-            Optimisation Windows 20€, Pack Complet (Windows + BIOS) 25€, Pack Ultime 50€,
-            paiement unique. Options : réinstallation Windows +5€, stream +7€, suivi à vie +5€,
+            Pack Express 15€, Opti Windows 20€, Pack Undervolt & Overclocking CPU + GPU 20€,
+            Pack Complet (Windows + BIOS) 25€, Pack Ultime 50€, paiement unique.
+            Options : réinstallation Windows +5€, stream +7€, suivi à vie +5€,
             périphériques +5€, undervolt & overclocking +20€, dépannage 5 à 15€.
             Déroulé : diagnostic UserDiag, analyse et avis honnête (sans chiffres garantis),
             paiement, intervention 15 min à distance, test en jeu par le client.
@@ -35,11 +36,11 @@ export default function ConditionsGenerales() {
         <section className="fmx-window rounded-2xl p-5 sm:p-6">
           <h2 className="mb-2 font-bold text-white">3. Remboursement & support</h2>
           <p>
-            Aucun remboursement une fois le travail commencé. Si aucune différence
-            mesurable n’est constatée après l’optimisation, le staff réévalue au cas par cas.
-            Suivi 30 jours inclus (à vie pour le Pack Ultime ou l’option suivi à vie).
-            Le support peut s’arrêter en cas de réinitialisation du PC sans prévenir
-            (sauf Pack Ultime / suivi à vie).
+            Aucun remboursement possible une fois le travail commencé, sauf si on constate
+            aucune différence après l’optimisation (le staff réévalue alors avec vous :
+            optimisation complémentaire ou geste commercial).
+            Suivi garanti pendant 30 jours pour résoudre vos problèmes (à vie pour le Pack Ultime).
+            Fin immédiate du support si vous réinitialisez votre PC sans nous prévenir.
           </p>
         </section>
         <section className="fmx-window rounded-2xl p-6">

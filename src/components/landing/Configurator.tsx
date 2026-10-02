@@ -186,7 +186,7 @@ const DDR_COMPAT: Record<string, ('DDR4' | 'DDR5')[]> = {
 }
 
 // Gain opti en pourcentage : proportionnel, n'inflate pas les petites configs
-const OPTI_PCT: Record<20 | 25 | 50, number> = { 20: 0.12, 25: 0.15, 50: 0.18 }
+const OPTI_PCT: Record<15 | 20 | 25 | 50, number> = { 15: 0.09, 20: 0.12, 25: 0.15, 50: 0.18 }
 
 // Moteur V3 — Fortnite Performance + résolution + bottleneck
 // Profil calibré sur la config de référence (7800X3D + RTX 5060 Ti +
@@ -250,7 +250,7 @@ export function estimateFpsDetailed(
   mhzAdd: number,
   game: string,
   resolution: string,
-  offer: 20 | 25 | 50
+  offer: 15 | 20 | 25 | 50
 ): FpsResult {
   const g = GAMES[game] ?? GAMES['Fortnite Performance (illimité)']
   const r = RESOLUTIONS[resolution] ?? RESOLUTIONS['1080p']
@@ -266,7 +266,7 @@ export function estimateFpsDetailed(
 
   const avgStock = Math.round(stock)
   // 1% low : meilleure stabilité avec les offres supérieures
-  const LOW1_RATIO: Record<20 | 25 | 50, number> = { 20: 0.66, 25: 0.7, 50: 0.74 }
+  const LOW1_RATIO: Record<15 | 20 | 25 | 50, number> = { 15: 0.64, 20: 0.66, 25: 0.7, 50: 0.74 }
   const low1 = Math.round(avg * LOW1_RATIO[offer])
   const gain = avg - avgStock
 
@@ -299,13 +299,13 @@ export interface LatencyResult {
 export function estimateLatency(
   avgStock: number,
   avg: number,
-  offer: 20 | 25 | 50,
+  offer: 15 | 20 | 25 | 50,
   stutterRisk: boolean,
   resolution: string
 ): LatencyResult {
   const frameBefore = 1000 / Math.max(40, avgStock)
   const frameAfter = 1000 / Math.max(40, avg)
-  const LATENCY_CUT: Record<20 | 25 | 50, number> = { 20: 4, 25: 6, 50: 8.5 }
+  const LATENCY_CUT: Record<15 | 20 | 25 | 50, number> = { 15: 3, 20: 4, 25: 6, 50: 8.5 }
   const overhead = 14 + (stutterRisk ? 4 : 0) + (resolution === '1440p' ? 1.5 : 0)
   const before = frameBefore + overhead
   const after = Math.max(3.5, frameAfter + overhead - LATENCY_CUT[offer])
@@ -320,7 +320,7 @@ export function estimateLatency(
 // Configurateur — sélection en cascade marque → gamme → génération → modèle
 // ============================================================
 interface ConfiguratorProps {
-  onOrder: (plan?: 'BASIC' | 'COMPLET' | 'ULTIME' | null) => void
+  onOrder: (plan?: 'EXPRESS' | 'WINDOWS' | 'UVOC' | 'COMPLET' | 'ULTIME' | null) => void
 }
 
 export function Configurator({ onOrder }: ConfiguratorProps) {
@@ -341,7 +341,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
   // Fortnite uniquement — pas de sélecteur de jeu
   const game = 'Fortnite Performance (illimité)'
   const [resolution, setResolution] = useState('1080p')
-  const [offer, setOffer] = useState<20 | 25 | 50>(25)
+  const [offer, setOffer] = useState<15 | 20 | 25 | 50>(25)
   const [scanning, setScanning] = useState(false)
   const [detectedMsg, setDetectedMsg] = useState<string | null>(null)
   const [refreshHz, setRefreshHz] = useState<number | null>(null)
@@ -649,7 +649,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
               Ce qui est inclus
             </label>
             <div className="mb-2 flex gap-2">
-              {([20, 25, 50] as const).map(o => (
+              {([15, 20, 25, 50] as const).map(o => (
                 <button
                   key={o}
                   onClick={() => setOffer(o)}
@@ -657,7 +657,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
                     offer === o ? 'border border-fmx-red bg-fmx-red text-white hover:shadow-[0_0_18px_rgba(255,26,26,0.45)]' : 'border border-white/[0.08] bg-white/[0.06] text-fmx-gray hover:border-white/25 hover:text-white'
                   }`}
                 >
-                  {o === 20 ? 'Basic 20€' : o === 25 ? 'Complet 25€' : 'Ultime 50€'}
+                  {o === 15 ? 'Express 15€' : o === 20 ? 'Windows 20€' : o === 25 ? 'Complet 25€' : 'Ultime 50€'}
                 </button>
               ))}
             </div>
@@ -688,7 +688,7 @@ export function Configurator({ onOrder }: ConfiguratorProps) {
               <strong className="text-[24px] leading-none text-white">{offer}€</strong>
               <span className="text-[11px] text-fmx-gray">paiement unique</span>
             </div>
-            <button onClick={() => onOrder(offer === 20 ? 'BASIC' : offer === 25 ? 'COMPLET' : 'ULTIME')} className="min-h-[44px] rounded-full bg-fmx-red px-5 py-2.5 text-sm font-bold text-white transition-all duration-150 hover:scale-[1.03] hover:shadow-[0_0_24px_rgba(255,26,26,0.5)]">
+            <button onClick={() => onOrder(offer === 15 ? 'EXPRESS' : offer === 20 ? 'WINDOWS' : offer === 25 ? 'COMPLET' : 'ULTIME')} className="min-h-[44px] rounded-full bg-fmx-red px-5 py-2.5 text-sm font-bold text-white transition-all duration-150 hover:scale-[1.03] hover:shadow-[0_0_24px_rgba(255,26,26,0.5)]">
               Commander →
             </button>
           </div>

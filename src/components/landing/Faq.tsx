@@ -12,7 +12,7 @@ const faqs = [
   },
   {
     q: 'Combien ça coûte ?',
-    a: 'Pack Basic 20€, Pack Complet (Basic + BIOS) 25€, Pack Ultime 50€ — paiement unique, effet permanent. Options et dépannage : voir « Tarifs & prestations ».',
+    a: 'Pack Express 15€, Opti Windows 20€, Pack Undervolt & OC 20€, Pack Complet (Windows + BIOS) 25€, Pack Ultime 50€ — paiement unique. Options et dépannage : voir « Tarifs & prestations ».',
   },
   {
     q: 'Comment je paie ?',

@@ -31,18 +31,21 @@ export function Hero({ onOrder }: { onOrder?: () => void }) {
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <a
             href="/#plans"
-            className="inline-flex items-center gap-2 rounded-full bg-fmx-red px-7 py-3.5 text-sm font-bold text-white shadow-[0_12px_32px_rgba(255,26,26,0.35)] transition-transform hover:-translate-y-0.5"
+            className="inline-flex min-h-[52px] items-center gap-2 rounded-full bg-fmx-red px-8 py-3.5 text-[15px] font-extrabold text-white shadow-[0_12px_36px_rgba(255,26,26,0.45)] transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[0_0_40px_rgba(255,26,26,0.6)] hover:brightness-110 active:scale-[0.99]"
           >
-            Voir les plans →
+            Booster mon PC — dès 15€ →
           </a>
           <button
             onClick={onOrder}
-            className="inline-flex items-center gap-2 rounded-full border border-white/[0.1] bg-[#17171b] px-7 py-3.5 text-sm font-semibold text-white transition-all duration-150 hover:-translate-y-0.5 hover:border-fmx-red/40 hover:bg-[#202027] hover:shadow-[0_0_24px_rgba(255,26,26,0.25)]"
+            className="inline-flex min-h-[52px] items-center gap-2 rounded-full border border-white/[0.1] bg-[#17171b] px-7 py-3.5 text-sm font-semibold text-white transition-all duration-150 hover:-translate-y-0.5 hover:border-fmx-red/40 hover:bg-[#202027] hover:shadow-[0_0_24px_rgba(255,26,26,0.25)]"
           >
             <Wallet className="h-4 w-4" />
             Commander une opti
           </button>
         </div>
+        <a href="/#avis" className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-fmx-gray transition-colors hover:text-white">
+          <span className="tracking-tight text-fmx-red">★★★★★</span> Avis clients vérifiés sur Discord →
+        </a>
 
         {/* 3 infos */}
         <div className="mx-auto mt-10 grid max-w-[680px] grid-cols-1 gap-3 sm:grid-cols-3">

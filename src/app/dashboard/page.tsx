@@ -9,11 +9,15 @@ import { Badge } from '@/components/ui/Badge'
 import { cn } from '@/lib/utils/helpers'
 
 import { DISCORD_INVITE } from '@/lib/payment-info'
+import { packLabel } from '@/types'
 
 const PACK_NAMES: Record<string, string> = {
-  BASIC: 'Pack Basic — 20€',
-  COMPLET: 'Pack Complet — 25€',
-  ULTIME: 'Pack Ultime — 50€',
+  EXPRESS: packLabel('EXPRESS'),
+  WINDOWS: packLabel('WINDOWS'),
+  UVOC: packLabel('UVOC'),
+  COMPLET: packLabel('COMPLET'),
+  ULTIME: packLabel('ULTIME'),
+  BASIC: packLabel('BASIC'),
 }
 
 interface Order {

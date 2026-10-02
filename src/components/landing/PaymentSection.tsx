@@ -5,6 +5,7 @@ import { Copy, Check, Wallet, Landmark, Zap, ShieldCheck, MessageCircle } from '
 import { cn } from '@/lib/utils/helpers'
 import { DISCORD_INVITE, PAYPAL_LINK, PAYPAL_NAME, IBAN_RAW, IBAN_DISPLAY, TITULAIRE } from '@/lib/payment-info'
 import type { PlanId } from './Pricing'
+import { PACKAGES } from '@/types'
 
 interface PaymentSectionProps {
   selectedPlan: PlanId | null
@@ -44,8 +45,8 @@ function CopyBtn({ text }: { text: string }) {
 
 export function PaymentSection({ selectedPlan, onOrder }: PaymentSectionProps) {
   const [tab, setTab] = useState<Tab>('paypal')
-  const amount = selectedPlan === 'ULTIME' ? '50€' : selectedPlan === 'COMPLET' ? '25€' : selectedPlan === 'BASIC' ? '20€' : '—'
-  const planLabel = selectedPlan === 'ULTIME' ? 'Pack Ultime — 50€' : selectedPlan === 'COMPLET' ? 'Pack Complet — 25€' : selectedPlan === 'BASIC' ? 'Pack Basic — 20€' : null
+  const amount = selectedPlan === 'ULTIME' ? '50€' : selectedPlan === 'COMPLET' ? '25€' : selectedPlan === 'WINDOWS' ? '20€' : selectedPlan === 'UVOC' ? '20€' : selectedPlan === 'EXPRESS' ? '15€' : '—'
+  const planLabel = selectedPlan ? `${PACKAGES.find(p => p.id === selectedPlan)?.name ?? selectedPlan} — ${amount}` : null
 
   const tabs = [
     { id: 'paypal' as Tab, label: 'PayPal', icon: Wallet },

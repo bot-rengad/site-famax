@@ -10,7 +10,7 @@ export function StickyCta() {
         prefetch={false}
         className="block min-h-[48px] place-content-center rounded-full bg-fmx-red py-3.5 text-center text-sm font-bold text-white shadow-[0_10px_28px_rgba(255,26,26,0.4)] transition-all duration-150 hover:shadow-[0_0_28px_rgba(255,26,26,0.55)] hover:brightness-110 active:scale-[0.98]"
       >
-        Commander une opti — dès 20€
+        Commander une opti — dès 15€
       </Link>
       <p className="mt-1.5 text-center text-[11px] text-fmx-gray">
         Discord requis • Ticket + suivi après preuve

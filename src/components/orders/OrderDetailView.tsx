@@ -6,7 +6,7 @@ import { Check, Lock, MessageCircle, Copy, Wallet, Landmark, ShoppingCart, Badge
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { OrderChat } from '@/components/orders/OrderChat'
-import { PACKAGES, ADDONS } from '@/types'
+import { PACKAGES, ADDONS, packName as packDisplayName } from '@/types'
 import { DISCORD_INVITE, PAYPAL_LINK, PAYPAL_NAME, IBAN_RAW, IBAN_DISPLAY, TITULAIRE } from '@/lib/payment-info'
 import { cn } from '@/lib/utils/helpers'
 
@@ -100,7 +100,7 @@ export function OrderDetailView({
   const isPaypal = order.paymentMethod === 'PAYPAL'
   const isTransfer = order.paymentMethod === 'BANK_TRANSFER'
   const methodKnown = isPaypal || isTransfer
-  const packName = pack?.name || order.packageType
+  const packName = pack?.name || packDisplayName(order.packageType)
   const methodLabel = isPaypal ? 'PayPal' : isTransfer ? 'Virement' : 'Paiement (à préciser)'
   const pseudoNote = pseudo ? `@${pseudo}` : 'ton pseudo Discord'
   const pseudoCopy = pseudo ? `@${pseudo}` : ''

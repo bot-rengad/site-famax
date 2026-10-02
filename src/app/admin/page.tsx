@@ -13,6 +13,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { OrderChat } from '@/components/orders/OrderChat'
 import { toast } from 'react-hot-toast'
+import { packName } from '@/types'
 
 // ---------- Types locaux ----------
 interface Stats {
@@ -361,7 +362,7 @@ export default function AdminPage() {
                       <tr key={o.id} className="border-b border-fmx-border/30 last:border-0">
                         <td className="py-3 pr-4 font-mono text-xs"><a href={`/admin/orders/${o.id}`} className="text-fmx-white-dim transition-colors hover:text-fmx-red hover:underline">{o.orderNumber}</a></td>
                         <td className="py-3 pr-4 text-fmx-white-dim">{o.user.email}</td>
-                        <td className="py-3 pr-4"><Badge variant="red">{o.packageType}</Badge></td>
+                        <td className="py-3 pr-4"><Badge variant="red">{packName(o.packageType)}</Badge></td>
                         <td className="py-3 pr-4 text-fmx-white">{o.amount.toFixed(2)} €</td>
                         <td className="py-3">{statusBadge(o.status)}</td>
                       </tr>
@@ -410,7 +411,7 @@ export default function AdminPage() {
                         <div key={o.id}>
                           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                             <a href={`/admin/orders/${o.id}`} className="font-mono text-[12px] text-white transition-colors hover:text-fmx-red hover:underline">{o.orderNumber}</a>
-                            <Badge variant="red">{o.packageType}</Badge>
+                            <Badge variant="red">{packName(o.packageType)}</Badge>
                             <span className="text-[12px] text-fmx-white-dim">{o.amount}€</span>
                             {statusBadge(o.status)}
                             <Button variant="ghost" size="sm" className="ml-auto" onClick={() => setOpenChatOrderId(prev => prev === o.id ? null : o.id)}>
@@ -546,7 +547,7 @@ export default function AdminPage() {
                         <span className="block text-[11px] text-fmx-gray">{o.user.email}</span>
                       </td>
                       <td className="py-3 pr-4">
-                        <Badge variant="red">{o.packageType}</Badge>
+                        <Badge variant="red">{packName(o.packageType)}</Badge>
                         {o.addons && o.addons !== '[]' && (
                           <span className="mt-1 block text-[11px] text-fmx-gray">+ {safeAddonList(o.addons)}</span>
                         )}

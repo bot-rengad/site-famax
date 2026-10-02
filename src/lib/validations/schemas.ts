@@ -73,12 +73,12 @@ export const userUpdateSchema = profileSchema.extend({
   name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères').max(50).optional(),
 })
 
-// Order schemas — 3 offres réelles : Basic / Complet / Ultime
+// Order schemas — 5 offres : Express / Opti Windows / Undervolt & OC / Complet / Ultime
 // Seuls les moyens affichés dans l'UI sont acceptés (PayPal, virement).
 // Aucune auto-validation : le staff valide après la preuve Discord.
 // Les add-ons sont validés côté serveur (liste fermée, prix recalculés).
 export const orderSchema = z.object({
-  packageType: z.enum(['BASIC', 'COMPLET', 'ULTIME']),
+  packageType: z.enum(['EXPRESS', 'WINDOWS', 'UVOC', 'COMPLET', 'ULTIME']),
   paymentMethod: z.enum(['PAYPAL', 'BANK_TRANSFER']),
   addons: z.array(z.enum(['REINSTALL', 'STREAM', 'SUIVI_VIE', 'PERIPH', 'UV_OC'])).max(5).default([]),
 })

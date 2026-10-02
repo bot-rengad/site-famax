@@ -258,7 +258,7 @@ export function Header() {
               onClick={() => setMobileOpen(false)}
               className="rounded-xl bg-fmx-red px-3 py-3.5 text-center text-sm font-bold text-white shadow-[0_10px_28px_rgba(255,26,26,0.4)]"
             >
-              Commander une opti — dès 20€ →
+              Commander une opti — dès 15€ →
             </Link>
             {me?.role === 'ADMIN' && (
               <Link

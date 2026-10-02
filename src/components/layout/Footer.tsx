@@ -18,6 +18,7 @@ export function Footer() {
           <Link href="/#plans" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">Plans</Link>
           <Link href="/estimateur" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">Estimateur FPS</Link>
           <Link href="/#deroulement" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">Déroulé</Link>
+          <Link href="/#equipe" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">Équipe</Link>
           <Link href="/#avis" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">Avis clients</Link>
           <Link href="/#faq" className="relative transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.5)]">FAQ</Link>
           <Link href="/dashboard/order" className="font-bold text-fmx-red transition-all duration-200 hover:-translate-y-px hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,26,26,0.6)]">Commander →</Link>

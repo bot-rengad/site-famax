@@ -3,6 +3,7 @@ import { requireClient } from '@/lib/license'
 import { requireAdmin } from '@/lib/auth/admin'
 import { prisma } from '@/lib/db/prisma'
 import { scriptSchema } from '@/lib/validations/schemas'
+import { PACK_LEVELS } from '@/types'
 
 export async function GET(request: NextRequest) {
   try {
@@ -33,13 +34,13 @@ export async function GET(request: NextRequest) {
         orderBy: { createdAt: 'desc' },
       })
 
-      const pkg = userLicense?.packageType || 'BASIC'
+      const pkg = userLicense?.packageType || 'EXPRESS'
       const isAdvanced = ['MSI Utility & Affinity', 'Logiciels Dédiés', 'Réseau', 'Optimisation Jeux']
         .some(cat => script.category.includes(cat))
 
-      if (isAdvanced && pkg === 'BASIC') {
+      if (isAdvanced && (PACK_LEVELS[pkg] ?? 1) < 2) {
         return NextResponse.json(
-          { error: 'Ce script nécessite le pack Pro ou Ultimate', upgradeRequired: true },
+          { error: 'Ce script nécessite un pack Undervolt & OC, Complet ou Ultime', upgradeRequired: true },
           { status: 403 }
         )
       }

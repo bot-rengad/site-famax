@@ -7,12 +7,10 @@ import { Check, Lock, Copy, Wallet, Landmark, ArrowLeft, ArrowRight, MessageCirc
 import { cn } from '@/lib/utils/helpers'
 import { Button } from '@/components/ui/Button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
-import { PACKAGES, ADDONS } from '@/types'
+import { PACKAGES, ADDONS, type PackId } from '@/types'
 import { DISCORD_INVITE, PAYPAL_LINK, PAYPAL_NAME, IBAN_RAW, IBAN_DISPLAY, TITULAIRE } from '@/lib/payment-info'
 
-type PackId = 'BASIC' | 'COMPLET' | 'ULTIME'
-
-const VALID_PACKS: PackId[] = ['BASIC', 'COMPLET', 'ULTIME']
+const VALID_PACKS: PackId[] = ['EXPRESS', 'WINDOWS', 'UVOC', 'COMPLET', 'ULTIME']
 
 const STEPS = ['Pack & options', 'Paiement']
 
@@ -221,7 +219,7 @@ function OrderContent() {
               <CardTitle>1. Choisis ton pack</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {PACKAGES.map(p => {
                   const selected = pack === p.id
                   return (

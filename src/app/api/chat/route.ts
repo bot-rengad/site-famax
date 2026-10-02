@@ -32,14 +32,14 @@ const INTENTS: Intent[] = [
     id: 'greeting',
     keywords: ['bonjour', 'salut', 'hello', 'yo', 'coucou', 'hey', 'bonsoir', 'wesh'],
     answer: () =>
-      "Salut ! Bienvenue chez FMX Optimisation. Je suis l'assistant FMX, je peux te renseigner sur nos offres (Basic 20€, Complet 25€, Ultime 50€), le déroulé (diagnostic UserDiag + avis staff, 15 min à distance), ou t'aider à diagnostiquer tes problèmes de performance. Que veux-tu savoir ?",
+      "Salut ! Bienvenue chez FMX Optimisation. Je suis l'assistant FMX, je peux te renseigner sur nos offres (Express 15€, Opti Windows 20€, Undervolt & OC 20€, Complet 25€, Ultime 50€), le déroulé (diagnostic UserDiag + avis staff, 15 min à distance), ou t'aider à diagnostiquer tes problèmes de performance. Que veux-tu savoir ?",
     quickReplies: ['Ça coûte combien ?', 'Conseil pour ma config ?', 'Chutes de FPS', 'C’est quoi UserDiag ?'],
   },
   {
     id: 'price',
     keywords: ['prix', 'coute', 'cout', 'tarif', 'c est combien', 'euro', 'eur', 'payement', 'paiement', 'cher', 'abonnement', 'gratuit', 'essai'],
     answer: () =>
-      "Nos tarifs : **Pack Basic 20€, Pack Complet 25€, Pack Ultime 50€ — paiement unique**, pas d'abonnement. Options possibles (stream +7€, périphs +5€, UV/OC +20€...). Tu paies par **PayPal** ou **virement** (pseudo Discord en note), puis tu envoies ta preuve sur Discord.",
+      "Nos tarifs : **Express 15€, Opti Windows 20€, Undervolt & OC 20€, Complet 25€, Ultime 50€ — paiement unique**, pas d'abonnement. Options possibles (stream +7€, périphs +5€, suivi à vie +5€...). Tu paies par **PayPal** ou **virement** (pseudo Discord en note), puis tu envoies ta preuve sur Discord.",
     quickReplies: ['Quels moyens de paiement ?', 'Il y a un remboursement ?', 'Je commande où ?'],
   },
   {
@@ -106,14 +106,14 @@ const INTENTS: Intent[] = [
     id: 'how_works',
     keywords: ['comment', 'marche', 'fonctionne', 'methode', 'technique', 'logiciel', 'programme', 'contenu', 'quoi', 'details', 'expliquer', 'concret', 'script'],
     answer: () =>
-      "La méthode exacte est confidentielle — on ne détaille pas les réglages, c'est notre savoir-faire. Le déroulé, lui, est transparent : diagnostic UserDiag (5 min), analyse et avis honnête, paiement (20€/25€/50€), intervention 15 min à distance devant ton écran, test en jeu par toi, puis avis via le bot. Ouvre un ticket sur le Discord avec ton rapport UserDiag pour commencer.",
+      "La méthode exacte est confidentielle — on ne détaille pas les réglages, c'est notre savoir-faire. Le déroulé, lui, est transparent : diagnostic UserDiag (5 min), analyse et avis honnête, paiement (15€/20€/25€/50€ selon le pack), intervention 15 min à distance devant ton écran, test en jeu par toi, puis avis via le bot. Ouvre un ticket sur le Discord avec ton rapport UserDiag pour commencer.",
     quickReplies: ['Quels résultats ?', 'Ça coûte combien ?', 'Et si ça ne marche pas ?'],
   },
   {
     id: 'fps_issues',
     keywords: ['chute', 'chutes', 'drop', 'fps bas', 'fps', 'micro freeze', 'micro-freeze', 'stutter', 'saccade', 'freeze', 'lag en jeu', 'rame', 'lent', 'fluidite', 'instable'],
     answer: () =>
-      "Les chutes de FPS viennent généralement de processus qui monopolisent tes ressources, d'une mémoire mal gérée ou d'un système encombré. C'est exactement ce que FMX traite — à partir de 20€. Le mieux : fais ton diagnostic UserDiag (5 min) et ouvre un ticket sur le Discord, l'équipe te dira honnêtement ce qui est possible sur ta config.",
+      "Les chutes de FPS viennent généralement de processus qui monopolisent tes ressources, d'une mémoire mal gérée ou d'un système encombré. C'est exactement ce que FMX traite — à partir de 15€. Le mieux : fais ton diagnostic UserDiag (5 min) et ouvre un ticket sur le Discord, l'équipe te dira honnêtement ce qui est possible sur ta config.",
     quickReplies: ['Ça coûte combien ?', 'Compatible avec mon PC ?'],
   },
   // ---------- HARDWARE ----------
@@ -128,7 +128,7 @@ const INTENTS: Intent[] = [
     id: 'gpu',
     keywords: ['gpu', 'carte graphique', 'rtx', 'gtx', 'radeon', 'vram', 'pilote', 'driver', 'nvidia'],
     answer: () =>
-      "Les bases : pilotes à jour, et écran branché sur la carte graphique (pas sur la carte mère, erreur classique !). Pour voir ce que vaut ton GPU selon ton jeu, teste l'estimateur FPS — l'opti s'occupe du reste à partir de 20€.",
+      "Les bases : pilotes à jour, et écran branché sur la carte graphique (pas sur la carte mère, erreur classique !). Pour voir ce que vaut ton GPU selon ton jeu, teste l'estimateur FPS — l'opti s'occupe du reste à partir de 15€.",
     quickReplies: ['Chutes de FPS ?', 'Bottleneck ?', 'Compatible avec mon PC ?'],
   },
   {
@@ -156,7 +156,7 @@ const INTENTS: Intent[] = [
     id: 'inputlag',
     keywords: ['input lag', 'latence souris', 'delai', 'retard souris', 'tearing', 'vsync', 'gsync', 'freesync', '144hz', '165hz', '240hz', '360hz', '60hz', 'frequence ecran', 'dalle'],
     answer: () =>
-      "Vérifie d'abord que ton écran tourne à sa fréquence max dans les paramètres Windows (souvent bloqué à 60 Hz par défaut !). Pour la réactivité et la fluidité globale, c'est le cœur de l'opti — à partir de 20€.",
+      "Vérifie d'abord que ton écran tourne à sa fréquence max dans les paramètres Windows (souvent bloqué à 60 Hz par défaut !). Pour la réactivité et la fluidité globale, c'est le cœur de l'opti — à partir de 15€.",
     quickReplies: ['Chutes de FPS ?', 'Ça coûte combien ?'],
   },
   {
@@ -184,7 +184,7 @@ const INTENTS: Intent[] = [
     id: 'upgrade',
     keywords: ['upgrade', 'upgrader', 'ameliorer', 'changer de composant', 'conseil', 'quel composant', 'nouveau pc', 'nouvelle config', 'vaut le coup'],
     answer: () =>
-      "Avant d'acheter quoi que ce soit : estimateur FPS du site + diagnostic UserDiag (5 min, gratuit). Le staff te dit honnêtement si un upgrade vaut le coup ou si une opti à 20-25€ suffit — on ne vend jamais une opti inutile.",
+      "Avant d'acheter quoi que ce soit : estimateur FPS du site + diagnostic UserDiag (5 min, gratuit). Le staff te dit honnêtement si un upgrade vaut le coup ou si une opti à 15-25€ suffit — on ne vend jamais une opti inutile.",
     quickReplies: ['Bottleneck ?', 'C’est quoi UserDiag ?', 'Voir les prix'],
   },
   {
@@ -198,7 +198,7 @@ const INTENTS: Intent[] = [
     id: 'software_conflict',
     keywords: ['antivirus', 'mcafee', 'norton', 'avast', 'ralentit', 'ralenti', 'programme en fond', 'demarrage', 'startup', 'overlay', 'xbox game bar', 'game bar', 'discord ouvert'],
     answer: () =>
-      "Ferme tout ce qui tourne pour rien en jeu (lanceur, navigateur avec 40 onglets, overlays) et vérifie ce qui se lance au démarrage de Windows. L'épuration complète du système, c'est la base de l'opti — à partir de 20€.",
+      "Ferme tout ce qui tourne pour rien en jeu (lanceur, navigateur avec 40 onglets, overlays) et vérifie ce qui se lance au démarrage de Windows. L'épuration complète du système, c'est la base de l'opti — à partir de 15€.",
     quickReplies: ['Chutes de FPS ?', 'Ça coûte combien ?'],
   },
   // ---------- OPTI FMX ----------
@@ -220,14 +220,14 @@ const INTENTS: Intent[] = [
     id: 'overclock',
     keywords: ['overclock', 'overclocking', 'undervolt', 'undervolting', ' oc', ' uv'],
     answer: () =>
-      "Undervolt & overclocking : plus de perfs pour moins de chauffe, mais mal fait, ça plante. C'est pour ça que c'est le staff qui le fait, dans le Pack Ultime (50€) — avec suivi à vie.",
+      "Undervolt & overclocking : plus de perfs pour moins de chauffe, mais mal fait, ça plante. C'est pour ça que c'est le staff qui le fait, avec le Pack Undervolt & OC (20€) — réglages progressifs et testés, zéro risque matériel.",
     quickReplies: ['Voir les prix', 'C’est risqué ?'],
   },
   {
     id: 'safety',
     keywords: ['risque', 'dangereux', 'peur', 'casser', 'sans danger', 'fiable a 100', 'abimer'],
     answer: () =>
-      "Zéro bidouille aveugle : sauvegarde avant de commencer, protocole strict dans un ordre précis, et tu vois tout en direct. Et si aucune différence n'est constatée après l'intervention, tu es remboursé.",
+      "Zéro bidouille aveugle : sauvegarde avant de commencer, protocole strict dans un ordre précis, et tu vois tout en direct. Et si aucune différence n'est constatée après l'intervention, le staff réévalue avec toi.",
     quickReplies: ['Comment ça se passe ?', 'Voir les résultats'],
   },
   {
@@ -248,7 +248,7 @@ const INTENTS: Intent[] = [
     id: 'games',
     keywords: ['fortnite', 'valorant', 'valo', 'counter strike', 'cs2', 'warzone', 'call of duty', 'apex', 'rocket league', 'league of legends', 'minecraft', 'gta', 'rust', 'overwatch'],
     answer: () =>
-      "L'opti s'adapte à ton jeu — les réglages ne sont pas les mêmes entre Fortnite, Valorant ou Warzone. L'estimateur du site couvre 6 jeux, et pendant l'intervention le staff règle aussi ton jeu en direct.",
+      "L'opti s'adapte à ton jeu — les réglages ne sont pas les mêmes entre Fortnite, Valorant ou Warzone. Teste l'estimateur FPS du site pour Fortnite, et pendant l'intervention le staff règle aussi ton jeu en direct.",
     quickReplies: ['Tester ma config ?', 'Je commande où ?'],
   },
   {
@@ -283,7 +283,7 @@ const INTENTS: Intent[] = [
     id: 'order_where',
     keywords: ['commander', 'acheter', 'achete', 'ou commander', 'lien', 'bouton', 'je veux', 'interesse', 'go'],
     answer: () =>
-      "Clique sur **« Commander »** dans la section tarifs, choisis ton opti (20€/25€/50€), paie par PayPal ou virement avec ton pseudo Discord en note, puis envoie ta capture sur le Discord. Le staff vérifie et t'envoie ta clé.",
+      "Clique sur **« Commander »** dans la section tarifs, choisis ton pack (15€/20€/25€/50€), paie par PayPal ou virement avec ton pseudo Discord en note, puis envoie ta capture sur le Discord. Le staff vérifie et t'envoie ta clé.",
     quickReplies: ['Quels moyens de paiement ?', 'Et si ça ne marche pas ?'],
   },
   {
@@ -297,14 +297,14 @@ const INTENTS: Intent[] = [
     id: 'who',
     keywords: ['qui etes', 'qui est fmx', 'c est quoi fmx', 'fmx', 'entreprise', 'equipe', 'presentation'],
     answer: () =>
-      "FMX Optimisation, c'est une équipe de passionnés d'esport spécialisée dans la performance PC gaming : analyse UserDiag + avis staff, intervention 15 min à distance, suivi 30 jours. Offres à 20€, 25€ et 50€ selon le niveau.",
+      "FMX Optimisation, c'est une équipe de passionnés d'esport spécialisée dans la performance PC gaming : analyse UserDiag + avis staff, intervention 15 min à distance, suivi 30 jours. 5 offres de 15€ à 50€ selon le niveau.",
     quickReplies: ['Quels résultats ?', 'Ça coûte combien ?'],
   },
   {
     id: 'thanks',
     keywords: ['merci', 'thanks', 'super', 'parfait', 'genial', 'top', 'nickel', 'cool'],
     answer: () =>
-      "Avec plaisir ! Si tu as d'autres questions je suis là. Sinon, rendez-vous dans la section tarifs (20€/25€/50€) pour lancer ton optimisation.",
+      "Avec plaisir ! Si tu as d'autres questions je suis là. Sinon, rendez-vous dans la section tarifs (dès 15€) pour lancer ton optimisation.",
     quickReplies: ['Je commande où ?', 'Quels résultats ?'],
   },
   {

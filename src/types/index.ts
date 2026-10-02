@@ -177,22 +177,50 @@ export interface Package {
   popular?: boolean
 }
 
-// Offres FMx réelles — Tarifs & Prestations FaMaxOpti
-// L'Ultime inclut déjà tout : les add-ons ne sont proposés qu'en Basic et Complet.
+// Offres FMx — Tarifs & Prestations FaMaxOpti (5 packs).
+// L'Ultime inclut déjà tout : les add-ons ne sont proposés que sur les autres packs.
+export type PackId = 'EXPRESS' | 'WINDOWS' | 'UVOC' | 'COMPLET' | 'ULTIME'
+
 export const PACKAGES: Package[] = [
   {
-    id: 'BASIC',
-    name: 'Pack Basic',
-    description: "L'optimisation Windows complète pour la compétition.",
+    id: 'EXPRESS',
+    name: 'Pack Express',
+    description: 'Sans RDV, reçu en ~5 min. Idéal pour un 1er boost rapide.',
+    price: 15,
+    currency: 'EUR',
+    features: [
+      'Boost auto 1-clic + mode perf maximale Windows',
+      '+FPS, latence réduite, effet Zero Delay souris / clavier',
+      'Connexion stabilisée + nettoyage express Fortnite / GPU',
+    ],
+    supportLevel: 'standard',
+    maxDevices: 1,
+    lifetimeUpdates: false,
+  },
+  {
+    id: 'WINDOWS',
+    name: 'Opti Windows',
+    description: 'Optimisation manuelle complète.',
     price: 20,
     currency: 'EUR',
     features: [
-      'Épuration intégrale du système et processus inutiles',
-      'Pilote GPU allégé + configuration compétitive NVIDIA / AMD',
-      "Profil d'alimentation sur-mesure, fréquences au maximum",
-      'Tweaks registre : input lag au minimum',
-      'Timer système réduit : clics et touches instantanés',
-      'Priorité absolue à votre jeu (CPU + GPU)',
+      'Nettoyage système + pilote GPU allégé NVIDIA / AMD',
+      'Tweaks registre, timer système, priorité jeu',
+      'Profil alim sur-mesure',
+    ],
+    supportLevel: 'standard',
+    maxDevices: 1,
+    lifetimeUpdates: false,
+  },
+  {
+    id: 'UVOC',
+    name: 'Pack Undervolt & OC',
+    description: 'Undervolt & overclocking CPU + GPU, en douceur.',
+    price: 20,
+    currency: 'EUR',
+    features: [
+      '+FPS, affichage plus stable, températures réduites',
+      'Réglages progressifs et testés, zéro risque matériel',
     ],
     supportLevel: 'standard',
     maxDevices: 1,
@@ -201,16 +229,14 @@ export const PACKAGES: Package[] = [
   {
     id: 'COMPLET',
     name: 'Pack Complet',
-    description: 'Basic + paramétrage direct de la carte mère.',
+    description: 'Opti Windows + réglages BIOS : RAM haute vitesse, liaison GPU / CPU débridée, économies d’énergie coupées.',
     price: 25,
     currency: 'EUR',
     features: [
-      "Tout le Pack Basic",
-      'Profil haute vitesse de la RAM',
-      'Débridage liaison carte graphique / processeur',
-      "Coupure des modes d'économie d'énergie",
-      'Désactivation du GPU intégré',
-      'Tâches matérielles isolées sur cœurs dédiés',
+      'Tout le Pack Opti Windows',
+      'RAM haute vitesse (profil XMP / EXPO)',
+      'Liaison GPU / CPU débridée',
+      "Économies d'énergie coupées",
     ],
     supportLevel: 'priority',
     maxDevices: 1,
@@ -220,16 +246,15 @@ export const PACKAGES: Package[] = [
   {
     id: 'ULTIME',
     name: 'Pack Ultime',
-    description: "La prise en charge intégrale, sans compromis.",
+    description: 'Tout inclus : Pack Complet + Windows propre + Undervolt / OC + périphériques + stream + suivi à vie.',
     price: 50,
     currency: 'EUR',
     features: [
-      'Tout le Pack Complet (Basic + BIOS)',
-      'Réinstallation propre de Windows',
-      'Pack Undervolt & Overclocking CPU + GPU',
-      'Calibrage complet des périphériques',
-      'Configuration streaming si nécessaire',
-      'Suivi et assistance technique à vie',
+      'Tout le Pack Complet (Windows + BIOS)',
+      'Windows propre réinstallé',
+      'Undervolt / Overclocking CPU + GPU',
+      'Périphériques + configuration stream',
+      'Suivi à vie',
     ],
     supportLevel: 'priority',
     maxDevices: 1,
@@ -237,7 +262,37 @@ export const PACKAGES: Package[] = [
   },
 ]
 
-// Add-ons — dispos en Basic et Complet uniquement (l'Ultime inclut déjà tout).
+// Anciennes offres (commandes existantes en base) : affichage uniquement, plus en vente.
+const LEGACY_PACKS: Record<string, { name: string; price: number }> = {
+  BASIC: { name: 'Pack Basic', price: 20 },
+  PRO: { name: 'Pack Pro', price: 25 },
+  ULTIMATE: { name: 'Pack Ultimate', price: 50 },
+}
+
+/** Libellé d'un pack (nouveau ou ancien) : "Pack Complet — 25€". */
+export function packLabel(id: string): string {
+  const p = PACKAGES.find(x => x.id === id)
+  if (p) return `${p.name} — ${p.price}€`
+  const legacy = LEGACY_PACKS[id]
+  if (legacy) return `${legacy.name} — ${legacy.price}€`
+  return id
+}
+
+/** Nom court d'un pack (nouveau ou ancien) : "Pack Complet". */
+export function packName(id: string): string {
+  const p = PACKAGES.find(x => x.id === id)
+  if (p) return p.name
+  return LEGACY_PACKS[id]?.name ?? id
+}
+
+/** Niveau d'accès scripts : 1 = base, 2 = avancé, 3 = tout (alias historiques inclus). */
+export const PACK_LEVELS: Record<string, number> = {
+  EXPRESS: 1, WINDOWS: 1, BASIC: 1,
+  UVOC: 2, COMPLET: 2, PRO: 2,
+  ULTIME: 3, ULTIMATE: 3,
+}
+
+// Add-ons — dispos sur tous les packs sauf l'Ultime (qui inclut déjà tout).
 // Le dépannage (prix variable 5–15€) passe par ticket, pas par la commande.
 export interface Addon {
   id: string

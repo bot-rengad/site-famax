@@ -16,6 +16,8 @@ import { StickyCta } from '@/components/landing/StickyCta'
 // paint (LCP). Le chat et les avis n'ont pas besoin d'être dans le bundle initial.
 const Faq = dynamic(() => import('@/components/landing/Faq').then(m => m.Faq), { ssr: false })
 const Testimonials = dynamic(() => import('@/components/landing/Testimonials').then(m => m.Testimonials), { ssr: false })
+const AvantApres = dynamic(() => import('@/components/landing/AvantApres').then(m => m.AvantApres), { ssr: false })
+const Team = dynamic(() => import('@/components/landing/Team').then(m => m.Team), { ssr: false })
 const Chatbot = dynamic(() => import('@/components/ui/Chatbot').then(m => m.Chatbot), { ssr: false })
 const CookieBanner = dynamic(() => import('@/components/ui/CookieBanner').then(m => m.CookieBanner), { ssr: false })
 
@@ -28,7 +30,7 @@ const JSON_LD = {
     "Optimisation PC gaming à distance : diagnostic UserDiag, avis honnête, intervention 15 minutes, suivi 30 jours.",
   url: process.env.NEXT_PUBLIC_APP_URL || 'https://famaxopti.vercel.app',
   image: '/images/logo.png',
-  priceRange: '20€ - 50€',
+  priceRange: '15€ - 50€',
   telephone: undefined,
   address: undefined,
   sameAs: ['https://discord.gg/fmx'],
@@ -54,7 +56,7 @@ export default function HomePage() {
       <ScrollTools />
       <Header />
 
-      {/* Structure : Hero / Plans / Détails / Avis — estimateur et test écran sur leurs pages */}
+      {/* Structure : Hero / Plans (+règlement) / Avant-Après / Détails / Équipe / Avis */}
       <main id="main-content" className="relative z-10 pt-16 lg:pt-[72px]">
         <Hero onOrder={handleOrder} />
         <Pricing
@@ -62,9 +64,11 @@ export default function HomePage() {
           onSelect={setSelectedPlan}
           onOrder={handleOrder}
         />
+        <AvantApres />
         <Services />
-        <Faq />
+        <Team />
         <Testimonials />
+        <Faq />
       </main>
 
       <Footer />
