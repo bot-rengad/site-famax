@@ -55,7 +55,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ error: 'Commande introuvable' }, { status: 404 })
     }
 
-    const body = await request.json()
+    const body = await request.json().catch(() => null)
     const message = typeof body?.message === 'string' ? body.message.trim().slice(0, 2000) : ''
     if (message.length < 1) {
       return NextResponse.json({ error: 'Message vide' }, { status: 400 })

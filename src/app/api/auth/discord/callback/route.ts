@@ -99,25 +99,46 @@ export async function GET(request: NextRequest) {
     let user = await prisma.user.findUnique({ where: { discordId: profile.id } })
 
     if (!user) {
-      // 2b. Aucun compte : inscription automatique avec le pseudo Discord
+      // 2b. Aucun compte avec ce Discord : on regarde si l'email Discord est déjà pris
       const email = profile.email?.toLowerCase() || `${profile.id}@discord.fmx-local`
       const emailTaken = await prisma.user.findUnique({ where: { email } })
 
-      user = await prisma.user.create({
-        data: {
-          email,
-          // Mot de passe aléatoire : la connexion passe obligatoirement par Discord
-          passwordHash: await bcrypt.hash(crypto.randomUUID(), 12),
-          name: profile.globalName,
-          role: 'USER',
-          emailVerified: new Date(),
-          discordId: profile.id,
-          discordUsername: profile.username,
-          discordGlobalName: profile.globalName,
-          discordAvatar: profile.avatar,
-          discordVerifiedAt: new Date(),
-        },
-      })
+      if (emailTaken) {
+        // Email déjà utilisé par un autre compte Discord : refus explicite
+        // (sinon P2002 → crash « discord_server » incompréhensible).
+        if (emailTaken.discordId && emailTaken.discordId !== profile.id) {
+          return redirectWith(origin, '/auth/login', { error: 'discord_email_used' })
+        }
+        // Compte créé avant/autrement (sans Discord ou même Discord) : on lie
+        // ce Discord au compte existant au lieu de planter.
+        user = await prisma.user.update({
+          where: { id: emailTaken.id },
+          data: {
+            discordId: profile.id,
+            discordUsername: profile.username,
+            discordGlobalName: profile.globalName,
+            discordAvatar: profile.avatar,
+            discordVerifiedAt: new Date(),
+          },
+        })
+      } else {
+        // Inscription automatique avec le pseudo Discord
+        user = await prisma.user.create({
+          data: {
+            email,
+            // Mot de passe aléatoire : la connexion passe obligatoirement par Discord
+            passwordHash: await bcrypt.hash(crypto.randomUUID(), 12),
+            name: profile.globalName,
+            role: 'USER',
+            emailVerified: new Date(),
+            discordId: profile.id,
+            discordUsername: profile.username,
+            discordGlobalName: profile.globalName,
+            discordAvatar: profile.avatar,
+            discordVerifiedAt: new Date(),
+          },
+        })
+      }
     }
     else if (!user.discordVerifiedAt) {
       // 2c. Compte existant retrouvé par email mais jamais vérifié Discord
@@ -135,36 +156,38 @@ export async function GET(request: NextRequest) {
 
     // Premier admin via ADMIN_DISCORD_ID (avant d'ouvrir la session)
     await grantAdminIfOwner(user.id, profile.id)
+    // grantAdminIfOwner a pu promouvoir ce compte : on relit le rôle réel
+    // pour que le JWT soit créé avec le bon rôle dès la première connexion.
+    const dbUser = await prisma.user.findUnique({ where: { id: user.id }, select: { role: true } })
+    const role = dbUser?.role || user.role
 
-    // Ouvre une session FMX pour cet utilisateur + l'enregistre
-    // (présence "En ligne" dans /admin, révocable depuis les paramètres)
+    // Enregistre la session en DB PUIS pose le cookie : la session doit exister
+    // en DB pour être révocable (getSession la vérifie à chaque requête).
     const sessionId = crypto.randomUUID()
+    const ua = request.headers.get('user-agent')
+    const ip =
+      request.headers.get('x-vercel-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-forwarded-for')?.split(',').pop()?.trim() ||
+      request.headers.get('x-real-ip')
+    await prisma.session.create({
+      data: {
+        userId: user.id,
+        token: sessionId,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        userAgent: ua,
+        ipAddress: ip,
+      },
+    })
+    // Hygiène : purge les sessions expirées (best-effort, non bloquant)
+    prisma.session.deleteMany({ where: { expiresAt: { lt: new Date() } } }).catch(() => {})
+
     const token = await createToken({
       userId: user.id,
       email: user.email,
-      role: user.role,
+      role,
       sessionId,
     })
     await setSessionCookie(token)
-    try {
-      const ua = request.headers.get('user-agent')
-      const ip =
-        request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-        request.headers.get('x-real-ip')
-      await prisma.session.create({
-        data: {
-          userId: user.id,
-          token: sessionId,
-          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-          userAgent: ua,
-          ipAddress: ip,
-        },
-      })
-      // Hygiène : purge les sessions expirées
-      await prisma.session.deleteMany({ where: { expiresAt: { lt: new Date() } } })
-    } catch {
-      /* non bloquant pour la connexion */
-    }
 
     await prisma.activityLog.create({
       data: {

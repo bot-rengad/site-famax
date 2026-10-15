@@ -1,7 +1,6 @@
 'use client'
 
 import { Suspense } from 'react'
-import { motion } from 'framer-motion'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Zap, ShieldCheck, AlertCircle } from 'lucide-react'
@@ -26,9 +25,10 @@ function LoginContent() {
     discord_not_configured: 'Vérification Discord non configurée sur le serveur (clés API manquantes).',
     discord_denied: 'Autorisation Discord refusée.',
     discord_invalid: 'Requête Discord invalide.',
-    discord_state: 'Session de vérification expirée, réessayez.',
+    discord_state: 'Session de vérification expirée, réessaie.',
     discord_exchange: 'Échec de la communication avec Discord.',
     discord_already_linked: 'Ce compte Discord est déjà lié à un autre compte FMX.',
+    discord_email_used: "Cet email Discord est déjà utilisé par un autre compte FMX. Ouvre un ticket sur le Discord pour qu'on règle ça.",
     discord_server: 'Erreur serveur lors de la vérification Discord.',
   }
 
@@ -37,12 +37,7 @@ function LoginContent() {
       <div className="absolute inset-0 mesh-bg opacity-30" aria-hidden="true" />
       <div className="absolute inset-0 carbon-overlay" aria-hidden="true" />
 
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="relative z-10 w-full max-w-md"
-      >
+      <div className="animate-slide-up relative z-10 w-full max-w-md">
         {/* Logo & Header */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-3 mb-6">
@@ -84,20 +79,17 @@ function LoginContent() {
             { icon: Zap, label: 'Simple', desc: 'Zéro mot de passe à retenir' },
             { icon: ShieldCheck, label: 'Suivi', desc: 'Commandes + preuves au même endroit' },
           ].map((item, i) => (
-            <motion.div
+            <div
               key={i}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 + i * 0.1 }}
-              className="p-3 rounded-xl bg-fmx-carbon/50 border border-fmx-border/50"
+              className={`animate-slide-up animate-delay-${i === 0 ? 300 : 400} p-3 rounded-xl bg-fmx-carbon/50 border border-fmx-border/50`}
             >
               <item.icon className="w-6 h-6 mx-auto mb-2 text-fmx-red" />
               <p className="font-medium text-fmx-white text-sm">{item.label}</p>
               <p className="text-fmx-white-dim text-xs">{item.desc}</p>
-            </motion.div>
+            </div>
           ))}
         </div>
-      </motion.div>
+      </div>
     </div>
   )
 }

@@ -5,6 +5,32 @@ import { prisma } from '@/lib/db/prisma'
 import { scriptSchema } from '@/lib/validations/schemas'
 import { PACK_LEVELS } from '@/types'
 
+// Niveau minimum requis par catégorie de script (catégories = enum réelle en DB).
+// Aligné sur le gating affiché côté client (downloads/page.tsx, categoryConfig).
+const CATEGORY_MIN_LEVEL: Record<string, number> = {
+  SYSTEM_CLEANUP: 1,
+  TIMER_RESOLUTION: 1,
+  DEBLOAT: 1,
+  POWER_MANAGEMENT: 2,
+  REGISTRY_TWEAKS: 2,
+  GPU_OPTIMIZATION: 2,
+  NETWORK_OPTIMIZATION: 2,
+  GAME_SPECIFIC: 2,
+  FULL_AUTOMATION: 3,
+}
+
+// Niveau d'accès réel du client : licence la plus récente (nouveaux packs +
+// alias historiques BASIC/PRO/ULTIMATE), admin = tout.
+async function resolveUserLevel(userId: string, role?: string): Promise<number> {
+  if (role === 'ADMIN') return 3
+  const userLicense = await prisma.license.findFirst({
+    where: { userId, status: 'ACTIVE' },
+    orderBy: { createdAt: 'desc' },
+    select: { packageType: true },
+  })
+  return PACK_LEVELS[userLicense?.packageType || 'EXPRESS'] ?? 1
+}
+
 export async function GET(request: NextRequest) {
   try {
     const session = await requireClient()
@@ -19,6 +45,12 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category')
     const scriptId = searchParams.get('id')
 
+    const dbUser = await prisma.user.findUnique({
+      where: { id: session.userId },
+      select: { role: true },
+    })
+    const userLevel = await resolveUserLevel(session.userId, dbUser?.role)
+
     if (scriptId) {
       const script = await prisma.optimizationScript.findUnique({
         where: { id: scriptId, isActive: true },
@@ -28,36 +60,44 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Script non trouvé' }, { status: 404 })
       }
 
-      // Check if user has access (Pro/Ultimate for advanced scripts)
-      const userLicense = await prisma.license.findFirst({
-        where: { userId: session.userId, status: 'ACTIVE' },
-        orderBy: { createdAt: 'desc' },
-      })
-
-      const pkg = userLicense?.packageType || 'EXPRESS'
-      const isAdvanced = ['MSI Utility & Affinity', 'Logiciels Dédiés', 'Réseau', 'Optimisation Jeux']
-        .some(cat => script.category.includes(cat))
-
-      if (isAdvanced && (PACK_LEVELS[pkg] ?? 1) < 2) {
+      // Paywall : comparaison sur la VRAIE catégorie enum (l'ancien test
+      // comparait des libellés français qui ne matchaient jamais).
+      const minLevel = CATEGORY_MIN_LEVEL[script.category] ?? 1
+      if (userLevel < minLevel) {
         return NextResponse.json(
           { error: 'Ce script nécessite un pack Undervolt & OC, Complet ou Ultime', upgradeRequired: true },
           { status: 403 }
         )
       }
 
-      // Increment download count
-      await prisma.optimizationScript.update({
-        where: { id: script.id },
-        data: { downloadCount: { increment: 1 } },
-      })
+      // Compteur de téléchargements : uniquement sur un vrai téléchargement
+      // (?dl=1), pas à chaque prévisualisation/copie dans la modale.
+      if (searchParams.get('dl') === '1') {
+        await prisma.optimizationScript.update({
+          where: { id: script.id },
+          data: { downloadCount: { increment: 1 } },
+        })
+      }
 
       return NextResponse.json({ script })
     }
 
+    // Liste : métadonnées uniquement, JAMAIS le contenu (l'ancien findMany
+    // renvoyait le contenu de tous les scripts, y compris bloqués).
     const scripts = await prisma.optimizationScript.findMany({
       where: {
         isActive: true,
         ...(category ? { category: category as any } : {}),
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        category: true,
+        version: true,
+        requiresAdmin: true,
+        downloadCount: true,
+        createdAt: true,
       },
       orderBy: [{ category: 'asc' }, { name: 'asc' }],
     })

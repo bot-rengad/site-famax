@@ -13,7 +13,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
     }
 
-    const body = await request.json()
+    const body = await request.json().catch(() => null)
+    if (!body) {
+      return NextResponse.json({ error: 'Corps de requête JSON invalide' }, { status: 400 })
+    }
     const validation = orderSchema.safeParse(body)
 
     if (!validation.success) {
@@ -63,19 +66,41 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create order
-    const order = await prisma.order.create({
-      data: {
-        userId: session.userId,
-        orderNumber,
-        packageType,
-        amount,
-        currency: 'EUR',
-        status: 'PENDING',
-        paymentMethod,
-        addons: JSON.stringify(cleanAddons),
-      },
-    })
+    // Create order — si une collision de N° passe entre la vérification et
+    // l'insertion (requêtes concurrentes), on régénère au lieu d'un 500.
+    let order
+    try {
+      order = await prisma.order.create({
+        data: {
+          userId: session.userId,
+          orderNumber,
+          packageType,
+          amount,
+          currency: 'EUR',
+          status: 'PENDING',
+          paymentMethod,
+          addons: JSON.stringify(cleanAddons),
+        },
+      })
+    } catch (e: any) {
+      if (e?.code === 'P2002') {
+        orderNumber = generateOrderNumber(pseudoForNumber)
+        order = await prisma.order.create({
+          data: {
+            userId: session.userId,
+            orderNumber,
+            packageType,
+            amount,
+            currency: 'EUR',
+            status: 'PENDING',
+            paymentMethod,
+            addons: JSON.stringify(cleanAddons),
+          },
+        })
+      } else {
+        throw e
+      }
+    }
 
     // Log activity
     await prisma.activityLog.create({
@@ -107,7 +132,7 @@ export async function POST(request: NextRequest) {
     // Aucune auto-confirmation côté client.
     return NextResponse.json({
       order,
-      message: 'Commande créée, procédez au paiement',
+      message: 'Commande créée, passe au paiement',
     })
   } catch (error) {
     console.error('Order creation error:', error)

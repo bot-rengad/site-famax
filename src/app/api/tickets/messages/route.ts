@@ -26,7 +26,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Ticket non trouvé' }, { status: 404 })
     }
 
-    const body = await request.json()
+    if (ticket.status === 'CLOSED') {
+      return NextResponse.json(
+        { error: 'Ce ticket est fermé. Ouvre un nouveau ticket si tu as besoin d\'aide.' },
+        { status: 409 }
+      )
+    }
+
+    const body = await request.json().catch(() => null)
     const validation = ticketMessageSchema.safeParse(body)
 
     if (!validation.success) {
@@ -48,18 +55,15 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Update ticket status to IN_PROGRESS if it was OPEN
-    if (ticket.status === 'OPEN') {
-      await prisma.ticket.update({
-        where: { id: ticketId },
-        data: { status: 'IN_PROGRESS', updatedAt: new Date() },
-      })
-    } else {
-      await prisma.ticket.update({
-        where: { id: ticketId },
-        data: { updatedAt: new Date() },
-      })
-    }
+    // Le client vient de répondre : OPEN → IN_PROGRESS et WAITING_CUSTOMER → IN_PROGRESS
+    // (sans ça le ticket restait bloqué "En attente client" après la réponse).
+    const nextStatus = ticket.status === 'OPEN' || ticket.status === 'WAITING_CUSTOMER'
+      ? 'IN_PROGRESS'
+      : ticket.status
+    await prisma.ticket.update({
+      where: { id: ticketId },
+      data: { status: nextStatus, updatedAt: new Date() },
+    })
 
     await prisma.activityLog.create({
       data: {

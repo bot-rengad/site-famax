@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const body = await request.json()
+    const body = await request.json().catch(() => null)
     const validation = checklistProgressSchema.safeParse(body)
 
     if (!validation.success) {

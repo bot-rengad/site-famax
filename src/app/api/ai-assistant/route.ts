@@ -5,74 +5,73 @@ import { aiQuerySchema } from '@/lib/validations/schemas'
 import { CHECKLIST_CATEGORIES } from '@/lib/checklist-categories'
 
 // AI Knowledge Base - Maps issues to solutions
+// scriptMatch : mot-clé recherché dans les noms des scripts réels en DB.
+// (Les anciens IDs en dur du type `disable_core_isolation` n'existaient pas
+// en base → le bouton "Voir script" était un lien mort.)
 const AI_KNOWLEDGE_BASE = {
   'micro-freeze': {
     category: 'system-registry' as const,
     title: 'Désactiver Core Isolation (Memory Integrity)',
-    description: 'La protection de la mémoire (Core Isolation) cause souvent des micro-freeze en jeu. Désactivez-la dans Sécurité Windows.',
+    description: 'La protection de la mémoire (Core Isolation) cause souvent des micro-freeze en jeu. Désactive-la dans Sécurité Windows.',
     priority: 'high' as const,
-    scriptId: 'disable_core_isolation',
-    checklistItemIds: ['system-registry-core-isolation'],
+    scriptMatch: 'core isolation',
   },
   'high-ping': {
     category: 'network' as const,
     title: 'Optimiser la configuration réseau',
     description: 'Désactiver Green Ethernet, forcer Speed/Duplex 1Gbps, configurer DNS Cloudflare 1.1.1.1, purger DNS/Winsock.',
     priority: 'high' as const,
-    scriptId: 'network_optimize',
-    checklistItemIds: ['network-green-ethernet', 'network-dns', 'network-purge'],
+    scriptMatch: 'dns cloudflare',
   },
   'low-fps': {
     category: 'nvidia-drivers' as const,
     title: 'Configurer Panneau NVIDIA pour performances maximales',
     description: 'Mode gestion alimentation: Performance maximale, Faible latence: Ultra, Qualité: Haute performance, Optimisation threadée: Activé.',
     priority: 'high' as const,
-    scriptId: 'nvidia_settings',
-    checklistItemIds: ['nvidia-power-management', 'nvidia-low-latency', 'nvidia-threaded-opt'],
+    scriptMatch: 'nvidia',
   },
   'input-lag': {
     category: 'msi-affinity' as const,
     title: 'Activer MSI et configurer l\'affinité CPU',
     description: 'Activer MSI sur GPU/Ethernet/USB, configurer IntPolicy.exe (masque sans cœurs 0/1), dédier un cœur au jeu.',
     priority: 'high' as const,
-    scriptId: 'gpu_msi_enable',
-    checklistItemIds: ['msi-gpu', 'msi-ethernet', 'affinity-intpolicy'],
+    scriptMatch: 'msi gpu',
   },
   'stutter': {
     category: 'dedicated-software' as const,
     title: 'Configurer ISLC Timer Resolution 0.5ms',
-    description: 'ISLC (Intelligent Standby List Cleaner) avec timer resolution 0.5ms, seuils RAM selon votre config (1024MB pour 32GB).',
+    description: 'ISLC (Intelligent Standby List Cleaner) avec timer resolution 0.5ms, seuils RAM selon ta config (1024MB pour 32GB).',
     priority: 'medium' as const,
-    scriptId: 'islc_config',
-    checklistItemIds: ['islc-timer', 'islc-ram-threshold'],
+    scriptMatch: 'islc',
   },
   'cpu-usage': {
     category: 'system-registry' as const,
     title: 'Désactiver services inutiles et télémétrie',
     description: 'Debloat Windows, désactiver télémétrie, services d\'arrière-plan, optimisation registre Tasks/Games GPU Priority.',
     priority: 'medium' as const,
-    scriptId: 'debloat',
-    checklistItemIds: ['registry-gpu-priority', 'debloat-services', 'disable-telemetry'],
+    scriptMatch: 'debloat',
   },
   'packet-loss': {
     category: 'network' as const,
     title: 'QoS Gaming et optimisation TCP/IP',
     description: 'Configurer QoS pour prioriser le trafic gaming, optimiser MTU, désactiver Nagle Algorithm, TCP Window Scaling.',
     priority: 'medium' as const,
-    scriptId: 'qos_gaming',
-    checklistItemIds: ['network-qos', 'network-mtu', 'network-tcp-optimization'],
+    scriptMatch: 'qos',
   },
   'crash': {
     category: 'security' as const,
     title: 'Créer point de restauration et vérifier stabilité',
     description: 'Avant toute optimisation majeure, créer un point de restauration. Vérifier XMP/EXPO, températures, alimentation.',
     priority: 'high' as const,
-    scriptId: 'restore_point',
-    checklistItemIds: ['security-restore-point', 'hardware-xmp', 'hardware-temperatures'],
+    scriptMatch: 'restauration',
   },
 }
 
-function analyzeQuery(query: string, context?: any): { analysis: string; recommendations: any[]; quickActions: any[] } {
+function analyzeQuery(
+  query: string,
+  context?: any,
+  scripts: { id: string; name: string }[] = []
+): { analysis: string; recommendations: any[]; quickActions: any[] } {
   const lowerQuery = query.toLowerCase()
   const matchedIssues: string[] = []
 
@@ -101,14 +100,19 @@ function analyzeQuery(query: string, context?: any): { analysis: string; recomme
   const recommendations = matchedIssues.slice(0, 3).map(issue => {
     const kb = AI_KNOWLEDGE_BASE[issue as keyof typeof AI_KNOWLEDGE_BASE]
     const categoryInfo = CHECKLIST_CATEGORIES.find(c => c.id === kb.category)
+    // Résout un vrai script DB par mot-clé (id + nom affichable) ; absent =
+    // pas de bouton script (mieux qu'un lien mort).
+    const script = scripts.find(s => s.name.toLowerCase().includes(kb.scriptMatch))
     return {
       ...kb,
       category: kb.category,
       categoryName: categoryInfo?.name || kb.category,
+      scriptId: script?.id,
+      scriptName: script?.name,
     }
   })
 
-  const analysis = `Analyse de votre problème : "${query}". ${matchedIssues.length > 1 
+  const analysis = `Analyse de ton problème : "${query}". ${matchedIssues.length > 1 
     ? `J'ai identifié ${matchedIssues.length} causes potentielles principales.` 
     : 'J\'ai identifié une cause principale probable.'}
     ${context ? `Configuration détectée : ${context.cpu || 'N/A'} / ${context.gpu || 'N/A'} / ${context.ram || 'N/A'} RAM.` : ''}`
@@ -139,7 +143,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const body = await request.json()
+    const body = await request.json().catch(() => null)
     const validation = aiQuerySchema.safeParse(body)
 
     if (!validation.success) {
@@ -151,17 +155,21 @@ export async function POST(request: NextRequest) {
 
     const { query, context } = validation.data
 
-    // Get user profile for context
-    const profile = await prisma.userProfile.findUnique({
-      where: { userId: session.userId },
-    })
+    // Profil matériel + scripts réels (pour des liens qui existent vraiment)
+    const [profile, scripts] = await Promise.all([
+      prisma.userProfile.findUnique({ where: { userId: session.userId } }),
+      prisma.optimizationScript.findMany({
+        where: { isActive: true },
+        select: { id: true, name: true },
+      }),
+    ])
 
     const mergedContext = {
       ...profile,
       ...context,
     }
 
-    const result = analyzeQuery(query, mergedContext)
+    const result = analyzeQuery(query, mergedContext, scripts)
 
     // Log activity
     await prisma.activityLog.create({

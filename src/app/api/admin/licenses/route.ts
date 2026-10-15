@@ -34,7 +34,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Accès réservé aux administrateurs' }, { status: 403 })
     }
 
-    const body = await request.json()
+    const body = await request.json().catch(() => null)
     if (!body?.licenseId || typeof body.licenseId !== 'string') {
       return NextResponse.json({ error: 'licenseId requis' }, { status: 400 })
     }

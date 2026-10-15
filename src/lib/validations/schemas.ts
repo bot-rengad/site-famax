@@ -97,9 +97,9 @@ export const ticketMessageSchema = z.object({
 
 // Checklist progress schema
 export const checklistProgressSchema = z.object({
-  checklistItemId: z.string(),
+  checklistItemId: z.string().min(1),
   completed: z.boolean(),
-  notes: z.string().optional(),
+  notes: z.string().max(1000, 'Notes trop longues (1000 caractères max)').optional(),
 })
 
 // AI Assistant schema

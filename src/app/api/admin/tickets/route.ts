@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 
-import { requireAdmin } from '@/lib/auth/admin' 
+import { requireAdmin } from '@/lib/auth/admin'
+
+// Statuts réels des tickets (src/types/index.ts)
+const TICKET_STATUSES = ['OPEN', 'IN_PROGRESS', 'WAITING_CUSTOMER', 'CLOSED']
 
 // Liste complète des tickets support avec messages
 export async function GET() {
@@ -37,11 +40,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Accès réservé aux administrateurs' }, { status: 403 })
     }
 
-    const body = await request.json()
-    const { ticketId, message, status } = body
+    const body = await request.json().catch(() => null)
+    const { ticketId, message, status } = body || {}
 
     if (!ticketId || !message || typeof message !== 'string') {
       return NextResponse.json({ error: 'ticketId et message requis' }, { status: 400 })
+    }
+
+    if (status !== undefined && !TICKET_STATUSES.includes(status)) {
+      return NextResponse.json({ error: 'Statut invalide' }, { status: 400 })
     }
 
     const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } })
@@ -87,10 +94,9 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Accès réservé aux administrateurs' }, { status: 403 })
     }
 
-    const body = await request.json()
-    const validStatuses = ['OPEN', 'IN_PROGRESS', 'WAITING_CUSTOMER', 'CLOSED']
+    const body = await request.json().catch(() => null)
 
-    if (!body?.ticketId || !validStatuses.includes(body?.status)) {
+    if (!body?.ticketId || !TICKET_STATUSES.includes(body?.status)) {
       return NextResponse.json({ error: 'Paramètres invalides' }, { status: 400 })
     }
 

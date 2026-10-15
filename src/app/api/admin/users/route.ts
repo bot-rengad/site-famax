@@ -45,8 +45,8 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Accès réservé aux administrateurs' }, { status: 403 })
     }
 
-    const body = await request.json()
-    const { userId, role } = body
+    const body = await request.json().catch(() => null)
+    const { userId, role } = body || {}
 
     if (!userId || !['USER', 'ADMIN'].includes(role)) {
       return NextResponse.json({ error: 'Paramètres invalides' }, { status: 400 })
@@ -54,7 +54,7 @@ export async function PATCH(request: NextRequest) {
 
     // Empêche un admin de se rétrograder lui-même par accident
     if (userId === session.userId && role === 'USER') {
-      return NextResponse.json({ error: 'Impossible de modifier votre propre rôle' }, { status: 400 })
+      return NextResponse.json({ error: 'Impossible de modifier ton propre rôle' }, { status: 400 })
     }
 
     const user = await prisma.user.update({
@@ -78,13 +78,13 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Accès réservé aux administrateurs' }, { status: 403 })
     }
 
-    const body = await request.json()
+    const body = await request.json().catch(() => null)
     if (!body?.userId || typeof body.userId !== 'string') {
       return NextResponse.json({ error: 'userId requis' }, { status: 400 })
     }
 
     if (body.userId === session.userId) {
-      return NextResponse.json({ error: 'Impossible de supprimer votre propre compte' }, { status: 400 })
+      return NextResponse.json({ error: 'Impossible de supprimer ton propre compte' }, { status: 400 })
     }
 
     await prisma.user.delete({ where: { id: body.userId } })

@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
     }
 
-    const body = await request.json()
+    const body = await request.json().catch(() => null)
     const validation = changePasswordSchema.safeParse(body)
 
     if (!validation.success) {

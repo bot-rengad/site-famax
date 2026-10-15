@@ -56,7 +56,7 @@ function OrderContent() {
   const [error, setError] = useState<string | null>(null)
   const [pseudo, setPseudo] = useState<string | null>(null)
   const [discordLinked, setDiscordLinked] = useState(false)
-  const [pendingOrder, setPendingOrder] = useState<{ id: string; orderNumber: string; amount: number } | null>(null)
+  const [pendingOrder, setPendingOrder] = useState<{ id: string; orderNumber: string; amount: number; packageType: string } | null>(null)
 
   const packPrice = PACKAGES.find(p => p.id === pack)?.price ?? 0
   const total = packPrice
@@ -101,7 +101,7 @@ function OrderContent() {
         const list = Array.isArray(data?.orders) ? data.orders : []
         const active = list.find((o: any) => o.status === 'PENDING' || o.status === 'PAID')
         if (active) {
-          setPendingOrder({ id: active.id, orderNumber: active.orderNumber, amount: active.amount })
+          setPendingOrder({ id: active.id, orderNumber: active.orderNumber, amount: active.amount, packageType: active.packageType })
         }
       })
       .catch(() => {})
@@ -252,11 +252,28 @@ function OrderContent() {
                   </div>
                   <p className="text-[12px] text-fmx-gray">Prix final, sans option.</p>
                 </div>
-                <Button variant="neon" size="lg" fullWidth className="mt-4" onClick={() => { setStep(2); const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' }) }}>
-                  Continuer vers le paiement — {total}€
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-                <p className="mt-2 text-center text-[11px] text-fmx-gray">Paiement PayPal ou virement à l’étape suivante.</p>
+                {/* Anti-doublon : une commande active existe déjà pour ce pack */}
+                {pendingOrder && pendingOrder.packageType === pack ? (
+                  <>
+                    <Link
+                      href={`/dashboard/orders/${pendingOrder.id}`}
+                      className="mt-4 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-fmx-red/40 bg-fmx-red/[0.12] px-4 py-3 text-[14px] font-bold text-white transition-all hover:bg-fmx-red/[0.2]"
+                    >
+                      Reprendre ma commande {pendingOrder.orderNumber} →
+                    </Link>
+                    <p className="mt-2 text-center text-[11px] text-fmx-gray">
+                      Tu as déjà une commande {packName} en cours ({pendingOrder.amount}€). Pas besoin de recommencer.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="neon" size="lg" fullWidth className="mt-4" onClick={() => { setStep(2); const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' }) }}>
+                      Continuer vers le paiement — {total}€
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                    <p className="mt-2 text-center text-[11px] text-fmx-gray">Paiement PayPal ou virement à l’étape suivante.</p>
+                  </>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -306,7 +323,7 @@ function OrderContent() {
                     <span><b>Lie ton Discord</b> pour retrouver ton paiement.</span>
                     <a
                       href={`/api/auth/discord?redirect=${encodeURIComponent(`/dashboard/order?pack=${pack}&method=${method}`)}`}
-                      className="rounded-full bg-[#5865F2] px-4 py-2 text-[12px] font-bold text-white hover:bg-[#4752C4]"
+                      className="inline-flex min-h-[44px] items-center rounded-full bg-[#5865F2] px-4 py-2 text-[12px] font-bold text-white hover:bg-[#4752C4]"
                     >
                       Vérifier avec Discord →
                     </a>
@@ -325,7 +342,7 @@ function OrderContent() {
                       <span className="min-w-0 flex-1 truncate">{PAYPAL_NAME}</span>
                       <span className="flex shrink-0 items-center gap-2">
                         <CopyBtn text={PAYPAL_LINK} />
-                        <a href={PAYPAL_LINK} target="_blank" rel="noreferrer" className="inline-flex min-h-[40px] items-center rounded-full bg-[#0070BA] px-4 py-2 font-sans text-[12px] font-bold text-white hover:brightness-110">
+                        <a href={PAYPAL_LINK} target="_blank" rel="noreferrer" className="inline-flex min-h-[44px] items-center rounded-full bg-[#0070BA] px-4 py-2 font-sans text-[12px] font-bold text-white hover:brightness-110">
                           Ouvrir →
                         </a>
                       </span>
@@ -351,7 +368,7 @@ function OrderContent() {
                     </p>
                   </div>
                 )}
-                {/* Rappel 3 étapes — 1 ligne */}
+                {/* Rappel paiement (ne pas parler d'"étapes" : le tunnel en est à 2) */}
                 <p className="mt-3 text-center text-[12px] leading-relaxed text-fmx-gray">
                   1. Paie <b className="text-white">{total}€</b> avec <b className="text-white">{pseudo ? `@${pseudo}` : 'ton pseudo'}</b> en note
                   {' '}→ 2. Coche « J&apos;ai payé » ci-dessous
@@ -427,7 +444,7 @@ function OrderContent() {
                 href={DISCORD_INVITE}
                 target="_blank"
                 rel="noreferrer"
-                className="shrink-0 rounded-full bg-[#5865F2] px-4 py-2 text-[12px] font-bold text-white hover:bg-[#4752C4]"
+                className="inline-flex min-h-[44px] shrink-0 items-center rounded-full bg-[#5865F2] px-4 py-2 text-[12px] font-bold text-white hover:bg-[#4752C4]"
               >
                 Discord →
               </a>

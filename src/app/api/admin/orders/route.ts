@@ -38,7 +38,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Accès réservé aux administrateurs' }, { status: 403 })
     }
 
-    const body = await request.json()
+    const body = await request.json().catch(() => null)
     const orderId: string | undefined = body?.orderId
     const action: string | undefined = body?.action
 
@@ -55,6 +55,14 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (action === 'CANCELLED') {
+      // Une commande terminée ne s'annule pas (la prestation a été livrée) :
+      // ça masquerait un vrai besoin de remboursement.
+      if (order.status === 'COMPLETED') {
+        return NextResponse.json(
+          { error: 'Commande déjà terminée : utilise un remboursement, pas une annulation.' },
+          { status: 409 }
+        )
+      }
       // Annuler une commande payée ne doit jamais laisser une licence ACTIVE utilisable.
       const [, updated] = await prisma.$transaction([
         prisma.license.updateMany({
@@ -72,46 +80,68 @@ export async function PATCH(request: NextRequest) {
     if (order.status === 'COMPLETED' || order.status === 'PAID') {
       return NextResponse.json({ order, licenseKey: order.licenseKey, message: 'Déjà validée' })
     }
-    // Reprise idempotente : si une licence existe déjà pour cette commande (retry après crash),
-    // on la réutilise au lieu de lever P2002 sur License(orderId unique).
+    // Reprise idempotente : si une licence existe déjà pour cette commande (retry après crash
+    // ou commande anciennement annulée), on la réactive au lieu de lever P2002
+    // sur License(orderId unique) — sinon licence révoquée = script payé mais inutilisable.
     if (order.license) {
-      const updated = await prisma.order.update({
-        where: { id: order.id },
-        data: { status: 'PAID', paidAt: order.paidAt ?? new Date(), licenseKey: order.license.key },
-      })
+      const [, updated] = await prisma.$transaction([
+        prisma.license.update({
+          where: { id: order.license.id },
+          data: { status: 'ACTIVE', expiresAt: null },
+        }),
+        prisma.order.update({
+          where: { id: order.id },
+          data: { status: 'PAID', paidAt: order.paidAt ?? new Date(), licenseKey: order.license.key },
+        }),
+      ])
       return NextResponse.json({ order: updated, licenseKey: order.license.key, message: 'Déjà validée (licence reprise)' })
     }
 
     const licenseKey = generateLicenseKey()
     // PAID = paiement vérifié. completedAt reste null : la prestation (opti + suivi)
     // n'est pas encore faite. COMPLETED sera posé quand l'intervention est terminée.
-    const [updatedOrder] = await prisma.$transaction([
-      prisma.order.update({
-        where: { id: order.id },
-        data: { status: 'PAID', paidAt: new Date(), licenseKey },
-      }),
-      prisma.license.create({
-        data: {
-          key: licenseKey,
-          userId: order.userId,
-          orderId: order.id,
-          packageType: order.packageType,
-          status: 'ACTIVE',
-          activatedAt: new Date(),
-        },
-      }),
-      prisma.activityLog.create({
-        data: {
-          userId: order.userId,
-          action: 'PAYMENT_VALIDATED',
-          details: `Paiement validé par ${session.userId} - ${order.orderNumber}`,
-        },
-      }),
-    ])
+    try {
+      const [updatedOrder] = await prisma.$transaction([
+        prisma.order.update({
+          where: { id: order.id },
+          data: { status: 'PAID', paidAt: new Date(), licenseKey },
+        }),
+        prisma.license.create({
+          data: {
+            key: licenseKey,
+            userId: order.userId,
+            orderId: order.id,
+            packageType: order.packageType,
+            status: 'ACTIVE',
+            activatedAt: new Date(),
+          },
+        }),
+        prisma.activityLog.create({
+          data: {
+            userId: order.userId,
+            action: 'PAYMENT_VALIDATED',
+            details: `Paiement validé par ${session.userId} - ${order.orderNumber}`,
+          },
+        }),
+      ])
 
-    notifyLicenseActivated(order.orderNumber, licenseKey, order.user?.discordUsername ?? null).catch(() => {})
+      notifyLicenseActivated(order.orderNumber, licenseKey, order.user?.discordUsername ?? null).catch(() => {})
 
-    return NextResponse.json({ order: updatedOrder, licenseKey, message: 'Paiement validé, licence générée' })
+      return NextResponse.json({ order: updatedOrder, licenseKey, message: 'Paiement validé, licence générée' })
+    } catch (err: any) {
+      // Course rare : double-clic admin → la licence vient d'être créée par l'autre requête.
+      if (err?.code === 'P2002') {
+        const existing = await prisma.license.findUnique({ where: { orderId: order.id } })
+        if (existing) {
+          const updated = await prisma.order.update({
+            where: { id: order.id },
+            data: { status: 'PAID', paidAt: order.paidAt ?? new Date(), licenseKey: existing.key },
+          })
+          return NextResponse.json({ order: updated, licenseKey: existing.key, message: 'Déjà validée (licence reprise)' })
+        }
+      }
+      throw err
+    }
   } catch (error) {
     console.error('Admin order validate error:', error)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })

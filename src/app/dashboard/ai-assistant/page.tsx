@@ -24,11 +24,12 @@ interface Message {
 
 interface Recommendation {
   category: string
+  categoryName?: string
   title: string
   description: string
   priority: 'high' | 'medium' | 'low'
   scriptId?: string
-  checklistItemIds?: string[]
+  scriptName?: string
 }
 
 const quickPrompts = [
@@ -50,11 +51,12 @@ export default function AIAssistantPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [modalRec, setModalRec] = useState<Recommendation | null>(null)
 
-  // Load user profile for context
+  // Charge le profil matériel pour contextualiser les réponses
+  // (/api/users/profile répond { profile }, pas { user: { profile } }).
   useEffect(() => {
     fetch('/api/users/profile')
       .then(res => res.json())
-      .then(data => setContext(data.user?.profile))
+      .then(data => setContext(data.profile ?? null))
       .catch(() => {})
   }, [])
 
@@ -102,7 +104,7 @@ export default function AIAssistantPage() {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'Erreur de connexion à l\'assistant IA. Veuillez réessayer.',
+        content: 'Erreur de connexion à l\'assistant IA. Réessaie dans un instant.',
         timestamp: new Date(),
       }
       setMessages(prev => [...prev, errorMessage])
@@ -187,7 +189,7 @@ export default function AIAssistantPage() {
           </div>
           <div>
             <h1 className="font-display text-display-sm text-fmx-white">Assistant IA FMX</h1>
-            <p className="text-fmx-white-dim text-sm">Diagnostiquez vos problèmes performance en langage naturel</p>
+            <p className="text-fmx-white-dim text-sm">Diagnostique tes problèmes de performance en langage naturel</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -378,7 +380,7 @@ export default function AIAssistantPage() {
             ref={textareaRef}
             value={input}
             onChange={e => setInput(e.target.value)}
-            placeholder="Décrivez votre problème... (ex: 'Micro-freeze en 1v1 Valorant', 'Ping 100ms sur serveur FR')"
+            placeholder="Décris ton problème... (ex: 'Micro-freeze en 1v1 Valorant', 'Ping 100ms sur serveur FR')"
             rows={1}
             className={cn(
               'input-field w-full resize-none pr-16 min-h-[56px] max-h-48',
@@ -392,7 +394,7 @@ export default function AIAssistantPage() {
               }
             }}
             disabled={loading}
-            aria-label="Votre message"
+            aria-label="Ton message"
           />
           <Button
             type="submit"
@@ -407,7 +409,7 @@ export default function AIAssistantPage() {
           </Button>
         </div>
         <p className="text-xs text-fmx-gray text-center mt-2">
-          Appuyez sur <kbd className="px-1.5 py-0.5 bg-fmx-carbon border border-fmx-border rounded text-fmx-white">Entrée</kbd> pour envoyer,
+          Appuie sur <kbd className="px-1.5 py-0.5 bg-fmx-carbon border border-fmx-border rounded text-fmx-white">Entrée</kbd> pour envoyer,
           <kbd className="px-1.5 py-0.5 bg-fmx-carbon border border-fmx-border rounded text-fmx-white">Shift+Entrée</kbd> pour nouvelle ligne
         </p>
       </form>
@@ -435,38 +437,25 @@ export default function AIAssistantPage() {
 
             <p className="text-fmx-white-dim">{modalRec.description}</p>
 
-            {modalRec.scriptId && (
+            {modalRec.scriptName && (
               <div className="p-3 rounded-lg bg-fmx-carbon border border-fmx-border/50">
                 <p className="text-xs text-fmx-gray mb-1">Script associé :</p>
-                <code className="font-mono text-fmx-red text-sm">{modalRec.scriptId}</code>
+                <p className="text-fmx-red text-sm font-medium">{modalRec.scriptName}</p>
               </div>
             )}
 
-            {modalRec.checklistItemIds && modalRec.checklistItemIds.length > 0 && (
-              <div>
-                <p className="text-xs text-fmx-gray mb-2">Éléments de checklist concernés :</p>
-                <div className="flex flex-wrap gap-1">
-                  {modalRec.checklistItemIds.map((id: string, i: number) => (
-                    <Badge key={i} variant="gray" size="sm" className="font-mono text-xs">
-                      {id}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="flex gap-3 pt-2">
-              <Button variant="neon" onClick={() => {
-                if (modalRec.scriptId) {
+            <div className="flex flex-wrap gap-3 pt-2">
+              {modalRec.scriptId && (
+                <Button variant="neon" onClick={() => {
                   window.open(`/dashboard/downloads?script=${modalRec.scriptId}`, '_blank')
-                }
-                setModalRec(null)
-              }}>
-                <Download className="w-4 h-4 mr-2" />
-                Voir script / Télécharger
-              </Button>
+                  setModalRec(null)
+                }}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Voir script / Télécharger
+                </Button>
+              )}
               <Button variant="ghost" onClick={() => {
-                window.location.href = '/dashboard/checklist'
+                window.location.href = `/dashboard/checklist#${modalRec.category}`
                 setModalRec(null)
               }}>
                 <ExternalLink className="w-4 h-4 mr-2" />

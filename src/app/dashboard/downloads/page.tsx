@@ -20,7 +20,8 @@ interface Script {
   name: string
   description: string
   category: string
-  content: string
+  // Absent de la liste (paywall) : le contenu est chargé à la demande via ?id=
+  content?: string
   version: string
   requiresAdmin: boolean
   downloadCount: number
@@ -53,7 +54,28 @@ export default function DownloadsPage() {
   // Défaut EXPRESS (niveau 1) = moindre privilège.
   const [userPack, setUserPack] = useState<PackId | 'BASIC' | 'PRO' | 'ULTIMATE'>('EXPRESS')
   const [modalScript, setModalScript] = useState<Script | null>(null)
+  const [modalContent, setModalContent] = useState<string | null>(null)
+  const [modalLoading, setModalLoading] = useState(false)
+  const [actionError, setActionError] = useState<string | null>(null)
   const [downloading, setDownloading] = useState<string | null>(null)
+
+  // Charge le contenu à l'ouverture de la modale (la liste ne le renvoie plus).
+  const openScript = async (script: Script) => {
+    setModalScript(script)
+    setModalContent(script.content ?? null)
+    setModalLoading(true)
+    try {
+      const res = await fetch(`/api/scripts?id=${script.id}`)
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || 'Script indisponible')
+      setModalContent(data.script?.content || '')
+    } catch (e) {
+      setModalContent(null)
+      setActionError(e instanceof Error ? e.message : 'Script indisponible')
+    } finally {
+      setModalLoading(false)
+    }
+  }
 
   useEffect(() => {
     fetch('/api/scripts')
@@ -68,8 +90,8 @@ export default function DownloadsPage() {
             const all = Object.values((data.scripts || {}) as Record<string, Script[]>).flat()
             const found = all.find(s => s.id === q)
             if (found) {
-              setModalScript(found)
               setActiveCategory(found.category)
+              openScript(found)
             }
           }
         } catch {}
@@ -104,34 +126,48 @@ export default function DownloadsPage() {
 
   const handleDownload = async (script: Script) => {
     setDownloading(script.id)
+    setActionError(null)
     try {
-      const res = await fetch(`/api/scripts?id=${script.id}`)
-      const data = await res.json()
-      if (data.script?.content) {
-        const blob = new Blob([data.script.content], { type: 'text/plain' })
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `${script.name.replace(/\s+/g, '_')}.${script.category === 'REGISTRY_TWEAKS' ? 'reg' : script.category.includes('POWER') || script.category.includes('FULL') ? 'ini' : 'ps1'}`
-        a.click()
-        URL.revokeObjectURL(url)
+      const res = await fetch(`/api/scripts?id=${script.id}&dl=1`)
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data.script?.content) {
+        throw new Error(data.error || 'Téléchargement impossible')
       }
+      const blob = new Blob([data.script.content], { type: 'text/plain' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${script.name.replace(/\s+/g, '_')}.${script.category === 'REGISTRY_TWEAKS' ? 'reg' : script.category.includes('POWER') || script.category.includes('FULL') ? 'ini' : 'ps1'}`
+      a.click()
+      URL.revokeObjectURL(url)
     } catch (e) {
-      console.error('Download failed')
+      setActionError(e instanceof Error ? e.message : 'Téléchargement impossible')
     } finally {
       setDownloading(null)
     }
   }
 
   const handleCopy = async (script: Script) => {
+    setActionError(null)
     try {
       const res = await fetch(`/api/scripts?id=${script.id}`)
-      const data = await res.json()
-      if (data.script?.content) {
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data.script?.content) {
+        throw new Error(data.error || 'Copie impossible')
+      }
+      try {
         await navigator.clipboard.writeText(data.script.content)
+      } catch {
+        // Repli HTTP/iframe non-secure : sélection manuelle via textarea
+        const ta = document.createElement('textarea')
+        ta.value = data.script.content
+        document.body.appendChild(ta)
+        ta.select()
+        document.execCommand('copy')
+        ta.remove()
       }
     } catch (e) {
-      console.error('Copy failed')
+      setActionError(e instanceof Error ? e.message : 'Copie impossible')
     }
   }
 
@@ -158,10 +194,20 @@ export default function DownloadsPage() {
           <span className="text-fmx-white-dim text-sm">
             {getPackLevel(userPack) >= 3 && 'Accès illimité + scripts Ultime'}
             {getPackLevel(userPack) === 2 && 'Accès complet aux scripts avancés'}
-            {getPackLevel(userPack) < 2 && 'Mettez à niveau pour accéder aux scripts avancés'}
+            {getPackLevel(userPack) < 2 && 'Passe à un pack supérieur pour les scripts avancés'}
           </span>
         </div>
       </motion.div>
+
+      {/* Erreur d'action (téléchargement/copie refusés, script indisponible...) */}
+      {actionError && (
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          <span>{actionError}</span>
+          <button onClick={() => setActionError(null)} className="shrink-0 text-red-300 hover:text-white" aria-label="Fermer">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       {/* Search & Filters */}
       <Card variant="glass" padding="md">
@@ -208,7 +254,7 @@ export default function DownloadsPage() {
         <Card variant="glass" padding="xl" className="text-center">
           <FileCode className="w-16 h-16 mx-auto mb-4 text-fmx-gray" />
           <h3 className="font-display text-heading-md text-fmx-white mb-2">Aucun script trouvé</h3>
-          <p className="text-fmx-white-dim">Essayez de modifier votre recherche ou vos filtres</p>
+          <p className="text-fmx-white-dim">Essaie de modifier ta recherche ou tes filtres</p>
           <Button variant="ghost" onClick={() => { setSearch(''); setActiveCategory('ALL') }} className="mt-4">
             <X className="w-4 h-4 mr-2" />
             Réinitialiser les filtres
@@ -312,7 +358,7 @@ export default function DownloadsPage() {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => setModalScript(script)}
+                                onClick={() => openScript(script)}
                                 disabled={!hasAccess}
                                 className="gap-1.5"
                               >
@@ -364,25 +410,28 @@ export default function DownloadsPage() {
             <div className="relative">
               <pre className="bg-fmx-black border border-fmx-border rounded-lg p-4 overflow-x-auto max-h-96">
                 <code className="font-mono text-sm text-fmx-white-dim whitespace-pre-wrap">
-                  {modalScript.content}
+                  {modalLoading
+                    ? 'Chargement du script...'
+                    : modalContent ?? "Contenu indisponible — vérifie ton pack ou réessaie."}
                 </code>
               </pre>
               <Button
                 variant="ghost"
                 size="sm"
                 className="absolute top-2 right-2"
-                onClick={() => handleCopy(modalScript)}
+                onClick={() => modalContent && handleCopy(modalScript)}
+                disabled={!modalContent}
               >
                 <Copy className="w-4 h-4" />
               </Button>
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="ghost" onClick={() => setModalScript(null)}>Fermer</Button>
-              <Button variant="neon" onClick={() => { handleCopy(modalScript); setModalScript(null) }}>
+              <Button variant="neon" onClick={() => { handleCopy(modalScript); setModalScript(null) }} disabled={!modalContent}>
                 <Copy className="w-4 h-4 mr-2" />
                 Tout copier
               </Button>
-              <Button variant="ghost" onClick={() => handleDownload(modalScript)}>
+              <Button variant="ghost" onClick={() => handleDownload(modalScript)} disabled={!modalContent}>
                 <Download className="w-4 h-4 mr-2" />
                 Télécharger
               </Button>

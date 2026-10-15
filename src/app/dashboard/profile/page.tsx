@@ -97,7 +97,7 @@ export default function ProfilePage() {
         gpuRenderer: specs.gpuRenderer,
         autoDetected: true,
       }))
-      toast.success('Configuration détectée ! Vérifiez et complétez les détails.')
+      toast.success('Configuration détectée ! Vérifie et complète les détails.')
     } catch {
       toast.error('Échec de la détection automatique')
     } finally {
@@ -193,7 +193,7 @@ export default function ProfilePage() {
               </div>
               {detected && (
                 <div className="mt-4 flex items-center gap-2 flex-wrap">
-                  {formData.autoDetected && <Badge variant="green" dot>Config synchronisée avec votre profil</Badge>}
+                  {formData.autoDetected && <Badge variant="green" dot>Config synchronisée avec ton profil</Badge>}
                   {!detected.gpuModel && (
                     <span className="text-xs text-fmx-gray">
                       Certaines infos (modèle CPU exact, quantité RAM précise) ne sont pas exposées par le navigateur : complétez-les manuellement.
@@ -229,12 +229,12 @@ export default function ProfilePage() {
                 value={formData.cpu}
                 onChange={handleChange}
                 options={hardwareOptions.cpu.map(o => ({ value: o, label: o }))}
-                placeholder="Sélectionnez votre CPU"
+                placeholder="Sélectionne ton CPU"
               />
               {formData.cpu === 'Autre...' && (
                 <Input
                   name="custom-cpu"
-                  label="Précisez votre processeur"
+                  label="Précise ton processeur"
                   placeholder="Ex : Ryzen 5 5600"
                   value={custom.cpu || ''}
                   onChange={e => { setCustom(c => ({ ...c, cpu: e.target.value })); setSaved(false) }}
@@ -265,12 +265,12 @@ export default function ProfilePage() {
                 value={formData.gpu}
                 onChange={handleChange}
                 options={hardwareOptions.gpu.map(o => ({ value: o, label: o }))}
-                placeholder="Sélectionnez votre GPU"
+                placeholder="Sélectionne ton GPU"
               />
               {formData.gpu === 'Autre...' && (
                 <Input
                   name="custom-gpu"
-                  label="Précisez votre carte graphique"
+                  label="Précise ta carte graphique"
                   placeholder="Ex : RTX 4060 8GB"
                   value={custom.gpu || ''}
                   onChange={e => { setCustom(c => ({ ...c, gpu: e.target.value })); setSaved(false) }}
@@ -293,13 +293,13 @@ export default function ProfilePage() {
                 value={formData.ram}
                 onChange={handleChange}
                 options={hardwareOptions.ram.map(o => ({ value: o, label: o }))}
-                placeholder="Sélectionnez votre RAM"
+                placeholder="Sélectionne ta RAM"
                 hint="Incluez fréquence et timings (ex: CL30) si possible"
               />
               {formData.ram === 'Autre...' && (
                 <Input
                   name="custom-ram"
-                  label="Précisez votre RAM"
+                  label="Précise ta RAM"
                   placeholder="Ex : 32GB DDR5-6000"
                   value={custom.ram || ''}
                   onChange={e => { setCustom(c => ({ ...c, ram: e.target.value })); setSaved(false) }}
@@ -311,12 +311,12 @@ export default function ProfilePage() {
                 value={formData.storage}
                 onChange={handleChange}
                 options={hardwareOptions.storage.map(o => ({ value: o, label: o }))}
-                placeholder="Sélectionnez votre SSD/NVMe"
+                placeholder="Sélectionne ton SSD/NVMe"
               />
               {formData.storage === 'Autre...' && (
                 <Input
                   name="custom-storage"
-                  label="Précisez votre stockage"
+                  label="Précise ton stockage"
                   placeholder="Ex : Crucial P3 1TB"
                   value={custom.storage || ''}
                   onChange={e => { setCustom(c => ({ ...c, storage: e.target.value })); setSaved(false) }}
@@ -347,7 +347,7 @@ export default function ProfilePage() {
                 value={formData.os}
                 onChange={handleChange}
                 options={hardwareOptions.os.map(o => ({ value: o, label: o }))}
-                placeholder="Sélectionnez votre OS"
+                placeholder="Sélectionne ton OS"
               />
               <Input
                 name="favoriteGame"
@@ -374,7 +374,7 @@ export default function ProfilePage() {
                 value={formData.monitorRefresh}
                 onChange={handleChange}
                 options={hardwareOptions.monitorRefresh.map(o => ({ value: o, label: o }))}
-                placeholder="Hz de votre écran"
+                placeholder="Hz de ton écran"
               />
             </CardContent>
           </Card>
@@ -398,7 +398,7 @@ export default function ProfilePage() {
               {formData.mouseDPI === 'Autre...' && (
                 <Input
                   name="custom-mouseDPI"
-                  label="Précisez vos DPI"
+                  label="Précise tes DPI"
                   placeholder="Ex : 500"
                   value={custom.mouseDPI || ''}
                   onChange={e => { setCustom(c => ({ ...c, mouseDPI: e.target.value })); setSaved(false) }}
@@ -410,7 +410,7 @@ export default function ProfilePage() {
                 value={formData.keyboardPolling}
                 onChange={handleChange}
                 options={hardwareOptions.keyboardPolling.map(o => ({ value: o, label: o }))}
-                placeholder="Hz de votre clavier"
+                placeholder="Hz de ton clavier"
               />
             </CardContent>
           </Card>
@@ -442,7 +442,7 @@ export default function ProfilePage() {
                   </span>
                   <div className="text-left">
                     <p className="font-medium text-fmx-white">Téléchargements</p>
-                    <p className="text-xs text-fmx-gray">Scripts pour votre config</p>
+                    <p className="text-xs text-fmx-gray">Scripts pour ta config</p>
                   </div>
                 </a>
               </Button>

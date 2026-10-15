@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import Link from 'next/link'
 import {
   Shield, Cpu, Database, Monitor, Zap, Settings, Globe, Gamepad2,
-  Check, Copy, Download, ChevronDown, ChevronUp, AlertCircle, Info,
-  Clock, Target, TrendingUp
+  Check, ExternalLink, ChevronDown, ChevronUp, AlertCircle
 } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
 import { Button } from '@/components/ui/Button'
@@ -13,7 +13,6 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Progress, CircularProgress, StepProgress } from '@/components/ui/Progress'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs'
-import { Modal } from '@/components/ui/Modal'
 import { CHECKLIST_CATEGORIES, ChecklistCategoryId } from '@/lib/checklist-categories'
 
 // Checklist data matching seed
@@ -86,10 +85,14 @@ const categoryIcons: Record<ChecklistCategoryId, any> = {
   'game-optimization': Gamepad2,
 }
 
+// ID réel en base : le seed crée `checklist-<catégorie>-<ordre>`. L'ancien code
+// utilisait les IDs locaux (security-restore-point...) qui ne matchaient JAMAIS
+// ceux de l'API → progression et notes jamais sauvegardées.
+const dbId = (category: string, order: number) => `checklist-${category}-${order}`
+
 export default function ChecklistPage() {
   const [progress, setProgress] = useState<Record<string, { completed: boolean; notes: string }>>({})
   const [expanded, setExpanded] = useState<string | null>(null)
-  const [scriptModal, setScriptModal] = useState<{ open: boolean; item: any; category: string } | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<ChecklistCategoryId>('security')
 
@@ -112,21 +115,22 @@ export default function ChecklistPage() {
       .catch(() => setLoading(false))
   }, [])
 
-  // Save progress
-  const toggleItem = async (itemId: string, category: ChecklistCategoryId) => {
+  // Save progress (clé = ID réel en base)
+  const toggleItem = async (itemId: string) => {
+    const previous = progress
     const newCompleted = !progress[itemId]?.completed
-    const newProgress = { ...progress, [itemId]: { completed: newCompleted, notes: progress[itemId]?.notes || '' } }
-    setProgress(newProgress)
+    setProgress({ ...progress, [itemId]: { completed: newCompleted, notes: progress[itemId]?.notes || '' } })
 
     try {
-      await fetch('/api/checklist', {
+      const res = await fetch('/api/checklist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ checklistItemId: itemId.replace(`checklist-${category}-`, ''), completed: newCompleted }),
+        body: JSON.stringify({ checklistItemId: itemId, completed: newCompleted, notes: progress[itemId]?.notes || '' }),
       })
-    } catch (e) {
+      if (!res.ok) throw new Error('save failed')
+    } catch {
       // Revert on error
-      setProgress(progress)
+      setProgress(previous)
     }
   }
 
@@ -134,31 +138,36 @@ export default function ChecklistPage() {
     setProgress(prev => ({ ...prev, [itemId]: { ...prev[itemId], notes } }))
   }
 
-  const openScript = (item: any, category: string) => {
-    setScriptModal({ open: true, item, category })
-  }
-
   const handleSaveNotes = async (itemId: string) => {
     try {
-      await fetch('/api/checklist', {
+      // completed est requis par le schéma : toujours envoyer l'état courant
+      // (l'ancien code envoyait undefined → 400 → notes jamais enregistrées).
+      const res = await fetch('/api/checklist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ checklistItemId: itemId, completed: progress[itemId]?.completed, notes: progress[itemId]?.notes }),
+        body: JSON.stringify({
+          checklistItemId: itemId,
+          completed: progress[itemId]?.completed || false,
+          notes: progress[itemId]?.notes || '',
+        }),
       })
-    } catch (e) {
+      if (!res.ok) throw new Error('save failed')
+    } catch {
       console.error('Failed to save notes')
     }
   }
 
-  // Calculate stats
-  const allItems = Object.values(checklistData).flat()
-  const totalItems = allItems.length
-  const completedItems = allItems.filter(item => progress[item.id]?.completed).length
+  // Calculate stats (clés = IDs réels en base)
+  const allRows = CHECKLIST_CATEGORIES.flatMap(cat =>
+    (checklistData[cat.id] || []).map(item => ({ cat: cat.id, item }))
+  )
+  const totalItems = allRows.length
+  const completedItems = allRows.filter(({ cat, item }) => progress[dbId(cat, item.order)]?.completed).length
   const completionPercent = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0
 
   const categoryStats = CHECKLIST_CATEGORIES.map(cat => {
     const items = checklistData[cat.id] || []
-    const catCompleted = items.filter(item => progress[item.id]?.completed).length
+    const catCompleted = items.filter(item => progress[dbId(cat.id, item.order)]?.completed).length
     return { ...cat, completed: catCompleted, total: items.length, percent: items.length > 0 ? Math.round((catCompleted / items.length) * 100) : 0 }
   })
 
@@ -239,7 +248,8 @@ export default function ChecklistPage() {
               >
                 <div className="space-y-4 mt-6">
                   {checklistData[cat.id].map((item, index) => {
-                    const itemProgress = progress[item.id] || { completed: false, notes: '' }
+                    const itemDbId = dbId(cat.id, item.order)
+                    const itemProgress = progress[itemDbId] || { completed: false, notes: '' }
                     const Icon = categoryIcons[cat.id]
                     return (
                       <motion.div
@@ -253,11 +263,12 @@ export default function ChecklistPage() {
                         )}
                       >
                         <div className="flex items-start gap-4">
-                          {/* Checkbox */}
+                          {/* Checkbox (zone tactile étendue à ~44px via after) */}
                           <button
-                            onClick={() => toggleItem(item.id, cat.id)}
+                            onClick={() => toggleItem(itemDbId)}
                             className={cn(
                               'relative w-6 h-6 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all duration-200',
+                              'after:absolute after:-inset-2.5 after:content-[""]',
                               itemProgress.completed
                                 ? 'bg-fmx-red border-fmx-red text-fmx-white'
                                 : 'border-fmx-border text-fmx-gray hover:border-fmx-red/50'
@@ -279,30 +290,17 @@ export default function ChecklistPage() {
                                 </h4>
                                 <p className="text-fmx-white-dim text-sm mt-1">{item.description}</p>
 
-                                {/* Script Actions */}
+                                {/* Fichier associé → redirige vers Téléchargements
+                                    (contenu réel) au lieu d'un faux bouton "Copier". */}
                                 {item.script && (
                                   <div className="flex items-center gap-2 mt-3 flex-wrap">
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => openScript(item, cat.id)}
-                                      className="gap-1.5 px-3"
+                                    <Link
+                                      href="/dashboard/downloads"
+                                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-fmx-white-dim hover:text-fmx-white hover:bg-fmx-carbon transition-colors"
                                     >
-                                      <Copy className="w-3.5 h-3.5" />
-                                      Copier script
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => {
-                                        const content = item.scriptContent || `# ${item.title}\n# Script: ${item.script}\n# TODO: Contenu du script`
-                                        navigator.clipboard.writeText(content)
-                                      }}
-                                      className="gap-1.5 px-3"
-                                    >
-                                      <Download className="w-3.5 h-3.5" />
-                                      Télécharger
-                                    </Button>
+                                      <ExternalLink className="w-3.5 h-3.5" />
+                                      Script : {item.script} (voir Téléchargements)
+                                    </Link>
                                     {item.requiresAdmin && (
                                       <Badge variant="yellow" size="sm" icon={<AlertCircle className="w-3 h-3" />}>
                                         Admin requis
@@ -315,9 +313,9 @@ export default function ChecklistPage() {
                                 <div className="mt-3">
                                   <textarea
                                     value={itemProgress.notes}
-                                    onChange={e => updateNotes(item.id, e.target.value)}
-                                    onBlur={() => handleSaveNotes(item.id)}
-                                    placeholder="Vos notes privées (ex: valeurs BIOS, version driver, résultats bench...)"
+                                    onChange={e => updateNotes(itemDbId, e.target.value)}
+                                    onBlur={() => handleSaveNotes(itemDbId)}
+                                    placeholder="Tes notes privées (ex: valeurs BIOS, version driver, résultats bench...)"
                                     className="w-full px-3 py-2 rounded-lg bg-fmx-black border border-fmx-border/50 text-fmx-white placeholder-fmx-gray text-sm focus:border-fmx-red focus:ring-1 focus:ring-fmx-red resize-none min-h-[60px]"
                                   />
                                 </div>
@@ -356,53 +354,6 @@ export default function ChecklistPage() {
         ))}
       </Tabs>
 
-      {/* Script Modal */}
-      <Modal
-        isOpen={!!scriptModal}
-        onClose={() => setScriptModal(null)}
-        title={scriptModal?.item.title}
-        size="xl"
-      >
-        {scriptModal && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-sm text-fmx-white-dim">
-              <Badge variant="gray" icon={<Info className="w-3 h-3" />}>
-                {scriptModal.category}
-              </Badge>
-              {scriptModal.item.requiresAdmin && (
-                <Badge variant="yellow" icon={<AlertCircle className="w-3 h-3" />}>
-                  Exécution Admin requise
-                </Badge>
-              )}
-            </div>
-            <div className="relative">
-              <pre className="bg-fmx-black border border-fmx-border rounded-lg p-4 overflow-x-auto max-h-96">
-                <code className="font-mono text-sm text-fmx-white-dim whitespace-pre-wrap">
-                  {scriptModal.item.scriptContent || `# ${scriptModal.item.title}\n# Fichier: ${scriptModal.item.script}\n# Contenu non disponible dans la démo.\n# Téléchargez le fichier complet depuis l'onglet Téléchargements.`}
-                </code>
-              </pre>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute top-2 right-2"
-                onClick={() => navigator.clipboard.writeText(scriptModal.item.scriptContent || '')}
-              >
-                <Copy className="w-4 h-4" />
-              </Button>
-            </div>
-            <div className="flex justify-end gap-2 pt-2">
-              <Button variant="ghost" onClick={() => setScriptModal(null)}>Fermer</Button>
-              <Button variant="neon" onClick={() => {
-                navigator.clipboard.writeText(scriptModal.item.scriptContent || '')
-                setScriptModal(null)
-              }}>
-                <Copy className="w-4 h-4 mr-2" />
-                Tout copier
-              </Button>
-            </div>
-          </div>
-        )}
-      </Modal>
     </div>
   )
 }

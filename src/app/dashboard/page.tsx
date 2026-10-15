@@ -67,7 +67,10 @@ export default function DashboardPage() {
     )
   }
 
-  const latest = orders.length > 0 ? orders[0] : null
+  // Commande mise en avant : la plus récente encore active (PENDING/PAID),
+  // sinon la plus récente tout court. orders[0] pouvait être une vieille
+  // CANCELLED/REFUNDED et fausser tout le parcours guidé.
+  const latest = orders.find(o => o.status === 'PENDING' || o.status === 'PAID') || orders[0] || null
   const paid = latest && (latest.status === 'PAID' || latest.status === 'COMPLETED')
   const cancelled = latest?.status === 'CANCELLED'
   const pending = latest && latest.status === 'PENDING'
@@ -80,7 +83,7 @@ export default function DashboardPage() {
         : 'Lie ton Discord : pseudo retrouvé sur les paiements.',
       done: discordLinked,
       locked: false,
-      cta: discordLinked ? null : { label: 'Vérifier avec Discord', href: '/api/auth/discord', primary: true },
+      cta: discordLinked ? null : { label: 'Vérifier avec Discord', href: '/api/auth/discord?redirect=/dashboard', primary: true },
     },
     {
       title: 'Commande',

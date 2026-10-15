@@ -230,7 +230,7 @@ export function Chatbot() {
                   'flex-1 px-4 py-2.5 rounded-xl bg-fmx-carbon/70 border border-fmx-border/50 text-[16px] text-fmx-white sm:text-sm',
                   'placeholder:text-fmx-gray focus:outline-none focus:border-fmx-red/50'
                 )}
-                aria-label="Votre message"
+                aria-label="Ton message"
               />
               <button
                 type="submit"

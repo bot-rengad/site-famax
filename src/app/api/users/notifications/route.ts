@@ -9,8 +9,8 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
     }
 
-    const body = await request.json()
-    const { key, value } = body
+    const body = await request.json().catch(() => null)
+    const { key, value } = body || {}
 
     // In a real app, store in user preferences table
     // For now, just log the activity

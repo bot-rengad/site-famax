@@ -19,10 +19,28 @@ export default function SettingsPage() {
   const [sessions, setSessions] = useState<any[]>([])
   const [discordInfo, setDiscordInfo] = useState<{ username: string | null; globalName: string | null; avatar: string | null; verified: boolean }>({ username: null, globalName: null, avatar: null, verified: false })
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [showRevokeModal, setShowRevokeModal] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Erreurs renvoyées par le callback OAuth (?error=...) : sans ça,
+    // "Ce Discord est déjà lié à un autre compte" restait invisible.
+    try {
+      const err = new URLSearchParams(window.location.search).get('error')
+      if (err) {
+        const messages: Record<string, string> = {
+          discord_already_linked: 'Ce compte Discord est déjà lié à un autre compte FMX.',
+          discord_email_used: 'Cet email Discord est déjà utilisé par un autre compte.',
+          discord_denied: 'Autorisation Discord refusée.',
+          discord_state: 'Session de vérification expirée. Réessaie.',
+          discord_exchange: 'Connexion à Discord impossible. Réessaie.',
+          discord_server: 'Erreur serveur Discord. Réessaie plus tard.',
+          discord_not_configured: 'Discord n\'est pas configuré sur ce site.',
+        }
+        toast.error(messages[err] || 'Erreur de vérification Discord.')
+        window.history.replaceState({}, '', window.location.pathname)
+      }
+    } catch {}
+
     fetch('/api/users/me')
       .then(res => res.json())
       .then(data => {
@@ -198,11 +216,11 @@ export default function SettingsPage() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.05 }}
-                      className="flex items-center justify-between p-4 rounded-xl bg-fmx-carbon/50 border border-fmx-border/50"
+                      className="flex items-center justify-between gap-3 p-4 rounded-xl bg-fmx-carbon/50 border border-fmx-border/50"
                     >
-                      <div className="flex items-center gap-4">
+                      <div className="flex min-w-0 items-center gap-4">
                         <div className={cn(
-                          'w-12 h-12 rounded-xl flex items-center justify-center',
+                          'w-12 h-12 shrink-0 rounded-xl flex items-center justify-center',
                           session.current ? 'bg-fmx-red/20' : 'bg-fmx-carbon border border-fmx-border/50'
                         )}>
                           {session.deviceType === 'mobile' ? (
@@ -211,14 +229,14 @@ export default function SettingsPage() {
                             <Monitor className={cn('w-6 h-6', session.current ? 'text-fmx-red' : 'text-fmx-gray')} />
                           )}
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <p className={cn('font-medium', session.current ? 'text-fmx-white' : 'text-fmx-white-dim')}>
                             {session.current ? 'Cette session' : `${session.deviceType === 'mobile' ? 'Mobile' : 'Desktop'}`}
                           </p>
-                          <p className="text-xs text-fmx-gray">
+                          <p className="truncate text-xs text-fmx-gray">
                             {session.browser} sur {session.os} • {session.ip}
                           </p>
-                          <p className="text-xs text-fmx-gray">
+                          <p className="truncate text-xs text-fmx-gray">
                             Dernière activité : {new Date(session.lastActivity).toLocaleString('fr-FR')}
                           </p>
                         </div>
@@ -228,14 +246,14 @@ export default function SettingsPage() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleRevokeSession(session.id)}
-                          className="text-fmx-red hover:bg-fmx-red/10"
+                          className="shrink-0 text-fmx-red hover:bg-fmx-red/10"
                         >
                           <LogOut className="w-4 h-4 mr-1" />
                           Révoquer
                         </Button>
                       )}
                       {session.current && (
-                        <Badge variant="green" dot size="sm">Actuelle</Badge>
+                        <Badge variant="green" dot size="sm" className="shrink-0">Actuelle</Badge>
                       )}
                     </motion.div>
                   ))}
@@ -279,16 +297,20 @@ export default function SettingsPage() {
               <div className="border-t border-fmx-border/50 pt-4">
                 <h3 className="font-display font-medium text-fmx-white mb-4">Export de données (RGPD)</h3>
                 <p className="text-fmx-white-dim mb-4">Télécharge toutes tes données personnelles au format JSON</p>
-                <Button variant="ghost" onClick={() => {
-                  fetch('/api/users/export')
-                    .then(res => res.blob())
-                    .then(blob => {
-                      const url = URL.createObjectURL(blob)
-                      const a = document.createElement('a')
-                      a.href = url
-                      a.download = `fmx-export-${Date.now()}.json`
-                      a.click()
-                    })
+                <Button variant="ghost" onClick={async () => {
+                  try {
+                    const res = await fetch('/api/users/export')
+                    if (!res.ok) throw new Error('export failed')
+                    const blob = await res.blob()
+                    const url = URL.createObjectURL(blob)
+                    const a = document.createElement('a')
+                    a.href = url
+                    a.download = `fmx-export-${Date.now()}.json`
+                    a.click()
+                    URL.revokeObjectURL(url)
+                  } catch {
+                    toast.error('Erreur lors de l\'export. Réessaie.')
+                  }
                 }}>
                   <Download className="w-4 h-4 mr-2" />
                   Demander l&apos;export de mes données
@@ -311,15 +333,6 @@ export default function SettingsPage() {
         variant="danger"
       />
 
-      <ConfirmModal
-        isOpen={!!showRevokeModal}
-        onClose={() => setShowRevokeModal(null)}
-        onConfirm={() => { if (showRevokeModal) handleRevokeSession(showRevokeModal) }}
-        title="Révoquer cette session ?"
-        message="Cette session sera déconnectée immédiatement. Tu devras te reconnecter sur cet appareil."
-        confirmText="Révoquer"
-        variant="danger"
-      />
     </div>
   )
 }

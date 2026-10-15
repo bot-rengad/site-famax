@@ -71,7 +71,9 @@ function clientIp(request: NextRequest): string {
   // Le spoof reste possible en direct, mais le rate-limit n'est qu'une 1re barrière.
   return (
     request.headers.get('x-vercel-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    // x-forwarded-for : la 1re entrée est forgée par le client, la DERNIÈRE
+    // est ajoutée par le proxy proche de nous → on prend la dernière.
+    request.headers.get('x-forwarded-for')?.split(',').pop()?.trim() ||
     request.headers.get('x-real-ip') ||
     'unknown'
   )
@@ -201,6 +203,7 @@ export const config = {
     '/api/checklist/:path*',
     '/api/ai-assistant/:path*',
     '/api/tickets/:path*',
+    '/api/reviews/:path*',
     '/api/admin/:path*',
   ],
 }

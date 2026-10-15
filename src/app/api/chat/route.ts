@@ -54,7 +54,7 @@ const INTENTS: Intent[] = [
     keywords: ['rembours', 'garantie', 'remboursement', 'annuler', 'rembourser', 'arnaque', 'fiable', 'serieux'],
     answer: () =>
       "Conditions claires : aucun remboursement une fois le travail commencé (sauf si aucune différence constatée après l'optimisation), suivi garanti 30 jours, et fin du support si tu réinitialises ton PC sans nous prévenir. Avant de payer, tu reçois un avis honnête basé sur ton diagnostic UserDiag — on ne te vend rien si ça ne vaut pas le coup pour ta config.",
-    quickReplies: ['Voir les résultats', 'Comment vous contacter ?'],
+    quickReplies: ['Voir les résultats', 'Comment te contacter ?'],
   },
   {
     id: 'results',
@@ -304,7 +304,7 @@ const INTENTS: Intent[] = [
     id: 'thanks',
     keywords: ['merci', 'thanks', 'super', 'parfait', 'genial', 'top', 'nickel', 'cool'],
     answer: () =>
-      "Avec plaisir ! Si tu as d'autres questions je suis là. Sinon, rendez-vous dans la section tarifs (dès 15€) pour lancer ton optimisation.",
+      "Avec plaisir ! Si tu as d'autres questions je suis là. Sinon, file dans la section tarifs (dès 15€) pour lancer ton optimisation.",
     quickReplies: ['Je commande où ?', 'Quels résultats ?'],
   },
   {
@@ -378,7 +378,7 @@ function getReply(message: string, ctx?: z.infer<typeof chatSchema>['context']):
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    const body = await request.json().catch(() => null)
     const validation = chatSchema.safeParse(body)
 
     if (!validation.success) {

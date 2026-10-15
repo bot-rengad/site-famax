@@ -17,7 +17,9 @@ export async function GET(request: NextRequest) {
     const page = clamp(parseInt(searchParams.get('page') || '1'), 1, 100, 1)
     const limit = clamp(parseInt(searchParams.get('limit') || '10'), 1, 50, 10)
     const rawStatus = searchParams.get('status')
-    const ALLOWED_STATUS = ['OPEN', 'IN_PROGRESS', 'WAITING_CLIENT', 'RESOLVED', 'CLOSED'] as const
+    // Statuts réels du produit (src/types/index.ts) — l'ancienne liste
+    // (WAITING_CLIENT/RESOLVED) ne matchait aucun ticket en base.
+    const ALLOWED_STATUS = ['OPEN', 'IN_PROGRESS', 'WAITING_CUSTOMER', 'CLOSED'] as const
     const status = ALLOWED_STATUS.includes(rawStatus as any) ? rawStatus : null
 
     if (ticketId) {
@@ -77,7 +79,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
     }
 
-    const body = await request.json()
+    const body = await request.json().catch(() => null)
     const validation = createTicketSchema.safeParse(body)
 
     if (!validation.success) {

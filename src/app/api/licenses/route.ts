@@ -59,16 +59,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
     }
 
-    const body = await request.json()
-    const { key, deviceId } = body
+    const body = await request.json().catch(() => null)
+    const { key, deviceId } = body || {}
 
     if (!key) {
       return NextResponse.json({ error: 'Clé de licence requise' }, { status: 400 })
     }
 
+    // Pas d'include user ici : la réponse sérialisait le passwordHash.
     const license = await prisma.license.findUnique({
       where: { key },
-      include: { user: true },
     })
 
     if (!license) {
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (license.userId !== session.userId) {
-      return NextResponse.json({ error: 'Cette licence ne vous appartient pas' }, { status: 403 })
+      return NextResponse.json({ error: 'Cette licence ne t\'appartient pas' }, { status: 403 })
     }
 
     if (license.status !== 'ACTIVE') {
