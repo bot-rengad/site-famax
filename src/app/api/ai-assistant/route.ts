@@ -117,18 +117,9 @@ function analyzeQuery(
     : 'J\'ai identifié une cause principale probable.'}
     ${context ? `Configuration détectée : ${context.cpu || 'N/A'} / ${context.gpu || 'N/A'} / ${context.ram || 'N/A'} RAM.` : ''}`
 
-  const quickActions: { label: string; action: string; payload: Record<string, unknown> }[] = recommendations.map(rec => ({
-    label: rec.title,
-    action: rec.scriptId ? 'run_script' : 'open_checklist',
-    payload: rec.scriptId ? { scriptId: rec.scriptId } : { category: rec.category },
-  }))
-
-  // Add generic actions
-  quickActions.push(
-    { label: 'Ouvrir Checklist complète', action: 'open_checklist', payload: {} },
-    { label: 'Télécharger tous les scripts', action: 'open_downloads', payload: {} },
-    { label: 'Créer un ticket support', action: 'create_ticket', payload: { subject: query } }
-  )
+  const quickActions: { label: string; action: string; payload: Record<string, unknown> }[] = [
+    { label: 'Être accompagné sur Discord', action: 'create_ticket', payload: { subject: query } },
+  ]
 
   return { analysis, recommendations, quickActions }
 }

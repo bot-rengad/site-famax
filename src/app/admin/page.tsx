@@ -6,6 +6,7 @@ import {
   Users, ShoppingCart, Euro, TrendingUp,
   Loader2, Ban, CheckCircle2, Trash2,
   UserCheck, UserX, MessageSquare, RefreshCw,
+  UsersRound, ChevronDown, ChevronUp,
 } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
 import { Button } from '@/components/ui/Button'
@@ -55,11 +56,12 @@ interface AdminOrder {
   _count?: { messages: number }
 }
 
-type TabId = 'overview' | 'online' | 'users' | 'orders'
+type TabId = 'overview' | 'online' | 'clients' | 'users' | 'orders'
 
 const tabs: { id: TabId; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { id: 'overview', label: 'Vue d\'ensemble', icon: TrendingUp },
   { id: 'online', label: 'En ligne', icon: UserCheck },
+  { id: 'clients', label: 'Clients', icon: UsersRound },
   { id: 'users', label: 'Utilisateurs', icon: Users },
   { id: 'orders', label: 'Commandes', icon: ShoppingCart },
 ]
@@ -79,6 +81,62 @@ interface OnlineUser {
   sessions: number
   lastSeen: string
   activeNow: boolean
+}
+
+interface ClientUser {
+  id: string
+  email: string
+  name: string | null
+  role: string
+  createdAt: string
+  discordUsername: string | null
+  discordGlobalName: string | null
+  discordAvatar: string | null
+  discordVerifiedAt: string | null
+  profile: {
+    cpu: string | null
+    gpu: string | null
+    ram: string | null
+    motherboard: string | null
+    storage: string | null
+    os: string | null
+    favoriteGame: string | null
+    monitorRefresh: string | null
+    mouseDPI: string | null
+    keyboardPolling: string | null
+    cpuCores: number | null
+    gpuRenderer: string | null
+    autoDetected: boolean
+    updatedAt: string
+  } | null
+  sessions: number
+  lastSeen: string | null
+  lastIp: string | null
+  status: 'online' | 'recent' | 'offline'
+  _count: { orders: number; licenses: number; tickets: number; sessions: number }
+  orders: { id: string; orderNumber: string; packageType: string; amount: number; status: string; createdAt: string }[]
+  licenses: { key: string; status: string; packageType: string }[]
+}
+
+// Config matérielle remplie par le client → lignes lisibles (seuls les champs remplis)
+function clientConfigEntries(c: ClientUser): { label: string; value: string }[] {
+  const p = c.profile
+  if (!p) return []
+  const rows: { label: string; value: string | null }[] = [
+    { label: 'CPU', value: p.cpu },
+    { label: 'GPU', value: p.gpu },
+    { label: 'RAM', value: p.ram },
+    { label: 'Carte mère', value: p.motherboard },
+    { label: 'Stockage', value: p.storage },
+    { label: 'OS', value: p.os },
+    { label: 'Jeu principal', value: p.favoriteGame },
+    { label: 'Écran', value: p.monitorRefresh },
+    { label: 'DPI souris', value: p.mouseDPI },
+    { label: 'Polling clavier', value: p.keyboardPolling },
+    { label: 'Cœurs CPU', value: p.cpuCores != null ? String(p.cpuCores) : null },
+    { label: 'GPU (renderer)', value: p.gpuRenderer },
+  ]
+  return rows.filter((r): r is { label: string; value: string } => !!r.value)
 }
 
 // Skeleton local : occupe l'onglet pendant son chargement,
@@ -148,6 +206,8 @@ export default function AdminPage() {
   const [openChatOrderId, setOpenChatOrderId] = useState<string | null>(null)
   const [ordersFilter, setOrdersFilter] = useState<'all' | 'pending'>('pending')
   const [online, setOnline] = useState<OnlineUser[]>([])
+  const [clients, setClients] = useState<ClientUser[]>([])
+  const [openClientId, setOpenClientId] = useState<string | null>(null)
   // Onglets déjà chargés : on ne recharge jamais sans demande explicite
   // (fini le spinner plein écran à chaque changement d'onglet).
   const loadedTabs = useRef<Set<TabId>>(new Set())
@@ -185,6 +245,10 @@ export default function AdminPage() {
       if (id === 'online') {
         const r = await fetch('/api/admin/sessions')
         if (r.ok) setOnline((await r.json()).online || [])
+      }
+      if (id === 'clients') {
+        const r = await fetch('/api/admin/clients')
+        if (r.ok) setClients((await r.json()).clients || [])
       }
       if (id === 'users') {
         const r = await fetch('/api/admin/users')
@@ -431,6 +495,122 @@ export default function AdminPage() {
               ))}
               {online.length === 0 && (
                 <p className="py-6 text-center text-fmx-gray">Personne d’actif dans les 30 dernières minutes.</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+
+      {/* ===== CLIENTS ===== */}
+      {tab === 'clients' && (tabLoading === 'clients' && clients.length === 0 ? (
+        <TabSkeleton rows={4} />
+      ) : (
+        <Card variant="glass" padding="lg">
+          <CardHeader>
+            <CardTitle>Clients ({clients.length})</CardTitle>
+            <p className="mt-1 text-xs text-fmx-gray">Statut de connexion, liaison Discord et config matérielle remplie par chaque client.</p>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {clients.map(c => {
+                const name = c.discordGlobalName || c.discordUsername || c.name || c.email
+                const expanded = openClientId === c.id
+                const config = clientConfigEntries(c)
+                const license = c.licenses[0]
+                return (
+                  <div key={c.id} className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className={cn('h-2.5 w-2.5 shrink-0 rounded-full', c.status === 'online' ? 'bg-green-400 shadow-[0_0_10px_#22c55e]' : c.status === 'recent' ? 'bg-yellow-400' : 'bg-white/20')} />
+                      {c.discordAvatar ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={c.discordAvatar} alt="" width={36} height={36} loading="lazy" decoding="async" referrerPolicy="no-referrer" className="h-9 w-9 shrink-0 rounded-full object-cover" />
+                      ) : (
+                        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-fmx-carbon text-sm font-bold text-fmx-gray">{name.charAt(0).toUpperCase()}</span>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-bold text-white">
+                          {name}
+                          {c.discordUsername && <span className="ml-2 text-[11px] font-normal text-fmx-gray">@{c.discordUsername}</span>}
+                        </p>
+                        <p className="truncate text-[11px] text-fmx-gray">{c.email} • inscrit le {new Date(c.createdAt).toLocaleDateString('fr-FR')}</p>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {c.role === 'ADMIN' && <Badge variant="red" dot>ADMIN</Badge>}
+                        {c.discordVerifiedAt ? <Badge variant="green" dot>Discord lié</Badge> : <Badge variant="yellow" dot>Discord non lié</Badge>}
+                        {c.status === 'online' ? <Badge variant="green" dot>En ligne</Badge> : c.status === 'recent' ? <Badge variant="yellow" dot>Vu récemment</Badge> : <Badge variant="gray" dot>Hors ligne</Badge>}
+                        <span className="text-[11px] text-fmx-gray">
+                          {c.lastSeen ? `vu ${new Date(c.lastSeen).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}` : 'jamais connecté'}
+                        </span>
+                        <button
+                          onClick={() => setOpenClientId(prev => prev === c.id ? null : c.id)}
+                          className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1.5 text-[11px] font-bold text-fmx-gray transition-colors hover:border-fmx-red/40 hover:text-white"
+                        >
+                          {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                          {expanded ? 'Masquer' : 'Voir la fiche'}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-white/[0.06] pt-3 text-[11px] text-fmx-gray">
+                      <span>{c._count.orders} commande{c._count.orders > 1 ? 's' : ''}</span>
+                      <span>{c._count.licenses} licence{c._count.licenses > 1 ? 's' : ''}</span>
+                      <span>{c._count.tickets} ticket{c._count.tickets > 1 ? 's' : ''}</span>
+                      <span>{c.sessions} session{c.sessions > 1 ? 's' : ''} active{c.sessions > 1 ? 's' : ''}</span>
+                      {license && (
+                        <span className="flex items-center gap-2">
+                          <span className="font-mono text-fmx-red">{license.key}</span>
+                          {statusBadge(license.status)}
+                        </span>
+                      )}
+                    </div>
+
+                    {expanded && (
+                      <div className="mt-4 space-y-4">
+                        <div>
+                          <p className="mb-2 text-[11px] font-bold uppercase tracking-wide text-fmx-gray">
+                            Config matérielle{c.profile?.autoDetected ? ' (détectée automatiquement)' : ''}
+                          </p>
+                          {config.length > 0 ? (
+                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                              {config.map(row => (
+                                <div key={row.label} className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2">
+                                  <p className="text-[10px] uppercase tracking-wide text-fmx-gray">{row.label}</p>
+                                  <p className="break-words text-sm text-white">{row.value}</p>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-[12px] text-fmx-gray">Config non remplie — le client n&apos;a encore rien renseigné.</p>
+                          )}
+                        </div>
+
+                        {c.orders.length > 0 && (
+                          <div>
+                            <p className="mb-2 text-[11px] font-bold uppercase tracking-wide text-fmx-gray">Dernières commandes</p>
+                            <div className="space-y-2">
+                              {c.orders.map(o => (
+                                <div key={o.id} className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                                  <a href={`/admin/orders/${o.id}`} className="font-mono text-[12px] text-white transition-colors hover:text-fmx-red hover:underline">{o.orderNumber}</a>
+                                  <Badge variant="red">{packName(o.packageType)}</Badge>
+                                  <span className="text-[12px] text-fmx-white-dim">{o.amount.toFixed(2)} €</span>
+                                  {statusBadge(o.status)}
+                                  <span className="text-[11px] text-fmx-gray">{new Date(o.createdAt).toLocaleDateString('fr-FR')}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {c.lastIp && (
+                          <p className="text-[11px] text-fmx-gray">Dernière IP de session : <span className="font-mono text-fmx-white-dim">{c.lastIp}</span></p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+              {clients.length === 0 && (
+                <p className="py-6 text-center text-fmx-gray">Aucun client inscrit.</p>
               )}
             </div>
           </CardContent>

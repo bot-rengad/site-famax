@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import {
   LayoutDashboard, Users, ShoppingCart,
-  LogOut, Loader2, ChevronLeft, ChevronRight, UserCheck, Menu,
+  LogOut, Loader2, ChevronLeft, ChevronRight, UserCheck, Menu, UsersRound,
 } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
 import { Logo } from '@/components/ui/Logo'
@@ -13,6 +13,7 @@ import { Logo } from '@/components/ui/Logo'
 const navItems = [
   { id: 'overview', href: '/admin', label: 'Vue d\'ensemble', icon: LayoutDashboard },
   { id: 'online', href: '/admin#online', label: 'En ligne', icon: UserCheck },
+  { id: 'clients', href: '/admin#clients', label: 'Clients', icon: UsersRound },
   { id: 'users', href: '/admin#users', label: 'Utilisateurs', icon: Users },
   { id: 'orders', href: '/admin#orders', label: 'Commandes', icon: ShoppingCart },
 ]
@@ -20,6 +21,7 @@ const navItems = [
 const TAB_TITLES: Record<string, string> = {
   overview: 'Vue d\'ensemble',
   online: 'Connectés',
+  clients: 'Clients',
   users: 'Utilisateurs',
   orders: 'Commandes',
   licenses: 'Licences',

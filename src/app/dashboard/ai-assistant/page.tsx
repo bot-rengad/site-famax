@@ -4,14 +4,13 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Send, Zap, Terminal, Bot, Loader2, Copy, Trash2, ChevronUp, ChevronDown,
-  AlertCircle, CheckCircle, Info, Target, Download, ExternalLink
+  CheckCircle, Info, Target, MessageCircle
 } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
 import { Button } from '@/components/ui/Button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Modal } from '@/components/ui/Modal'
-import { CHECKLIST_CATEGORIES, ChecklistCategoryId } from '@/lib/checklist-categories'
 
 interface Message {
   id: string
@@ -126,24 +125,9 @@ export default function AIAssistantPage() {
 
   const handleAction = (action: any) => {
     switch (action.action) {
-      case 'run_script':
-        if (action.payload?.scriptId) {
-          window.open(`/dashboard/downloads?script=${action.payload.scriptId}`, '_blank')
-        }
-        break
-      case 'open_checklist':
-        if (action.payload?.category) {
-          window.location.href = `/dashboard/checklist#${action.payload.category}`
-        } else {
-          window.location.href = '/dashboard/checklist'
-        }
-        break
-      case 'open_downloads':
-        window.location.href = '/dashboard/downloads'
-        break
       case 'create_ticket':
-        // Pas de page /dashboard/tickets : on envoie vers le suivi commande
-        // (le chat commande fait office de ticket) ou Discord en repli.
+        // Pas de page tickets : le suivi se fait sur Discord (repli) —
+        // c'est là que FMX applique l'optimisation avec le client.
         window.open('https://discord.gg/fmx', '_blank', 'noopener')
         break
     }
@@ -230,7 +214,7 @@ export default function AIAssistantPage() {
               </div>
               <h3 className="font-display text-heading-md text-fmx-white mb-2">Comment puis-je t&apos;aider ?</h3>
               <p className="text-fmx-white-dim text-center max-w-md mb-8">
-                Décris ton problème (ex: "Micro-freeze en 1v1", "High ping", "Input lag") et je te donnerai des recommandations précises basées sur la checklist FMX.
+                Décris ton problème (ex: "Micro-freeze en 1v1", "High ping", "Input lag") et je te donnerai des recommandations précises basées sur la méthode FMX.
               </p>
               <div className="flex flex-wrap gap-3 justify-center max-w-2xl">
                 {quickPrompts.map((prompt, i) => (
@@ -332,9 +316,7 @@ export default function AIAssistantPage() {
                         onClick={() => handleAction(action)}
                         className="gap-1.5"
                       >
-                        {action.action === 'run_script' && <Download className="w-3.5 h-3.5" />}
-                        {action.action === 'open_checklist' && <ExternalLink className="w-3.5 h-3.5" />}
-                        {action.action === 'create_ticket' && <AlertCircle className="w-3.5 h-3.5" />}
+                        {action.action === 'create_ticket' && <MessageCircle className="w-3.5 h-3.5" />}
                         {action.label}
                       </Button>
                     ))}
@@ -439,27 +421,18 @@ export default function AIAssistantPage() {
 
             {modalRec.scriptName && (
               <div className="p-3 rounded-lg bg-fmx-carbon border border-fmx-border/50">
-                <p className="text-xs text-fmx-gray mb-1">Script associé :</p>
+                <p className="text-xs text-fmx-gray mb-1">Optimisation FMX concernée :</p>
                 <p className="text-fmx-red text-sm font-medium">{modalRec.scriptName}</p>
               </div>
             )}
 
             <div className="flex flex-wrap gap-3 pt-2">
-              {modalRec.scriptId && (
-                <Button variant="neon" onClick={() => {
-                  window.open(`/dashboard/downloads?script=${modalRec.scriptId}`, '_blank')
-                  setModalRec(null)
-                }}>
-                  <Download className="w-4 h-4 mr-2" />
-                  Voir script / Télécharger
-                </Button>
-              )}
-              <Button variant="ghost" onClick={() => {
-                window.location.href = `/dashboard/checklist#${modalRec.category}`
+              <Button variant="neon" onClick={() => {
+                window.open('https://discord.gg/fmx', '_blank', 'noopener')
                 setModalRec(null)
               }}>
-                <ExternalLink className="w-4 h-4 mr-2" />
-                Ouvrir dans la Checklist
+                <MessageCircle className="w-4 h-4 mr-2" />
+                Être accompagné sur Discord
               </Button>
             </div>
           </div>

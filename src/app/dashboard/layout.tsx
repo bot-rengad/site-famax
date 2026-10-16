@@ -12,8 +12,6 @@ import { Logo } from '@/components/ui/Logo'
 const DASH_TABS = [
   { href: '/dashboard', label: 'Parcours' },
   { href: '/dashboard/order', label: 'Commander' },
-  { href: '/dashboard/checklist', label: 'Checklist' },
-  { href: '/dashboard/downloads', label: 'Scripts' },
   { href: '/dashboard/ai-assistant', label: 'Assistant' },
   { href: '/dashboard/profile', label: 'Profil' },
   { href: '/dashboard/settings', label: 'Paramètres' },
