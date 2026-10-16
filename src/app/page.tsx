@@ -56,18 +56,19 @@ export default function HomePage() {
       <ScrollTools />
       <Header />
 
-      {/* Structure : Hero / Plans (+règlement) / Avant-Après / Détails / Équipe / Avis */}
+      {/* Structure conversion : promesse → preuve → explication → avis → prix → équipe → FAQ.
+          (Avant : les tarifs arrivaient avant toute preuve ; les avis étaient tout en bas.) */}
       <main id="main-content" className="relative z-10 pt-16 lg:pt-[72px]">
         <Hero onOrder={handleOrder} />
+        <AvantApres />
+        <Services />
+        <Testimonials />
         <Pricing
           selectedPlan={selectedPlan}
           onSelect={setSelectedPlan}
           onOrder={handleOrder}
         />
-        <AvantApres />
-        <Services />
         <Team />
-        <Testimonials />
         <Faq />
       </main>
 
