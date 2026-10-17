@@ -8,8 +8,8 @@ import { Logo } from '@/components/ui/Logo'
 
 const navLinks = [
   { href: '/#plans', label: 'Plans', section: 'plans', spy: true },
+  { href: '/#avis', label: 'Avis', section: 'avis', spy: true },
   { href: '/estimateur', label: 'Estimateur FPS', section: '', spy: false },
-  { href: '/#deroulement', label: 'Déroulé', section: 'deroulement', spy: true },
 ]
 
 export function Header() {

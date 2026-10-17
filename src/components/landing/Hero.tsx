@@ -1,6 +1,6 @@
 'use client'
 
-import { ShieldCheck, Timer, Headset, Wallet, CreditCard, Zap, Cpu } from 'lucide-react'
+import { Timer, Headset, Wallet } from 'lucide-react'
 
 // Hero style FMX — badge / gros titre / sous-titre / 2 CTA / 3 infos / trusted row
 export function Hero({ onOrder }: { onOrder?: () => void }) {
@@ -65,29 +65,6 @@ export function Hero({ onOrder }: { onOrder?: () => void }) {
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Pourquoi FMX — vrais arguments face à la concurrence */}
-        <div className="mt-10 border-t border-white/[0.08] pt-6">
-          <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-fmx-gray">
-            Pourquoi passer par <span className="text-white">FMX</span>
-          </div>
-          <div className="mx-auto mt-4 grid max-w-[720px] gap-2 text-left sm:grid-cols-2">
-            {[
-              { icon: Zap, color: 'text-fmx-red', title: 'Adieu les micro-freezes', desc: "Optimisation ciblée sur les drops de FPS et les temps de réponse de ton système." },
-              { icon: Cpu, color: 'text-fmx-red', title: '100% sur-mesure pour ton setup', desc: "On adapte chaque tweak à tes composants précis, pas de réglage générique copié-collé." },
-              { icon: ShieldCheck, color: 'text-green-500', title: 'Sécurisé & Réversible', desc: "Point de restauration créé au préalable. Zéro risque de casser ton Windows." },
-              { icon: CreditCard, color: 'text-green-500', title: 'Aucun abonnement caché', desc: "Tu paies une seule fois, les performances restent. Suivi inclus après la prestation." },
-            ].map(arg => (
-              <div key={arg.title} className="flex items-start gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3">
-                <arg.icon className={`mt-0.5 h-4 w-4 shrink-0 ${arg.color}`} />
-                <div>
-                  <div className="text-[13px] font-bold text-white">{arg.title}</div>
-                  <div className="mt-0.5 text-[12px] leading-snug text-fmx-gray">{arg.desc}</div>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </header>

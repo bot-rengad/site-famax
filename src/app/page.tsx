@@ -8,7 +8,6 @@ import { Footer } from '@/components/layout/Footer'
 import { ScrollTools } from '@/components/layout/ScrollTools'
 import { ShinamiBackground } from '@/components/landing/ShinamiBackground'
 import { Hero } from '@/components/landing/Hero'
-import { Services } from '@/components/landing/Services'
 import { Pricing, type PlanId } from '@/components/landing/Pricing'
 import { StickyCta } from '@/components/landing/StickyCta'
 
@@ -17,7 +16,6 @@ import { StickyCta } from '@/components/landing/StickyCta'
 const Faq = dynamic(() => import('@/components/landing/Faq').then(m => m.Faq), { ssr: false })
 const Testimonials = dynamic(() => import('@/components/landing/Testimonials').then(m => m.Testimonials), { ssr: false })
 const AvantApres = dynamic(() => import('@/components/landing/AvantApres').then(m => m.AvantApres), { ssr: false })
-const Team = dynamic(() => import('@/components/landing/Team').then(m => m.Team), { ssr: false })
 const Chatbot = dynamic(() => import('@/components/ui/Chatbot').then(m => m.Chatbot), { ssr: false })
 const CookieBanner = dynamic(() => import('@/components/ui/CookieBanner').then(m => m.CookieBanner), { ssr: false })
 
@@ -56,19 +54,18 @@ export default function HomePage() {
       <ScrollTools />
       <Header />
 
-      {/* Structure conversion : promesse → preuve → explication → avis → prix → équipe → FAQ.
-          (Avant : les tarifs arrivaient avant toute preuve ; les avis étaient tout en bas.) */}
+      {/* Structure conversion minimale : promesse → preuve visuelle → avis réels
+          → prix → FAQ. (Déroulé et Équipe retirés : trop de texte pour un
+          visiteur qui découvre le site.) */}
       <main id="main-content" className="relative z-10 pt-16 lg:pt-[72px]">
         <Hero onOrder={handleOrder} />
         <AvantApres />
-        <Services />
         <Testimonials />
         <Pricing
           selectedPlan={selectedPlan}
           onSelect={setSelectedPlan}
           onOrder={handleOrder}
         />
-        <Team />
         <Faq />
       </main>
 

@@ -4,28 +4,22 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import {
-  LayoutDashboard, Users, ShoppingCart,
-  LogOut, Loader2, ChevronLeft, ChevronRight, UserCheck, Menu, UsersRound,
+  LayoutDashboard, ShoppingCart,
+  LogOut, Loader2, ChevronLeft, ChevronRight, Menu, UsersRound,
 } from 'lucide-react'
 import { cn } from '@/lib/utils/helpers'
 import { Logo } from '@/components/ui/Logo'
 
 const navItems = [
   { id: 'overview', href: '/admin', label: 'Vue d\'ensemble', icon: LayoutDashboard },
-  { id: 'online', href: '/admin#online', label: 'En ligne', icon: UserCheck },
   { id: 'clients', href: '/admin#clients', label: 'Clients', icon: UsersRound },
-  { id: 'users', href: '/admin#users', label: 'Utilisateurs', icon: Users },
   { id: 'orders', href: '/admin#orders', label: 'Commandes', icon: ShoppingCart },
 ]
 
 const TAB_TITLES: Record<string, string> = {
   overview: 'Vue d\'ensemble',
-  online: 'Connectés',
   clients: 'Clients',
-  users: 'Utilisateurs',
   orders: 'Commandes',
-  licenses: 'Licences',
-  tickets: 'Support',
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -83,21 +77,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         )}
       >
         <div className="flex flex-col h-full">
-          {/* Logo — réduit : petit logo centré qui tient dans le rail 80px, sinon il débordait sur le titre */}
+          {/* Logo — rail réduit : logo plus petit (22px) + chevron compact,
+              hauteur fixe h-20 : plus de logo écrasé/coincé par le bouton. */}
           <div className={cn(
             'border-b border-white/[0.08]',
-            sidebarOpen ? 'flex h-16 lg:h-20 flex-row items-center justify-between px-4' : 'flex flex-col items-center justify-center gap-2 px-2 py-3'
+            sidebarOpen ? 'flex h-16 lg:h-20 flex-row items-center justify-between px-4' : 'flex h-16 lg:h-20 flex-col items-center justify-center gap-1'
           )}>
-            <Link href="/admin" className={cn('flex items-center gap-3', sidebarOpen ? 'min-w-0 flex-1' : 'flex-none justify-center')} aria-label="FMX Admin" onClick={() => { if (window.innerWidth < 1024) setSidebarOpen(false) }}>
-              <span className="shrink-0 leading-none"><Logo size={sidebarOpen ? 36 : 26} /></span>
+            <Link href="/admin" className={cn('flex items-center gap-3', sidebarOpen ? 'min-w-0 flex-1' : 'shrink-0 justify-center')} aria-label="FMX Admin" onClick={() => { if (window.innerWidth < 1024) setSidebarOpen(false) }}>
+              <span className="shrink-0 leading-none"><Logo size={sidebarOpen ? 36 : 22} /></span>
               {sidebarOpen && <span className="truncate text-sm font-bold text-white lg:hidden">Admin FMX</span>}
             </Link>
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="shrink-0 rounded-lg p-2 hover:bg-fmx-carbon transition-colors min-h-[40px] min-w-[40px] place-content-center"
+              className={cn(
+                'shrink-0 rounded-lg transition-colors hover:bg-fmx-carbon hover:text-white',
+                sidebarOpen ? 'p-2 min-h-[40px] min-w-[40px] place-content-center text-white' : 'grid h-6 w-6 place-items-center text-fmx-gray'
+              )}
               aria-label={sidebarOpen ? 'Réduire' : 'Étendre'}
             >
-              {sidebarOpen ? <ChevronLeft className="w-5 h-5 text-fmx-white" /> : <ChevronRight className="w-5 h-5 text-fmx-white" />}
+              {sidebarOpen ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-4 h-4" />}
             </button>
           </div>
 
@@ -115,8 +113,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   onClick={e => {
                     e.preventDefault()
                     if (item.id === 'overview') {
-                      window.location.hash = ''
-                      router.push('/admin')
+                      // Retour vue d'ensemble : on retire le hash + on force
+                      // l'événement (sinon l'écran restait sur l'ancien onglet).
+                      if (window.location.hash) window.location.hash = ''
+                      window.dispatchEvent(new Event('hashchange'))
                     } else {
                       window.location.hash = item.id
                     }

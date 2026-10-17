@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef, Fragment } from 'react'
 import { motion } from 'framer-motion'
 import {
   Users, ShoppingCart, Euro, TrendingUp,
-  Loader2, Ban, CheckCircle2, Trash2,
+  Ban, CheckCircle2, Trash2,
   UserCheck, UserX, MessageSquare, RefreshCw,
   UsersRound, ChevronDown, ChevronUp,
 } from 'lucide-react'
@@ -33,15 +33,6 @@ interface RecentOrder {
   user: { email: string; name: string | null }
 }
 
-interface AdminUser {
-  id: string
-  email: string
-  name: string | null
-  role: string
-  createdAt: string
-  _count: { orders: number; licenses: number; tickets: number }
-}
-
 interface AdminOrder {
   id: string
   orderNumber: string
@@ -56,33 +47,16 @@ interface AdminOrder {
   _count?: { messages: number }
 }
 
-type TabId = 'overview' | 'online' | 'clients' | 'users' | 'orders'
+type TabId = 'overview' | 'clients' | 'orders'
 
 const tabs: { id: TabId; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { id: 'overview', label: 'Vue d\'ensemble', icon: TrendingUp },
-  { id: 'online', label: 'En ligne', icon: UserCheck },
   { id: 'clients', label: 'Clients', icon: UsersRound },
-  { id: 'users', label: 'Utilisateurs', icon: Users },
   { id: 'orders', label: 'Commandes', icon: ShoppingCart },
 ]
 
-interface OnlineUser {
-  user: {
-    id: string
-    email: string
-    name: string | null
-    role: string
-    discordUsername: string | null
-    discordGlobalName: string | null
-    discordAvatar: string | null
-    createdAt: string
-    orders: { id: string; orderNumber: string; packageType: string; amount: number; status: string; createdAt: string }[]
-  }
-  sessions: number
-  lastSeen: string
-  activeNow: boolean
-}
-
+// Un seul type client : compte + gestion + statut de connexion + config.
+// (Les anciens onglets "En ligne" et "Utilisateurs" étaient quasi identiques.)
 interface ClientUser {
   id: string
   email: string
@@ -197,26 +171,25 @@ function safeAddonList(raw: string | null | undefined): string {
 
 export default function AdminPage() {
   const [tab, setTab] = useState<TabId>('overview')
-  const [loading, setLoading] = useState(true)
   const [tabLoading, setTabLoading] = useState<TabId | null>(null)
   const [stats, setStats] = useState<Stats | null>(null)
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([])
-  const [users, setUsers] = useState<AdminUser[]>([])
   const [orders, setOrders] = useState<AdminOrder[]>([])
   const [openChatOrderId, setOpenChatOrderId] = useState<string | null>(null)
   const [ordersFilter, setOrdersFilter] = useState<'all' | 'pending'>('pending')
-  const [online, setOnline] = useState<OnlineUser[]>([])
   const [clients, setClients] = useState<ClientUser[]>([])
   const [openClientId, setOpenClientId] = useState<string | null>(null)
-  // Onglets déjà chargés : on ne recharge jamais sans demande explicite
-  // (fini le spinner plein écran à chaque changement d'onglet).
+  // Onglets déjà chargés : on ne recharge jamais sans demande explicite.
   const loadedTabs = useRef<Set<TabId>>(new Set())
 
-  // Lecture du hash d'URL + suivi des clics sidebar (sinon les liens ont l'air morts)
+  // Lecture du hash d'URL + suivi des clics sidebar.
+  // Hash vide ou inconnu = vue d'ensemble (avant : cliquer "Vue d'ensemble"
+  // ne revenait pas dessus, l'écran restait bloqué sur l'onglet précédent).
   useEffect(() => {
     const sync = () => {
-      const hash = window.location.hash.replace('#', '') as TabId
-      if (tabs.some(t => t.id === hash)) setTab(hash)
+      const hash = window.location.hash.replace('#', '')
+      if (!hash || !tabs.some(t => t.id === hash)) { setTab('overview'); return }
+      setTab(hash as TabId)
     }
     sync()
     window.addEventListener('hashchange', sync)
@@ -242,17 +215,9 @@ export default function AdminPage() {
         }
         if (ordersRes.ok) setOrders((await ordersRes.json()).orders || [])
       }
-      if (id === 'online') {
-        const r = await fetch('/api/admin/sessions')
-        if (r.ok) setOnline((await r.json()).online || [])
-      }
       if (id === 'clients') {
         const r = await fetch('/api/admin/clients')
         if (r.ok) setClients((await r.json()).clients || [])
-      }
-      if (id === 'users') {
-        const r = await fetch('/api/admin/users')
-        if (r.ok) setUsers((await r.json()).users || [])
       }
       // L'onglet commandes réutilise les données de la vue d'ensemble si déjà là
       if (id === 'orders' && !loadedTabs.current.has('overview')) {
@@ -267,28 +232,21 @@ export default function AdminPage() {
     }
   }, [])
 
-  // Démarrage : vue d'ensemble + onglet du hash en parallèle, un seul loader initial
+  // Démarrage immédiat : vue d'ensemble + onglet du hash en parallèle,
+  // rendu direct (skeletons locaux) — aucun loader bloquant plein écran.
   useEffect(() => {
-    const hash = window.location.hash.replace('#', '') as TabId
-    const first: TabId = tabs.some(t => t.id === hash) ? hash : 'overview';
-    (async () => {
-      setLoading(true)
-      try {
-        await Promise.all([
-          loadTab('overview'),
-          ...(first !== 'overview' ? [loadTab(first)] : []),
-        ])
-      } finally {
-        setLoading(false)
-      }
-    })()
+    const hash = window.location.hash.replace('#', '')
+    const first: TabId = tabs.some(t => t.id === hash) ? hash as TabId : 'overview'
+    setTab(first)
+    loadTab('overview')
+    if (first !== 'overview') loadTab(first)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Charge l'onglet à son ouverture (depuis le cache si déjà vu)
   useEffect(() => {
-    if (!loading) loadTab(tab)
-  }, [tab, loading, loadTab])
+    loadTab(tab)
+  }, [tab, loadTab])
 
   // Recharge manuelle de l'onglet courant (bouton Actualiser)
   const refreshTab = useCallback(async () => {
@@ -299,30 +257,31 @@ export default function AdminPage() {
   // ----- Actions de gestion -----
 
   // Bascule le rôle USER <-> ADMIN
-  const toggleRole = async (user: AdminUser) => {
-    const newRole = user.role === 'ADMIN' ? 'USER' : 'ADMIN'
+  const toggleRole = async (client: ClientUser) => {
+    const newRole = client.role === 'ADMIN' ? 'USER' : 'ADMIN'
     const res = await fetch('/api/admin/users', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: user.id, role: newRole }),
+      body: JSON.stringify({ userId: client.id, role: newRole }),
     })
     if (res.ok) {
       toast.success(`Rôle mis à jour : ${newRole}`)
-      setUsers(prev => prev.map(u => u.id === user.id ? { ...u, role: newRole } : u))
+      setClients(prev => prev.map(c => c.id === client.id ? { ...c, role: newRole } : c))
     } else {
       toast.error((await res.json().catch(() => ({}))).error || 'Erreur')
     }
   }
 
-  const deleteUser = async (userId: string) => {
+  const deleteClient = async (client: ClientUser) => {
+    if (!window.confirm(`Supprimer définitivement ${client.email} et toutes ses données ?`)) return
     const res = await fetch('/api/admin/users', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId }),
+      body: JSON.stringify({ userId: client.id }),
     })
     if (res.ok) {
       toast.success('Utilisateur supprimé')
-      setUsers(prev => prev.filter(u => u.id !== userId))
+      setClients(prev => prev.filter(c => c.id !== client.id))
     } else {
       toast.error((await res.json().catch(() => ({}))).error || 'Erreur')
     }
@@ -344,13 +303,7 @@ export default function AdminPage() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-32">
-        <Loader2 className="w-10 h-10 text-fmx-red animate-spin" />
-      </div>
-    )
-  }
+  const onlineCount = clients.filter(c => c.status === 'online').length
 
   return (
     <div className="space-y-6">
@@ -444,71 +397,16 @@ export default function AdminPage() {
         <TabSkeleton />
       ))}
 
-      {/* ===== EN LIGNE ===== */}
-      {tab === 'online' && (tabLoading === 'online' && online.length === 0 ? (
-        <TabSkeleton rows={3} />
-      ) : (
-        <Card variant="glass" padding="lg">
-          <CardHeader><CardTitle>En ligne — actifs dans les 30 dernières minutes ({online.length})</CardTitle></CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {online.map(({ user: u, sessions, lastSeen, activeNow }) => (
-                <div key={u.id} className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span className={`h-2.5 w-2.5 rounded-full ${activeNow ? 'bg-green-400 shadow-[0_0_10px_#22c55e]' : 'bg-yellow-400'}`} />
-                    <div className="flex-1">
-                      <p className="font-bold text-white">
-                        {u.discordGlobalName || u.discordUsername || u.name || u.email}
-                        <span className="ml-2 text-[11px] font-normal text-fmx-gray">
-                          {u.discordUsername ? `@${u.discordUsername} • ` : ''}{u.email}
-                        </span>
-                      </p>
-                      <p className="text-[11px] text-fmx-gray">
-                        {sessions} session{sessions > 1 ? 's' : ''} • vu {new Date(lastSeen).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
-                        {u.role === 'ADMIN' && ' • admin'}
-                      </p>
-                    </div>
-                  </div>
-                  {u.orders.length > 0 ? (
-                    <div className="mt-3 space-y-2 border-t border-white/[0.06] pt-3">
-                      {u.orders.map(o => (
-                        <div key={o.id}>
-                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                            <a href={`/admin/orders/${o.id}`} className="font-mono text-[12px] text-white transition-colors hover:text-fmx-red hover:underline">{o.orderNumber}</a>
-                            <Badge variant="red">{packName(o.packageType)}</Badge>
-                            <span className="text-[12px] text-fmx-white-dim">{o.amount}€</span>
-                            {statusBadge(o.status)}
-                            <Button variant="ghost" size="sm" className="ml-auto" onClick={() => setOpenChatOrderId(prev => prev === o.id ? null : o.id)}>
-                              <MessageSquare className="mr-1 h-3.5 w-3.5" /> Chat
-                            </Button>
-                          </div>
-                          {openChatOrderId === o.id && (
-                            <div className="mt-2"><OrderChat orderId={o.id} compact /></div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="mt-2 text-[12px] text-fmx-gray">Aucune commande — client potentiel à accueillir.</p>
-                  )}
-                </div>
-              ))}
-              {online.length === 0 && (
-                <p className="py-6 text-center text-fmx-gray">Personne d’actif dans les 30 dernières minutes.</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-
-      {/* ===== CLIENTS ===== */}
+      {/* ===== CLIENTS (statut + gestion + config, fusion des anciens onglets) ===== */}
       {tab === 'clients' && (tabLoading === 'clients' && clients.length === 0 ? (
         <TabSkeleton rows={4} />
       ) : (
         <Card variant="glass" padding="lg">
           <CardHeader>
             <CardTitle>Clients ({clients.length})</CardTitle>
-            <p className="mt-1 text-xs text-fmx-gray">Statut de connexion, liaison Discord et config matérielle remplie par chaque client.</p>
+            <p className="mt-1 text-xs text-fmx-gray">
+              {onlineCount > 0 ? `${onlineCount} en ligne maintenant • ` : ''}statut de connexion, Discord et config remplie.
+            </p>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -541,6 +439,20 @@ export default function AdminPage() {
                         <span className="text-[11px] text-fmx-gray">
                           {c.lastSeen ? `vu ${new Date(c.lastSeen).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}` : 'jamais connecté'}
                         </span>
+                        <button
+                          onClick={() => toggleRole(c)}
+                          className="rounded-lg bg-fmx-carbon border border-fmx-border/50 p-2 transition-colors hover:border-fmx-red/50"
+                          title={c.role === 'ADMIN' ? 'Rétrograder en USER' : 'Promouvoir en ADMIN'}
+                        >
+                          {c.role === 'ADMIN' ? <UserX className="w-4 h-4 text-yellow-400" /> : <UserCheck className="w-4 h-4 text-green-400" />}
+                        </button>
+                        <button
+                          onClick={() => deleteClient(c)}
+                          className="rounded-lg bg-fmx-carbon border border-fmx-border/50 p-2 transition-colors hover:border-red-500/50"
+                          title="Supprimer définitivement"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-400" />
+                        </button>
                         <button
                           onClick={() => setOpenClientId(prev => prev === c.id ? null : c.id)}
                           className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1.5 text-[11px] font-bold text-fmx-gray transition-colors hover:border-fmx-red/40 hover:text-white"
@@ -589,12 +501,20 @@ export default function AdminPage() {
                             <p className="mb-2 text-[11px] font-bold uppercase tracking-wide text-fmx-gray">Dernières commandes</p>
                             <div className="space-y-2">
                               {c.orders.map(o => (
-                                <div key={o.id} className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                                  <a href={`/admin/orders/${o.id}`} className="font-mono text-[12px] text-white transition-colors hover:text-fmx-red hover:underline">{o.orderNumber}</a>
-                                  <Badge variant="red">{packName(o.packageType)}</Badge>
-                                  <span className="text-[12px] text-fmx-white-dim">{o.amount.toFixed(2)} €</span>
-                                  {statusBadge(o.status)}
-                                  <span className="text-[11px] text-fmx-gray">{new Date(o.createdAt).toLocaleDateString('fr-FR')}</span>
+                                <div key={o.id}>
+                                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                                    <a href={`/admin/orders/${o.id}`} className="font-mono text-[12px] text-white transition-colors hover:text-fmx-red hover:underline">{o.orderNumber}</a>
+                                    <Badge variant="red">{packName(o.packageType)}</Badge>
+                                    <span className="text-[12px] text-fmx-white-dim">{o.amount.toFixed(2)} €</span>
+                                    {statusBadge(o.status)}
+                                    <span className="text-[11px] text-fmx-gray">{new Date(o.createdAt).toLocaleDateString('fr-FR')}</span>
+                                    <Button variant="ghost" size="sm" className="ml-auto" onClick={() => setOpenChatOrderId(prev => prev === o.id ? null : o.id)}>
+                                      <MessageSquare className="mr-1 h-3.5 w-3.5" /> Chat
+                                    </Button>
+                                  </div>
+                                  {openChatOrderId === o.id && (
+                                    <div className="mt-2"><OrderChat orderId={o.id} compact /></div>
+                                  )}
                                 </div>
                               ))}
                             </div>
@@ -612,66 +532,6 @@ export default function AdminPage() {
               {clients.length === 0 && (
                 <p className="py-6 text-center text-fmx-gray">Aucun client inscrit.</p>
               )}
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-
-      {/* ===== UTILISATEURS ===== */}
-      {tab === 'users' && (tabLoading === 'users' && users.length === 0 ? (
-        <TabSkeleton rows={5} />
-      ) : (
-        <Card variant="glass" padding="lg">
-          <CardHeader><CardTitle>Gestion des utilisateurs ({users.length})</CardTitle></CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-fmx-gray border-b border-fmx-border/50">
-                    <th className="pb-3 pr-4">Email</th>
-                    <th className="pb-3 pr-4">Nom</th>
-                    <th className="pb-3 pr-4">Rôle</th>
-                    <th className="pb-3 pr-4">Cmd / Lic / Tickets</th>
-                    <th className="pb-3 pr-4">Inscrit le</th>
-                    <th className="pb-3">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map(u => (
-                    <tr key={u.id} className="border-b border-fmx-border/30 last:border-0">
-                      <td className="py-3 pr-4 text-fmx-white">{u.email}</td>
-                      <td className="py-3 pr-4 text-fmx-white-dim">{u.name || '—'}</td>
-                      <td className="py-3 pr-4">
-                        {u.role === 'ADMIN'
-                          ? <Badge variant="red" dot>ADMIN</Badge>
-                          : <Badge variant="blue" dot>USER</Badge>}
-                      </td>
-                      <td className="py-3 pr-4 text-fmx-gray font-mono text-xs">
-                        {u._count.orders} / {u._count.licenses} / {u._count.tickets}
-                      </td>
-                      <td className="py-3 pr-4 text-fmx-gray text-xs">{new Date(u.createdAt).toLocaleDateString('fr-FR')}</td>
-                      <td className="py-3">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => toggleRole(u)}
-                            className="p-2 rounded-lg bg-fmx-carbon border border-fmx-border/50 hover:border-fmx-red/50 transition-colors"
-                            title={u.role === 'ADMIN' ? 'Rétrograder en USER' : 'Promouvoir en ADMIN'}
-                          >
-                            {u.role === 'ADMIN' ? <UserX className="w-4 h-4 text-yellow-400" /> : <UserCheck className="w-4 h-4 text-green-400" />}
-                          </button>
-                          <button
-                            onClick={() => deleteUser(u.id)}
-                            className="p-2 rounded-lg bg-fmx-carbon border border-fmx-border/50 hover:border-red-500/50 transition-colors"
-                            title="Supprimer définitivement"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-400" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             </div>
           </CardContent>
         </Card>
